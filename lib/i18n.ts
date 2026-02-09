@@ -1,0 +1,66 @@
+﻿export type Locale = "sr";
+
+export const translations = {
+  sr: {
+    nav: {
+      home: "Početna",
+      about: "O nama",
+      products: "Proizvodi",
+      contact: "Kontakt",
+      login: "Prijava",
+      logout: "Odjava",
+      admin: "Admin",
+    },
+    home: {
+      title: "Studio Lady Gaga",
+      subtitle: "Frizerski salon i premium proizvodi za negu kose",
+      intro: "Dobrodošli u naš salon gde negujemo stil, zdravlje i lepotu kose.",
+      featured: "Izdvojeni proizvodi",
+      aboutBlock: "Naš tim ima dugogodišnje iskustvo u modernim tehnikama šišanja, farbanja i tretmana.",
+    },
+    about: {
+      title: "O nama",
+      text: "Studio Lady Gaga je mesto gde klijenti dobijaju profesionalnu uslugu i pažljivo odabrane proizvode za kućnu negu.",
+    },
+    products: {
+      title: "Veb prodavnica",
+      categories: "Kategorije",
+      all: "Sve",
+      stock: "Stanje",
+      addToOrder: "Dodaj u porudžbinu",
+      empty: "Trenutno nema proizvoda.",
+      adminPanel: "Admin panel proizvoda",
+      createProduct: "Novi proizvod",
+      edit: "Izmeni",
+      delete: "Obriši",
+    },
+    contact: {
+      title: "Kontakt",
+      subtitle: "Pošaljite upit ili nas pozovite",
+      form: "Kontakt forma",
+      name: "Ime",
+      email: "Imejl",
+      message: "Poruka",
+      submit: "Pošalji",
+    },
+    footer: { rights: "Sva prava zadržana." },
+    auth: {
+      title: "Prijava",
+      username: "Korisničko ime",
+      password: "Šifra",
+      submit: "Prijavi se",
+      invalid: "Neispravni kredencijali.",
+    },
+    order: {
+      title: "Podaci za porudžbinu",
+      firstName: "Ime",
+      lastName: "Prezime",
+      street: "Ulica",
+      number: "Broj",
+      postalCode: "Poštanski broj",
+      city: "Mesto",
+      phone: "Broj telefona",
+      submit: "Pošalji porudžbinu",
+    },
+  },
+} as const;
