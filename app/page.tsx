@@ -22,8 +22,6 @@ type Category = {
   name: string;
 };
 
-const TARGET_PRODUCT_COUNT = 57;
-
 const signatureServices = [
   {
     title: "Signature Cut + Styling",
@@ -135,7 +133,6 @@ export default function HomePage() {
     const total = products.reduce((sum, product) => sum + getFinalPrice(product), 0);
     return Math.round(total / products.length);
   }, [products]);
-  const catalogProgress = Math.min(100, Math.round((catalogCount / TARGET_PRODUCT_COUNT) * 100));
   const topCategories = useMemo(() => {
     const counts = new Map<string, number>();
     for (const product of products) {
@@ -212,10 +209,8 @@ export default function HomePage() {
 
           <article className="home-floating home-floating-top">
             <p>Katalog</p>
-            <strong>
-              {catalogCount}/{TARGET_PRODUCT_COUNT}
-            </strong>
-            <span>{catalogProgress}% popunjenosti asortimana</span>
+            <strong>{catalogCount}</strong>
+            <span>proizvoda trenutno u katalogu</span>
           </article>
 
           <article className="home-floating home-floating-bottom">
@@ -229,16 +224,8 @@ export default function HomePage() {
       <section className="home-intel-grid home-reveal">
         <article className="home-intel-card home-intel-primary">
           <p className="home-card-label">Plan asortimana</p>
-          <h2>
-            {catalogCount} od {TARGET_PRODUCT_COUNT} proizvoda je vec spremno.
-          </h2>
-          <p>
-            Fokus je da finalni katalog ima tacno {TARGET_PRODUCT_COUNT} proizvoda koji pokrivaju sisanje,
-            bojenje, tretmane i kucnu negu.
-          </p>
-          <div className="home-progress-track" aria-hidden>
-            <span style={{ width: `${catalogProgress}%` }} />
-          </div>
+          <h2>Trenutno je dostupno {catalogCount} proizvoda.</h2>
+          <p>Asortiman pokriva sisanje, bojenje, tretmane i kucnu negu uz redovno osvezavanje ponude.</p>
           <div className="home-inline-metrics">
             <article>
               <strong>{categories.length}</strong>
@@ -482,7 +469,7 @@ export default function HomePage() {
             Kontakt i termin
           </Link>
           <Link href="/products" className="ghost-btn home-second-action">
-            Shop {TARGET_PRODUCT_COUNT} proizvoda
+            Udji u shop
           </Link>
         </div>
       </section>

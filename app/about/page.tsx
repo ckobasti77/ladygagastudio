@@ -36,7 +36,6 @@ const timelineEvents = [
 const capsuleMetrics = [
   { label: "Godina iskustva", value: "12+" },
   { label: "Tretmana mesecno", value: "380" },
-  { label: "Premium proizvoda", value: "57" },
 ] as const;
 
 export default function AboutPage() {
