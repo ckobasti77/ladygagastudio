@@ -36,7 +36,7 @@ export function Navbar() {
           </span>
           <span className="brand-copy">
             <span className="brand-title">Studio Lady Gaga</span>
-            <span className="brand-subtitle">Frizerski studio</span>
+            <span className="brand-subtitle">Hair + beauty no 1</span>
           </span>
         </Link>
 

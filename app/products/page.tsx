@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
+import { milkShakeTreatments, studioGallery } from "@/lib/studio-content";
 
 type Category = { _id: string; name: string };
 type Product = {
@@ -176,6 +178,30 @@ export default function ProductsPage() {
     return { count: products.length, totalStock, lowStock };
   }, [products]);
 
+  const sidebarProducts = useMemo(() => {
+    return [...products]
+      .sort((a, b) => {
+        const discountDelta = (b.discount ?? 0) - (a.discount ?? 0);
+        if (discountDelta !== 0) return discountDelta;
+        return b.stock - a.stock;
+      })
+      .slice(0, 4);
+  }, [products]);
+
+  const sidebarCategories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const product of products) {
+      counts.set(product.categoryId, (counts.get(product.categoryId) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .map(([categoryId, count]) => ({
+        name: categoriesById.get(categoryId) ?? "Bez kategorije",
+        count,
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 4);
+  }, [products, categoriesById]);
+
   const openCreate = () => {
     setEditProductId(null);
     setForm(emptyForm);
@@ -322,6 +348,65 @@ export default function ProductsPage() {
           </article>
         </section>
       ) : null}
+
+      <section className="products-spotlight-layout">
+        <article className="toolbar-card products-spotlight-main">
+          <p className="home-kicker">Studio preporuka</p>
+          <h2>Proizvodi i tretmani koje klijentkinje najcesce biraju posle termina.</h2>
+          <p>
+            Nakon tretmana biramo odgovarajucu kucnu negu kako bi sjaj, forma i kvalitet kose trajali sto duze.
+          </p>
+          <div className="products-spotlight-grid">
+            {milkShakeTreatments.map((treatment) => (
+              <article key={treatment.name} className="products-spotlight-chip">
+                <strong>{treatment.name}</strong>
+                <span>{treatment.benefit}</span>
+              </article>
+            ))}
+          </div>
+        </article>
+
+        <aside className="products-spotlight-sidebar">
+          <article className="toolbar-card products-side-card">
+            <p className="home-card-label">Sidebar proizvodi</p>
+            {sidebarProducts.length === 0 ? (
+              <p className="home-empty">Proizvodi se ucitavaju.</p>
+            ) : (
+              <div className="products-side-list">
+                {sidebarProducts.map((product) => (
+                  <article key={product._id} className="products-side-item">
+                    <Image src={product.images?.[0] ?? "/logo.png"} alt={product.title} width={96} height={96} />
+                    <div>
+                      <h3>{product.title}</h3>
+                      <p>{getFinalPrice(product)} RSD</p>
+                      <span>{product.stock > 0 ? `${product.stock} kom` : "Rasprodato"}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+            <Link href="/contact" className="primary-btn">
+              Zakazi konsultaciju
+            </Link>
+          </article>
+
+          <article className="toolbar-card products-side-card">
+            <p className="home-card-label">Top kategorije</p>
+            <div className="home-chip-cloud">
+              {sidebarCategories.length > 0 ? (
+                sidebarCategories.map((category) => (
+                  <span key={category.name} className="home-chip">
+                    {category.name} ({category.count})
+                  </span>
+                ))
+              ) : (
+                <span className="home-chip">Kategorije ce biti prikazane kada dodate proizvode</span>
+              )}
+            </div>
+            <Image src={studioGallery[5].src} alt={studioGallery[5].alt} width={900} height={900} />
+          </article>
+        </aside>
+      </section>
 
       <section className="toolbar-card">
         <div className="toolbar-main">

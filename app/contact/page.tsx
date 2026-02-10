@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useLanguage } from "@/contexts/language-context";
+import { milkShakeTreatments, studioGallery, studioServices, studioVideos } from "@/lib/studio-content";
 
 const responseWindows = [
   "Upiti do 15h: odgovor istog dana",
@@ -14,19 +15,19 @@ const responseWindows = [
 
 const contactNodes = [
   {
-    title: "Pozivna linija",
+    title: "Poziv i Viber",
     value: "+381 60 123 4567",
     detail: "Radni dani 09:00-21:00 | Subota 09:00-18:00",
   },
   {
-    title: "Email kanal",
+    title: "Email",
     value: "kontakt@studioladygaga.rs",
-    detail: "Detaljan odgovor i plan tretmana u roku od 24h.",
+    detail: "Pisani plan tretmana i preporuka proizvoda u roku od 24h.",
   },
   {
     title: "Lokacija",
     value: "Bulevar Lepote 12, Beograd",
-    detail: "Parking zona i gradski prevoz u krugu od 100m.",
+    detail: "Parking i gradski prevoz u blizini studija.",
   },
 ] as const;
 
@@ -54,14 +55,15 @@ export default function ContactPage() {
     <section className="page-grid orbit-page contact-orbit">
       <article className="orbit-hero contact-hero orbit-reveal">
         <div className="orbit-hud" aria-hidden>
-          <span>Contact Station</span>
-          <strong>Studio Lady Gaga | Open Channel</strong>
+          <span>Rezervacije</span>
+          <strong>Studio Lady Gaga no 1 | Direktan kontakt</strong>
         </div>
 
         <p className="orbit-eyebrow">Kontakt</p>
-        <h1>{t.contact.title} centar za sledeci nivo frizure.</h1>
+        <h1>Posaljite poruku i dobijate jasan plan za vasu kosu.</h1>
         <p className="orbit-lead">
-          {t.contact.subtitle}. Posalji poruku, zahtev za termin ili ideju look-a i vracamo ti konkretan plan.
+          Ostavite upit za tretman, koloraciju, keratin, sminku ili frizuru. Dobijate predlog usluge i preporuku
+          proizvoda za odrzavanje rezultata.
         </p>
 
         <div className="orbit-badge-row">
@@ -76,7 +78,7 @@ export default function ContactPage() {
       <section className="contact-node-grid orbit-reveal">
         {contactNodes.map((node) => (
           <article key={node.title} className="orbit-panel contact-node-card">
-            <p className="orbit-panel-tag">Signal node</p>
+            <p className="orbit-panel-tag">Kontakt tacka</p>
             <h2>{node.title}</h2>
             <strong>{node.value}</strong>
             <p>{node.detail}</p>
@@ -84,24 +86,53 @@ export default function ContactPage() {
         ))}
       </section>
 
+      <section className="orbit-panel orbit-reveal contact-offer-board">
+        <p className="orbit-panel-tag">Sta mozete zakazati</p>
+        <h2>Usluge i tretmani koje najcesce biraju klijentkinje.</h2>
+        <div className="contact-offer-grid">
+          <article>
+            <h3>Usluge</h3>
+            <ul>
+              {studioServices.map((service) => (
+                <li key={service}>{service}</li>
+              ))}
+            </ul>
+          </article>
+          <article>
+            <h3>Milk Shake protokoli</h3>
+            <ul>
+              {milkShakeTreatments.map((treatment) => (
+                <li key={treatment.name}>{treatment.name}</li>
+              ))}
+            </ul>
+          </article>
+          <article className="contact-offer-video">
+            <h3>Atmosfera studija</h3>
+            <video controls preload="metadata" playsInline poster={studioGallery[0].src}>
+              <source src={studioVideos[2].src} type="video/webm" />
+            </video>
+          </article>
+        </div>
+      </section>
+
       <section className="orbit-split contact-split orbit-reveal">
         <article className="orbit-panel contact-map-card">
-          <p className="orbit-panel-tag">Geo beacon</p>
-          <h2>Lociraj salon i aktiviraj dolazak.</h2>
+          <p className="orbit-panel-tag">Mapa dolaska</p>
+          <h2>Locirajte studio i planirajte dolazak.</h2>
           <p>
-            Ako dolazis prvi put, posalji poruku i dobices najbrzu rutu, info o parkingu i preporuceni termin.
+            Ako dolazite prvi put, napisite u poruci da ste nova klijentkinja i dobijate smernice za najbrzi dolazak.
           </p>
           <iframe title="Studio Lady Gaga mapa" src="https://www.google.com/maps?q=Belgrade&output=embed" loading="lazy" />
         </article>
 
         <form className="orbit-panel contact-form-panel" onSubmit={submit}>
-          <p className="orbit-panel-tag">Direct uplink</p>
+          <p className="orbit-panel-tag">Kontakt forma</p>
           <h2>{t.contact.form}</h2>
-          <p>Unesi osnovne informacije i tim ti salje povratnu poruku sa sledecim koracima.</p>
+          <p>U poruci navedite kratko stanje kose i zelju koju imate.</p>
 
           {status === "sent" ? <p className="status-msg contact-status success">Poruka je uspesno poslata.</p> : null}
           {status === "error" ? (
-            <p className="status-msg contact-status error">Slanje nije uspelo. Pokusaj ponovo za par sekundi.</p>
+            <p className="status-msg contact-status error">Slanje nije uspelo. Pokusajte ponovo za par sekundi.</p>
           ) : null}
 
           <label className="contact-label" htmlFor="contact-name">
@@ -143,7 +174,7 @@ export default function ContactPage() {
           </button>
 
           <p className="contact-footnote">
-            Za inspiraciju look-a mozes odmah pogledati i <Link href="/products">nase proizvode</Link>.
+            Za brzu kupovinu preporucenih artikala otvorite <Link href="/products">stranicu proizvoda</Link>.
           </p>
         </form>
       </section>

@@ -16,6 +16,9 @@ export function Footer() {
           <Link href="/products">{t.nav.products}</Link>
           <Link href="/contact">{t.nav.contact}</Link>
         </div>
+        <p className="footer-tagline">
+          Studio Lady Gaga no 1 | Tretmani ostecene i blajhane kose, zahtevne koloracije, keratin, sminka i frizure.
+        </p>
         <div className="footer-contact">
           <p>+381 60 123 4567</p>
           <p>kontakt@studioladygaga.rs</p>

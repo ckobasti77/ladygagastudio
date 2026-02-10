@@ -2920,3 +2920,765 @@ iframe {
   }
 }
 
+/* 2026 brand update */
+.footer-tagline {
+  margin: 0;
+  max-width: 74ch;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.stellar-home {
+  gap: 0.95rem;
+}
+
+.stellar-hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  align-items: end;
+  min-height: 420px;
+}
+
+.stellar-hero-media {
+  position: absolute;
+  inset: 0;
+}
+
+.stellar-hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.05);
+}
+
+.stellar-hero-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(115deg, rgba(11, 18, 29, 0.78), rgba(11, 18, 29, 0.38) 52%, rgba(11, 18, 29, 0.72)),
+    radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--accent) 45%, transparent), transparent 36%);
+}
+
+.stellar-hero-copy,
+.stellar-hero-metrics {
+  position: relative;
+  z-index: 1;
+}
+
+.stellar-hero-copy h1 {
+  margin: 0;
+  color: #f7fbff;
+  font-family: var(--display-font);
+  font-size: clamp(2rem, 4.8vw, 3.8rem);
+  line-height: 1.02;
+  max-width: 14ch;
+}
+
+.stellar-hero-copy .home-lead {
+  color: color-mix(in srgb, #f7fbff 84%, transparent);
+  max-width: 60ch;
+}
+
+.stellar-service-list {
+  list-style: none;
+  margin: 0.1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.48rem;
+}
+
+.stellar-service-list li {
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #fff 30%, transparent);
+  background: color-mix(in srgb, #0f1829 65%, transparent);
+  color: #edf6ff;
+  padding: 0.38rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.stellar-hero-metrics {
+  display: grid;
+  gap: 0.54rem;
+}
+
+.stellar-hero-metrics article {
+  border: 1px solid color-mix(in srgb, #fff 20%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, #0f1a2a 58%, transparent);
+  backdrop-filter: blur(10px);
+  padding: 0.7rem 0.8rem;
+  display: grid;
+  gap: 0.16rem;
+}
+
+.stellar-hero-metrics article .home-card-label {
+  color: color-mix(in srgb, #ffffff 72%, transparent);
+}
+
+.stellar-hero-metrics strong {
+  color: #f7fbff;
+  font-family: var(--display-font);
+  font-size: clamp(1.12rem, 2.4vw, 1.5rem);
+  line-height: 1.1;
+}
+
+.stellar-hero-metrics span {
+  color: color-mix(in srgb, #ffffff 78%, transparent);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.stellar-layout {
+  display: grid;
+  gap: 0.74rem;
+  grid-template-columns: minmax(0, 1fr) minmax(270px, 320px);
+}
+
+.stellar-main-column {
+  display: grid;
+  gap: 0.74rem;
+}
+
+.stellar-sidebar {
+  display: grid;
+  align-content: start;
+  gap: 0.74rem;
+}
+
+.stellar-sidebar-card h2 {
+  margin: 0;
+  font-family: var(--display-font);
+  font-size: 1.28rem;
+  line-height: 1.15;
+}
+
+.stellar-sidebar-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.stellar-sticky-card {
+  position: sticky;
+  top: calc(98px + 0.5rem);
+}
+
+.stellar-sidebar-products {
+  display: grid;
+  gap: 0.54rem;
+  margin: 0.4rem 0;
+}
+
+.stellar-sidebar-product {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 0.54rem;
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  border-radius: 14px;
+  padding: 0.46rem;
+  background: color-mix(in srgb, var(--surface-soft) 78%, transparent);
+}
+
+.stellar-sidebar-product img {
+  width: 82px;
+  height: 82px;
+  border-radius: 11px;
+  object-fit: cover;
+}
+
+.stellar-sidebar-product h3 {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.28;
+}
+
+.stellar-sidebar-product p,
+.stellar-sidebar-product span {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.stellar-story-panel {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.stellar-story-grid {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.8fr);
+}
+
+.stellar-story-copy {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.stellar-story-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.58;
+}
+
+.stellar-story-media img {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+}
+
+.stellar-pillars {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.stellar-pillar-grid {
+  display: grid;
+  gap: 0.58rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stellar-pillar-card {
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-soft) 78%, transparent);
+  padding: 0.76rem;
+  display: grid;
+  gap: 0.34rem;
+}
+
+.stellar-pillar-card h3 {
+  margin: 0;
+  font-family: var(--display-font);
+  font-size: 1.03rem;
+}
+
+.stellar-pillar-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.stellar-treatments {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.stellar-treatment-grid {
+  display: grid;
+  gap: 0.58rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stellar-treatment-card {
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 8% 8%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 45%),
+    color-mix(in srgb, var(--surface-soft) 78%, transparent);
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.stellar-treatment-card h3 {
+  margin: 0;
+  font-family: var(--display-font);
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.stellar-treatment-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.stellar-treatment-benefit {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--accent-strong) 90%, #2dd6ff);
+}
+
+.stellar-gallery {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.stellar-gallery-grid {
+  display: grid;
+  gap: 0.56rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stellar-gallery-card {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  min-height: 140px;
+}
+
+.stellar-gallery-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stellar-video-rail {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.stellar-video-grid {
+  display: grid;
+  gap: 0.58rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stellar-video-card {
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-soft) 78%, transparent);
+  overflow: hidden;
+  display: grid;
+}
+
+.stellar-video-card video {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: #0f1624;
+}
+
+.stellar-video-card div {
+  padding: 0.65rem;
+  display: grid;
+  gap: 0.22rem;
+}
+
+.stellar-video-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-family: var(--display-font);
+}
+
+.stellar-video-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.48;
+  font-size: 0.9rem;
+}
+
+.stellar-products {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.stellar-products-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.stellar-product-grid {
+  display: grid;
+  gap: 0.58rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stellar-product-card {
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  border-radius: 16px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface-soft) 76%, transparent);
+  display: grid;
+  grid-template-columns: minmax(140px, 0.9fr) minmax(0, 1.1fr);
+}
+
+.stellar-product-media {
+  position: relative;
+}
+
+.stellar-product-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stellar-product-body {
+  padding: 0.7rem;
+  display: grid;
+  align-content: start;
+  gap: 0.28rem;
+}
+
+.stellar-product-body h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.stellar-product-body p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.stellar-final-cta {
+  display: grid;
+  gap: 0.7rem;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.stellar-final-cta h2 {
+  margin: 0;
+  font-family: var(--display-font);
+  font-size: clamp(1.34rem, 2.8vw, 2.08rem);
+  line-height: 1.14;
+}
+
+.stellar-final-cta p {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+  line-height: 1.56;
+}
+
+.about-rebuild .about-founder-split {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+}
+
+.about-founder-copy {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.about-founder-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.about-founder-note {
+  margin: 0.72rem 0 0;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--accent-strong) 86%, #2ad6ff);
+}
+
+.about-founder-media {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.about-founder-media img,
+.about-founder-media video {
+  width: 100%;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+}
+
+.about-service-board {
+  display: grid;
+  gap: 0.62rem;
+}
+
+.about-service-board h2 {
+  margin: 0.36rem 0 0;
+}
+
+.about-service-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.48rem;
+}
+
+.about-treatment-board {
+  display: grid;
+  gap: 0.64rem;
+}
+
+.about-treatment-grid {
+  display: grid;
+  gap: 0.58rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.about-treatment-grid article {
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  border-radius: 14px;
+  padding: 0.74rem;
+  display: grid;
+  gap: 0.24rem;
+  background: color-mix(in srgb, var(--surface-soft) 76%, transparent);
+}
+
+.about-treatment-grid p {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.67rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--accent-strong) 88%, #2dd8ff);
+}
+
+.about-treatment-grid h3 {
+  margin: 0;
+}
+
+.about-treatment-grid span {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.about-gallery-wall {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.about-gallery-grid {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.about-gallery-grid figure {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+}
+
+.about-gallery-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.contact-offer-board {
+  display: grid;
+  gap: 0.64rem;
+}
+
+.contact-offer-board h2 {
+  margin: 0.38rem 0 0;
+}
+
+.contact-offer-grid {
+  display: grid;
+  gap: 0.58rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.contact-offer-grid article {
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  border-radius: 14px;
+  padding: 0.72rem;
+  background: color-mix(in srgb, var(--surface-soft) 78%, transparent);
+}
+
+.contact-offer-grid h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.contact-offer-grid ul {
+  margin: 0.45rem 0 0;
+  padding-left: 1rem;
+  color: var(--muted);
+  line-height: 1.5;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.contact-offer-video video {
+  margin-top: 0.45rem;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.products-spotlight-layout {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  align-items: start;
+}
+
+.products-spotlight-main {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.products-spotlight-main h2 {
+  margin: 0;
+  font-family: var(--display-font);
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  line-height: 1.14;
+  max-width: 28ch;
+}
+
+.products-spotlight-main p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.54;
+}
+
+.products-spotlight-grid {
+  display: grid;
+  gap: 0.52rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.products-spotlight-chip {
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  border-radius: 13px;
+  padding: 0.62rem;
+  display: grid;
+  gap: 0.2rem;
+  background:
+    radial-gradient(circle at 8% 8%, color-mix(in srgb, var(--accent) 15%, transparent), transparent 50%),
+    color-mix(in srgb, var(--surface-soft) 78%, transparent);
+}
+
+.products-spotlight-chip strong {
+  font-size: 0.9rem;
+}
+
+.products-spotlight-chip span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.products-spotlight-sidebar {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.products-side-card {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.products-side-card img {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  object-fit: cover;
+}
+
+.products-side-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.products-side-item {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  border-radius: 12px;
+  padding: 0.42rem;
+  background: color-mix(in srgb, var(--surface-soft) 76%, transparent);
+}
+
+.products-side-item img {
+  width: 78px;
+  height: 78px;
+  border-radius: 10px;
+  margin: 0;
+}
+
+.products-side-item h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.products-side-item p,
+.products-side-item span {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 1180px) {
+  .stellar-layout,
+  .products-spotlight-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .stellar-sticky-card {
+    position: static;
+  }
+
+  .products-spotlight-sidebar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .stellar-hero {
+    grid-template-columns: 1fr;
+    min-height: 460px;
+  }
+
+  .stellar-story-grid,
+  .stellar-pillar-grid,
+  .stellar-treatment-grid,
+  .stellar-video-grid,
+  .contact-offer-grid,
+  .about-treatment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stellar-gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stellar-product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-gallery-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .products-spotlight-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .stellar-final-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .stellar-products-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .about-gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .products-spotlight-sidebar {
+    grid-template-columns: 1fr;
+  }
+}
+
