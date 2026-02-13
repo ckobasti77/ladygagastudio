@@ -4,8 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, ShoppingCart, Sun } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { useCart } from "@/contexts/cart-context";
 import { useLanguage } from "@/contexts/language-context";
 import { useTheme } from "@/contexts/theme-context";
 
@@ -14,6 +15,7 @@ export function Navbar() {
   const { t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const { session, logout } = useAuth();
+  const { itemCount } = useCart();
   const [openForPath, setOpenForPath] = useState<string | null>(null);
   const menuId = "primary-navigation";
   const open = openForPath === pathname;
@@ -78,6 +80,17 @@ export function Navbar() {
               </li>
             ) : null}
           </ul>
+
+          <Link
+            href="/cart"
+            className={`cart-nav-link ${pathname === "/cart" ? "active" : ""}`}
+            onClick={() => setOpenForPath(null)}
+            aria-label={t.nav.cart}
+            title={t.nav.cart}
+          >
+            <ShoppingCart aria-hidden />
+            {itemCount > 0 ? <span className="nav-count-badge cart-nav-badge">{itemCount}</span> : null}
+          </Link>
 
           <div className="switches">
             <button

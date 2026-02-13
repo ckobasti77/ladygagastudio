@@ -6,6 +6,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useLanguage } from "@/contexts/language-context";
 import { milkShakeTreatments, studioGallery, studioServices, studioVideos } from "@/lib/studio-content";
+import { sendContactInquiryEmail } from "./actions";
 
 const responseWindows = [
   "Upiti do 15h: odgovor istog dana",
@@ -38,16 +39,30 @@ export default function ContactPage() {
   const createInquiry = useMutation(api.orders.createInquiry);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [status, setStatus] = useState<InquiryStatus>("idle");
+  const [statusMessage, setStatusMessage] = useState("");
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatus("sending");
+    setStatusMessage("");
     try {
+      const createdAt = Date.now();
       await createInquiry(form);
+      const emailResult = await sendContactInquiryEmail({
+        ...form,
+        createdAt,
+      });
       setForm({ name: "", email: "", message: "" });
-      setStatus("sent");
+      if (emailResult.ok) {
+        setStatus("sent");
+        setStatusMessage("Poruka je uspesno poslata.");
+      } else {
+        setStatus("error");
+        setStatusMessage(`Upit je sacuvan, ali email nije poslat: ${emailResult.error}`);
+      }
     } catch {
       setStatus("error");
+      setStatusMessage("Slanje nije uspelo. Pokusajte ponovo za par sekundi.");
     }
   };
 
@@ -130,9 +145,9 @@ export default function ContactPage() {
           <h2>{t.contact.form}</h2>
           <p>U poruci navedite kratko stanje kose i zelju koju imate.</p>
 
-          {status === "sent" ? <p className="status-msg contact-status success">Poruka je uspesno poslata.</p> : null}
+          {status === "sent" ? <p className="status-msg contact-status success">{statusMessage}</p> : null}
           {status === "error" ? (
-            <p className="status-msg contact-status error">Slanje nije uspelo. Pokusajte ponovo za par sekundi.</p>
+            <p className="status-msg contact-status error">{statusMessage}</p>
           ) : null}
 
           <label className="contact-label" htmlFor="contact-name">

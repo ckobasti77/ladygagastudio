@@ -2,6 +2,7 @@
 
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { AuthProvider } from "@/contexts/auth-context";
+import { CartProvider } from "@/contexts/cart-context";
 import { LanguageProvider } from "@/contexts/language-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 
@@ -12,7 +13,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ConvexProvider client={convex}>
       <ThemeProvider>
         <LanguageProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <CartProvider>{children}</CartProvider>
+          </AuthProvider>
         </LanguageProvider>
       </ThemeProvider>
     </ConvexProvider>

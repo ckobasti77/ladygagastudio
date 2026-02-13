@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
@@ -14,63 +13,49 @@ import {
   studioVideos,
 } from "@/lib/studio-content";
 
-type Product = {
-  _id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  price: number;
-  stock: number;
-  discount?: number;
-  categoryId: string;
-  images?: string[];
+type HomeSnapshot = {
+  catalogCount: number;
+  inStockCount: number;
+  topCategories: Array<{
+    categoryId: string;
+    name: string;
+    count: number;
+  }>;
+  featuredProducts: Array<{
+    _id: string;
+    title: string;
+    subtitle: string;
+    stock: number;
+    price: number;
+    discount: number;
+    finalPrice: number;
+    categoryName: string;
+    image: string;
+  }>;
+  sidebarProducts: Array<{
+    _id: string;
+    title: string;
+    subtitle: string;
+    stock: number;
+    price: number;
+    discount: number;
+    finalPrice: number;
+    categoryName: string;
+    image: string;
+  }>;
 };
 
-type Category = {
-  _id: string;
-  name: string;
+const EMPTY_SNAPSHOT: HomeSnapshot = {
+  catalogCount: 0,
+  inStockCount: 0,
+  topCategories: [],
+  featuredProducts: [],
+  sidebarProducts: [],
 };
-
-const EMPTY_PRODUCTS: Product[] = [];
-const EMPTY_CATEGORIES: Category[] = [];
 
 export default function HomePage() {
-  const rawProducts = useQuery(api.products.list, {}) as Product[] | undefined;
-  const rawCategories = useQuery(api.products.listCategories, {}) as Category[] | undefined;
-  const products = rawProducts ?? EMPTY_PRODUCTS;
-  const categories = rawCategories ?? EMPTY_CATEGORIES;
-
-  const categoryById = useMemo(() => {
-    return new Map(categories.map((category) => [category._id, category.name]));
-  }, [categories]);
-
-  const featuredProducts = useMemo(() => {
-    return [...products]
-      .sort((a, b) => {
-        const discountDelta = (b.discount ?? 0) - (a.discount ?? 0);
-        if (discountDelta !== 0) return discountDelta;
-        return b.stock - a.stock;
-      })
-      .slice(0, 8);
-  }, [products]);
-
-  const sidebarProducts = useMemo(() => featuredProducts.slice(0, 4), [featuredProducts]);
-  const catalogCount = products.length;
-  const inStockCount = useMemo(() => products.filter((product) => product.stock > 0).length, [products]);
-  const topCategories = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const product of products) {
-      counts.set(product.categoryId, (counts.get(product.categoryId) ?? 0) + 1);
-    }
-    return [...counts.entries()]
-      .map(([categoryId, count]) => ({
-        categoryId,
-        name: categoryById.get(categoryId) ?? "Bez kategorije",
-        count,
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-  }, [products, categoryById]);
+  const snapshot = (useQuery(api.products.homeSnapshot, {}) as HomeSnapshot | undefined) ?? EMPTY_SNAPSHOT;
+  const { catalogCount, inStockCount, topCategories, featuredProducts, sidebarProducts } = snapshot;
 
   return (
     <div className="page-grid home-page stellar-home">
@@ -151,6 +136,7 @@ export default function HomePage() {
                   width={860}
                   height={860}
                   sizes="(max-width: 960px) 100vw, 35vw"
+                  loading="lazy"
                 />
               </div>
             </div>
@@ -201,6 +187,7 @@ export default function HomePage() {
                     width={900}
                     height={900}
                     sizes="(max-width: 760px) 50vw, (max-width: 1080px) 33vw, 25vw"
+                    loading="lazy"
                   />
                 </article>
               ))}
@@ -213,9 +200,9 @@ export default function HomePage() {
               <h2>Proces, finishing i trenutak kada klijentkinja vidi finalni look.</h2>
             </div>
             <div className="stellar-video-grid">
-              {studioVideos.map((video) => (
+              {studioVideos.map((video, index) => (
                 <article key={video.src} className="stellar-video-card">
-                  <video controls preload="metadata" playsInline muted>
+                  <video controls preload="none" playsInline muted poster={studioGallery[index]?.src ?? studioGallery[0].src}>
                     <source src={video.src} type="video/webm" />
                   </video>
                   <div>
@@ -242,46 +229,38 @@ export default function HomePage() {
               <p className="home-empty">Ucitavanje proizvoda...</p>
             ) : (
               <div className="stellar-product-grid">
-                {featuredProducts.map((product) => {
-                  const discount = product.discount ?? 0;
-                  const finalPrice = getFinalPrice(product);
-                  const categoryName = categoryById.get(product.categoryId) ?? "Kategorija";
-                  return (
-                    <article key={product._id} className="stellar-product-card">
-                      <div className="stellar-product-media">
-                        <Image
-                          src={product.images?.[0] ?? "/logo.png"}
-                          alt={product.title}
-                          width={560}
-                          height={560}
-                          sizes="(max-width: 760px) 100vw, (max-width: 1080px) 50vw, 25vw"
-                        />
-                        {discount > 0 ? <span className="home-product-discount">-{discount}%</span> : null}
+                {featuredProducts.map((product) => (
+                  <article key={product._id} className="stellar-product-card">
+                    <div className="stellar-product-media">
+                      <Image
+                        src={product.image || "/logo.png"}
+                        alt={product.title}
+                        width={560}
+                        height={560}
+                        sizes="(max-width: 760px) 100vw, (max-width: 1080px) 50vw, 25vw"
+                        loading="lazy"
+                      />
+                      {product.discount > 0 ? <span className="home-product-discount">-{product.discount}%</span> : null}
+                    </div>
+                    <div className="stellar-product-body">
+                      <p className="home-product-category">{product.categoryName}</p>
+                      <h3>{product.title}</h3>
+                      <p>{product.subtitle}</p>
+                      <div className="home-product-price">
+                        <strong>{formatRsd(product.finalPrice)}</strong>
+                        {product.discount > 0 ? <span>{formatRsd(product.price)}</span> : null}
                       </div>
-                      <div className="stellar-product-body">
-                        <p className="home-product-category">{categoryName}</p>
-                        <h3>{product.title}</h3>
-                        <p>{product.subtitle}</p>
-                        <div className="home-product-price">
-                          <strong>{formatRsd(finalPrice)}</strong>
-                          {discount > 0 ? <span>{formatRsd(product.price)}</span> : null}
-                        </div>
-                        <div className="home-product-footer">
-                          <span
-                            className={`home-stock-pill ${
-                              product.stock <= 0 ? "out" : product.stock <= 5 ? "low" : ""
-                            }`}
-                          >
-                            {product.stock > 0 ? `${product.stock} kom na stanju` : "Rasprodato"}
-                          </span>
-                          <Link href="/products" className="home-product-link">
-                            Poruci
-                          </Link>
-                        </div>
+                      <div className="home-product-footer">
+                        <span className={`home-stock-pill ${product.stock <= 0 ? "out" : product.stock <= 5 ? "low" : ""}`}>
+                          {product.stock > 0 ? `${product.stock} kom na stanju` : "Rasprodato"}
+                        </span>
+                        <Link href="/products" className="home-product-link">
+                          Poruci
+                        </Link>
                       </div>
-                    </article>
-                  );
-                })}
+                    </div>
+                  </article>
+                ))}
               </div>
             )}
           </section>
@@ -301,10 +280,10 @@ export default function HomePage() {
               <div className="stellar-sidebar-products">
                 {sidebarProducts.map((product) => (
                   <article key={product._id} className="stellar-sidebar-product">
-                    <Image src={product.images?.[0] ?? "/logo.png"} alt={product.title} width={140} height={140} />
+                    <Image src={product.image || "/logo.png"} alt={product.title} width={140} height={140} loading="lazy" />
                     <div>
                       <h3>{product.title}</h3>
-                      <p>{formatRsd(getFinalPrice(product))}</p>
+                      <p>{formatRsd(product.finalPrice)}</p>
                       <span>{product.stock > 0 ? `${product.stock} kom` : "Rasprodato"}</span>
                     </div>
                   </article>
@@ -354,12 +333,6 @@ export default function HomePage() {
       </section>
     </div>
   );
-}
-
-function getFinalPrice(product: Pick<Product, "price" | "discount">) {
-  const discount = product.discount ?? 0;
-  if (discount <= 0) return product.price;
-  return Math.round(product.price * (1 - discount / 100));
 }
 
 function formatRsd(value: number) {

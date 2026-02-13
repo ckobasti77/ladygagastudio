@@ -36,7 +36,27 @@ type ProductForm = {
 
 type StockFilter = "all" | "inStock" | "lowStock" | "outOfStock";
 type SortBy = "titleAsc" | "priceAsc" | "priceDesc" | "stockDesc" | "discountDesc" | "valueDesc";
+type SalesSortBy = "soldDesc" | "soldAsc" | "revenueDesc" | "ordersDesc" | "lastSoldDesc";
 type MutationReference = Parameters<typeof useMutation>[0];
+
+type SalesAnalytics = {
+  summary: {
+    ordersCount: number;
+    totalItems: number;
+    totalAmount: number;
+    uniqueProducts: number;
+  };
+  products: Array<{
+    productId: string;
+    title: string;
+    soldQuantity: number;
+    revenue: number;
+    ordersCount: number;
+    lastSoldAt: number;
+    currentStock: number;
+    categoryName: string;
+  }>;
+};
 
 const LOW_STOCK_LIMIT = 5;
 
@@ -60,14 +80,45 @@ function finalPrice(product: Pick<Product, "price" | "discount">) {
   return Math.max(0, Math.round(product.price * (1 - discount / 100)));
 }
 
+function formatRsd(value: number) {
+  if (!Number.isFinite(value) || value <= 0) return "0 RSD";
+  return `${Math.round(value).toLocaleString("sr-Latn-RS")} RSD`;
+}
+
+type StockTone = "ready" | "low" | "critical" | "out";
+
+function getStockMeta(stock: number): {
+  tone: StockTone;
+  badgeText: string;
+} {
+  const safeStock = Math.max(0, Math.floor(stock));
+
+  if (safeStock === 0) {
+    return { tone: "out", badgeText: "Rasprodato" };
+  }
+
+  if (safeStock <= 3) {
+    return { tone: "critical", badgeText: `Samo ${safeStock}` };
+  }
+
+  if (safeStock <= 10) {
+    return { tone: "low", badgeText: `Stanje ${safeStock}` };
+  }
+
+  return { tone: "ready", badgeText: `Stanje ${safeStock}` };
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const { session } = useAuth();
 
   const rawProducts = useQuery(api.products.list, {}) as Product[] | undefined;
   const rawCategories = useQuery(api.products.listCategories, {}) as Category[] | undefined;
+  const rawSales = useQuery(api.orders.salesAnalytics, {}) as SalesAnalytics | undefined;
   const products = rawProducts ?? EMPTY_PRODUCTS;
   const categories = rawCategories ?? EMPTY_CATEGORIES;
+  const sales = rawSales?.products ?? [];
+  const salesSummary = rawSales?.summary ?? { ordersCount: 0, totalItems: 0, totalAmount: 0, uniqueProducts: 0 };
 
   const saveProduct = useMutation(api.products.upsertProduct) as unknown as (args: {
     productId?: string;
@@ -105,6 +156,8 @@ export default function AdminPage() {
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("valueDesc");
+  const [salesSortBy, setSalesSortBy] = useState<SalesSortBy>("soldDesc");
+  const [salesSearch, setSalesSearch] = useState("");
 
   const [showProductModal, setShowProductModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
@@ -208,6 +261,28 @@ export default function AdminPage() {
     const inventoryValue = products.reduce((sum, item) => sum + finalPrice(item) * item.stock, 0);
     return { totalCount, totalStock, lowStock, outOfStock, discounted, inventoryValue };
   }, [products]);
+
+  const filteredSales = useMemo(() => {
+    const query = salesSearch.trim().toLowerCase();
+    const filtered = sales.filter((row) => {
+      if (!query) return true;
+      return `${row.title} ${row.categoryName}`.toLowerCase().includes(query);
+    });
+
+    if (salesSortBy === "soldAsc") {
+      return [...filtered].sort((a, b) => a.soldQuantity - b.soldQuantity);
+    }
+    if (salesSortBy === "revenueDesc") {
+      return [...filtered].sort((a, b) => b.revenue - a.revenue);
+    }
+    if (salesSortBy === "ordersDesc") {
+      return [...filtered].sort((a, b) => b.ordersCount - a.ordersCount);
+    }
+    if (salesSortBy === "lastSoldDesc") {
+      return [...filtered].sort((a, b) => b.lastSoldAt - a.lastSoldAt);
+    }
+    return [...filtered].sort((a, b) => b.soldQuantity - a.soldQuantity);
+  }, [sales, salesSearch, salesSortBy]);
 
   const filtersApplied = useMemo(() => {
     let count = 0;
@@ -634,6 +709,91 @@ export default function AdminPage() {
         </article>
       </section>
 
+      <section className="toolbar-card admin-sales-card">
+        <div className="admin-sales-head">
+          <div>
+            <h2>Prodaja proizvoda</h2>
+            <p>Tracking po proizvodu: prodato, broj porudzbina, prihod i poslednja prodaja.</p>
+          </div>
+          <div className="admin-sales-controls">
+            <input
+              value={salesSearch}
+              onChange={(event) => setSalesSearch(event.target.value)}
+              placeholder="Pretraga prodaje po proizvodu ili kategoriji"
+              aria-label="Pretraga prodaje"
+            />
+            <select value={salesSortBy} onChange={(event) => setSalesSortBy(event.target.value as SalesSortBy)}>
+              <option value="soldDesc">Sort: najprodavaniji</option>
+              <option value="soldAsc">Sort: najmanje prodato</option>
+              <option value="revenueDesc">Sort: najveci prihod</option>
+              <option value="ordersDesc">Sort: najvise porudzbina</option>
+              <option value="lastSoldDesc">Sort: najnovija prodaja</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="dashboard-grid admin-sales-kpis">
+          <article className="metric-card">
+            <span>Ukupno porudzbina</span>
+            <strong>{salesSummary.ordersCount}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Ukupno prodato komada</span>
+            <strong>{salesSummary.totalItems}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Ukupan promet</span>
+            <strong>{formatRsd(salesSummary.totalAmount)}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Proizvoda sa prodajom</span>
+            <strong>{salesSummary.uniqueProducts}</strong>
+          </article>
+        </div>
+
+        {rawSales === undefined ? (
+          <p className="admin-sales-empty">Ucitavanje prodajne analitike...</p>
+        ) : filteredSales.length === 0 ? (
+          <p className="admin-sales-empty">Trenutno nema podataka o prodaji za zadati filter.</p>
+        ) : (
+          <div className="admin-sales-table">
+            <div className="admin-sales-table-head">
+              <span>Proizvod</span>
+              <span>Prodato</span>
+              <span>Porudzbine</span>
+              <span>Prihod</span>
+              <span>Lager</span>
+              <span>Poslednja prodaja</span>
+            </div>
+            {filteredSales.map((row) => (
+              <article key={row.productId} className="admin-sales-row">
+                <div>
+                  <strong>{row.title}</strong>
+                  <p>{row.categoryName}</p>
+                </div>
+                <span>{row.soldQuantity}</span>
+                <span>{row.ordersCount}</span>
+                <span>{formatRsd(row.revenue)}</span>
+                <span className={row.currentStock <= LOW_STOCK_LIMIT ? "sales-stock-low" : "sales-stock-ok"}>
+                  {row.currentStock}
+                </span>
+                <span>
+                  {row.lastSoldAt > 0
+                    ? new Date(row.lastSoldAt).toLocaleString("sr-Latn-RS", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "-"}
+                </span>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
       <section className="toolbar-card admin-filter-card">
         <div className="admin-filter-grid">
           <input
@@ -790,10 +950,10 @@ export default function AdminPage() {
           {filteredProducts.map((product) => {
             const discount = product.discount ?? 0;
             const resolvedPrice = finalPrice(product);
-            const stockClass = product.stock === 0 ? "empty" : product.stock <= LOW_STOCK_LIMIT ? "low" : "ok";
+            const stockMeta = getStockMeta(product.stock);
             return (
-              <article key={product._id} className="admin-product-card">
-                <div className="admin-card-media">
+              <article key={product._id} className="admin-product-card product-card cosmic-product-card">
+                <div className="admin-card-media card-media-wrap">
                   <Image
                     src={product.images[0] ?? "/logo.png"}
                     alt={product.title}
@@ -802,22 +962,33 @@ export default function AdminPage() {
                     sizes="(max-width: 768px) 100vw, 25vw"
                     loading="lazy"
                   />
-                  <span className={`stock-badge ${stockClass}`}>
-                    {product.stock === 0 ? "Rasprodato" : `Stanje: ${product.stock}`}
+                  <span className={`product-stock-chip ${stockMeta.tone}`}>
+                    <span className="product-stock-dot" aria-hidden="true" />
+                    {stockMeta.badgeText}
                   </span>
-                  {discount > 0 ? <span className="discount-badge">-{discount}%</span> : null}
+                  {discount > 0 ? (
+                    <span className="discount-star-badge" aria-label={`Popust ${discount}%`}>
+                      <strong>-{discount}%</strong>
+                      <small>OFF</small>
+                    </span>
+                  ) : null}
                 </div>
-                <div className="admin-card-body">
+                <div className="card-body admin-card-body">
                   <p className="category-tag">{categoriesById.get(product.categoryId) ?? "Bez kategorije"}</p>
                   <h3>{product.title}</h3>
-                  <p className="description-line">{product.subtitle}</p>
+                  <p>{product.subtitle}</p>
                   <p className="description-line">{product.description}</p>
-                  <div className="price-row">
-                    <strong>{resolvedPrice} RSD</strong>
-                    {discount > 0 ? <span className="old-price">{product.price} RSD</span> : null}
+
+                  <div className="price-focus-card">
+                    <p className="price-caption">Cena</p>
+                    <div className="price-row">
+                      <strong>{formatRsd(resolvedPrice)}</strong>
+                      {discount > 0 ? <span className="old-price">{formatRsd(product.price)}</span> : null}
+                    </div>
+                    {discount > 0 ? <p className="price-saved">Usteda {formatRsd(product.price - resolvedPrice)}</p> : null}
                   </div>
                 </div>
-                <div className="admin-card-actions">
+                <div className="card-actions admin-card-actions">
                   <button type="button" className="ghost-btn" onClick={() => openEdit(product)}>
                     Izmeni
                   </button>

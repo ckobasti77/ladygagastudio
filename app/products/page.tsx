@@ -6,8 +6,8 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/contexts/auth-context";
+import { useCart } from "@/contexts/cart-context";
 import { useLanguage } from "@/contexts/language-context";
-import { milkShakeTreatments, studioGallery } from "@/lib/studio-content";
 
 type Category = { _id: string; name: string };
 type Product = {
@@ -35,16 +35,6 @@ type ProductForm = {
   images: string;
 };
 
-type OrderForm = {
-  firstName: string;
-  lastName: string;
-  street: string;
-  number: string;
-  postalCode: string;
-  city: string;
-  phone: string;
-};
-
 const emptyForm: ProductForm = {
   title: "",
   subtitle: "",
@@ -56,32 +46,18 @@ const emptyForm: ProductForm = {
   images: "",
 };
 
-const orderEmptyForm: OrderForm = {
-  firstName: "",
-  lastName: "",
-  street: "",
-  number: "",
-  postalCode: "",
-  city: "",
-  phone: "",
-};
-
 const EMPTY_PRODUCTS: Product[] = [];
 const EMPTY_CATEGORIES: Category[] = [];
 
 export default function ProductsPage() {
   const { t } = useLanguage();
   const { session } = useAuth();
+  const { addItem, itemCount } = useCart();
 
   const rawProducts = useQuery(api.products.list, {}) as Product[] | undefined;
   const rawCategories = useQuery(api.products.listCategories, {}) as Category[] | undefined;
   const products = rawProducts ?? EMPTY_PRODUCTS;
   const categories = rawCategories ?? EMPTY_CATEGORIES;
-
-  const submitOrder = useMutation(api.orders.createOrder) as unknown as (args: {
-    productId: string;
-    customer: OrderForm;
-  }) => Promise<void>;
 
   const saveProduct = useMutation(api.products.upsertProduct) as unknown as (args: {
     productId?: string;
@@ -113,11 +89,10 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"featured" | "priceAsc" | "priceDesc" | "stockDesc">("featured");
 
-  const [orderProductId, setOrderProductId] = useState<string | null>(null);
-
   const [showProductModal, setShowProductModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [editProductId, setEditProductId] = useState<string | null>(null);
+  const [productModalVersion, setProductModalVersion] = useState(0);
   const [form, setForm] = useState<ProductForm>(emptyForm);
 
   const [newCategoryInput, setNewCategoryInput] = useState("");
@@ -167,44 +142,16 @@ export default function ProductsPage() {
     return items;
   }, [products, activeCategory, searchTerm, sortBy]);
 
-  const selectedProduct = useMemo(
-    () => products.find((product) => product._id === orderProductId) ?? null,
-    [products, orderProductId],
-  );
-
-  const stats = useMemo(() => {
-    const totalStock = products.reduce((sum, item) => sum + item.stock, 0);
-    const lowStock = products.filter((item) => item.stock <= 5).length;
-    return { count: products.length, totalStock, lowStock };
-  }, [products]);
-
-  const sidebarProducts = useMemo(() => {
-    return [...products]
-      .sort((a, b) => {
-        const discountDelta = (b.discount ?? 0) - (a.discount ?? 0);
-        if (discountDelta !== 0) return discountDelta;
-        return b.stock - a.stock;
-      })
-      .slice(0, 4);
-  }, [products]);
-
-  const sidebarCategories = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const product of products) {
-      counts.set(product.categoryId, (counts.get(product.categoryId) ?? 0) + 1);
-    }
-    return [...counts.entries()]
-      .map(([categoryId, count]) => ({
-        name: categoriesById.get(categoryId) ?? "Bez kategorije",
-        count,
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 4);
-  }, [products, categoriesById]);
+  const closeProductModal = () => {
+    setShowProductModal(false);
+    setEditProductId(null);
+    setForm(emptyForm);
+  };
 
   const openCreate = () => {
     setEditProductId(null);
     setForm(emptyForm);
+    setProductModalVersion((value) => value + 1);
     setShowProductModal(true);
   };
 
@@ -222,6 +169,7 @@ export default function ProductsPage() {
       categoryId: product.categoryId,
       images: externalImages.join(", "),
     });
+    setProductModalVersion((value) => value + 1);
     setShowProductModal(true);
   };
 
@@ -244,7 +192,7 @@ export default function ProductsPage() {
           .filter(Boolean),
       });
       setFeedback(editProductId ? "Proizvod je uspešno ažuriran." : "Novi proizvod je dodat.");
-      setShowProductModal(false);
+      closeProductModal();
     } catch {
       setFeedback("Čuvanje nije uspelo. Proverite polja i pokušajte ponovo.");
     } finally {
@@ -324,90 +272,26 @@ export default function ProductsPage() {
     }
   };
 
+  const onAddToCart = (product: Product) => {
+    if (product.stock <= 0) {
+      setFeedback("Proizvod trenutno nije dostupan.");
+      return;
+    }
+
+    addItem({
+      productId: product._id,
+      title: product.title,
+      subtitle: product.subtitle,
+      image: product.images?.[0] ?? "/logo.png",
+      unitPrice: product.price,
+      discount: product.discount ?? 0,
+      stock: product.stock,
+    });
+    setFeedback(`"${product.title}" je dodat u korpu.`);
+  };
+
   return (
     <section className="page-grid products-page">
-      <div className="hero products-hero">
-        <p className="eyebrow">Onlajn kupovina</p>
-        <h1>{t.products.title}</h1>
-        <p className="subtitle">Brza kupovina za klijente i efikasan menadžment kataloga za admin tim.</p>
-      </div>
-
-      {session?.isAdmin ? (
-        <section className="dashboard-grid">
-          <article className="metric-card">
-            <span>Ukupno proizvoda</span>
-            <strong>{stats.count}</strong>
-          </article>
-          <article className="metric-card">
-            <span>Ukupno na stanju</span>
-            <strong>{stats.totalStock}</strong>
-          </article>
-          <article className="metric-card">
-            <span>Nizak lager</span>
-            <strong>{stats.lowStock}</strong>
-          </article>
-        </section>
-      ) : null}
-
-      <section className="products-spotlight-layout">
-        <article className="toolbar-card products-spotlight-main">
-          <p className="home-kicker">Studio preporuka</p>
-          <h2>Proizvodi i tretmani koje klijentkinje najcesce biraju posle termina.</h2>
-          <p>
-            Nakon tretmana biramo odgovarajucu kucnu negu kako bi sjaj, forma i kvalitet kose trajali sto duze.
-          </p>
-          <div className="products-spotlight-grid">
-            {milkShakeTreatments.map((treatment) => (
-              <article key={treatment.name} className="products-spotlight-chip">
-                <strong>{treatment.name}</strong>
-                <span>{treatment.benefit}</span>
-              </article>
-            ))}
-          </div>
-        </article>
-
-        <aside className="products-spotlight-sidebar">
-          <article className="toolbar-card products-side-card">
-            <p className="home-card-label">Sidebar proizvodi</p>
-            {sidebarProducts.length === 0 ? (
-              <p className="home-empty">Proizvodi se ucitavaju.</p>
-            ) : (
-              <div className="products-side-list">
-                {sidebarProducts.map((product) => (
-                  <article key={product._id} className="products-side-item">
-                    <Image src={product.images?.[0] ?? "/logo.png"} alt={product.title} width={96} height={96} />
-                    <div>
-                      <h3>{product.title}</h3>
-                      <p>{getFinalPrice(product)} RSD</p>
-                      <span>{product.stock > 0 ? `${product.stock} kom` : "Rasprodato"}</span>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-            <Link href="/contact" className="primary-btn">
-              Zakazi konsultaciju
-            </Link>
-          </article>
-
-          <article className="toolbar-card products-side-card">
-            <p className="home-card-label">Top kategorije</p>
-            <div className="home-chip-cloud">
-              {sidebarCategories.length > 0 ? (
-                sidebarCategories.map((category) => (
-                  <span key={category.name} className="home-chip">
-                    {category.name} ({category.count})
-                  </span>
-                ))
-              ) : (
-                <span className="home-chip">Kategorije ce biti prikazane kada dodate proizvode</span>
-              )}
-            </div>
-            <Image src={studioGallery[5].src} alt={studioGallery[5].alt} width={900} height={900} />
-          </article>
-        </aside>
-      </section>
-
       <section className="toolbar-card">
         <div className="toolbar-main">
           <input
@@ -427,6 +311,11 @@ export default function ProductsPage() {
             <button type="button" className="primary-btn" onClick={openCreate}>
               {t.products.createProduct}
             </button>
+          ) : null}
+          {!session?.isAdmin ? (
+            <Link href="/cart" className="ghost-btn">
+              Korpa ({itemCount})
+            </Link>
           ) : null}
         </div>
 
@@ -522,28 +411,40 @@ export default function ProductsPage() {
             const discount = product.discount ?? 0;
             const finalPrice = getFinalPrice(product);
             const categoryName = categoriesById.get(product.categoryId) ?? "Bez kategorije";
+            const stockMeta = getStockMeta(product.stock);
             return (
-              <article key={product._id} className="product-card admin-hover-card">
+              <article key={product._id} className="product-card admin-hover-card cosmic-product-card">
                 <div className="card-media-wrap">
                   <Image src={product.images?.[0] ?? "/logo.png"} alt={product.title} width={420} height={420} />
-                  <span className={`stock-badge ${product.stock <= 5 ? "low" : "ok"}`}>
-                    {t.products.stock}: {product.stock}
+                  <span className={`product-stock-chip ${stockMeta.tone}`}>
+                    <span className="product-stock-dot" aria-hidden="true" />
+                    {stockMeta.badgeText}
                   </span>
-                  {discount > 0 ? <span className="discount-badge">-{discount}%</span> : null}
+                  {discount > 0 ? (
+                    <span className="discount-star-badge" aria-label={`Popust ${discount}%`}>
+                      <strong>-{discount}%</strong>
+                      <small>OFF</small>
+                    </span>
+                  ) : null}
                 </div>
                 <div className="card-body">
                   <p className="category-tag">{categoryName}</p>
                   <h3>{product.title}</h3>
                   <p>{product.subtitle}</p>
                   <p className="description-line">{product.description}</p>
-                  <div className="price-row">
-                    <strong>{finalPrice} RSD</strong>
-                    {discount > 0 ? <span className="old-price">{product.price} RSD</span> : null}
+
+                  <div className="price-focus-card">
+                    <p className="price-caption">Cena</p>
+                    <div className="price-row">
+                      <strong>{formatRsd(finalPrice)}</strong>
+                      {discount > 0 ? <span className="old-price">{formatRsd(product.price)}</span> : null}
+                    </div>
+                    {discount > 0 ? <p className="price-saved">Usteda {formatRsd(product.price - finalPrice)}</p> : null}
                   </div>
                 </div>
                 <div className="card-actions">
-                  <button className="primary-btn" onClick={() => setOrderProductId(product._id)} type="button">
-                    {t.products.addToOrder}
+                  <button className="primary-btn add-cart-btn" onClick={() => onAddToCart(product)} type="button" disabled={product.stock <= 0}>
+                    {stockMeta.buttonLabel}
                   </button>
                   {session?.isAdmin ? (
                     <>
@@ -562,16 +463,8 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {orderProductId && selectedProduct ? (
-        <OrderModal
-          product={selectedProduct}
-          onClose={() => setOrderProductId(null)}
-          onSubmit={submitOrder}
-        />
-      ) : null}
-
       {showProductModal ? (
-        <Modal onClose={() => setShowProductModal(false)}>
+        <Modal key={`${editProductId ?? "create"}-${productModalVersion}`} onClose={closeProductModal}>
           <h2>{editProductId ? t.products.edit : t.products.createProduct}</h2>
           <form className="modal-form" onSubmit={onSaveProduct}>
             <input required placeholder="Naslov" value={form.title} onChange={(event) => setForm((value) => ({ ...value, title: event.target.value }))} />
@@ -643,6 +536,52 @@ function getFinalPrice(product: Product) {
   return Math.round(product.price * (1 - discount / 100));
 }
 
+type StockTone = "ready" | "low" | "critical" | "out";
+
+function getStockMeta(stock: number): {
+  tone: StockTone;
+  badgeText: string;
+  buttonLabel: string;
+} {
+  const safeStock = Math.max(0, Math.floor(stock));
+
+  if (safeStock === 0) {
+    return {
+      tone: "out",
+      badgeText: "Rasprodato",
+      buttonLabel: "Rasprodato",
+    };
+  }
+
+  if (safeStock <= 3) {
+    return {
+      tone: "critical",
+      badgeText: `Samo ${safeStock}`,
+      buttonLabel: "Dodaj odmah",
+    };
+  }
+
+  if (safeStock <= 10) {
+    return {
+      tone: "low",
+      badgeText: `Stanje ${safeStock}`,
+      buttonLabel: "Dodaj u korpu",
+    };
+  }
+
+  return {
+    tone: "ready",
+    badgeText: `Stanje ${safeStock}`,
+    buttonLabel: "Dodaj u korpu",
+  };
+}
+
+const rsdFormatter = new Intl.NumberFormat("sr-RS");
+
+function formatRsd(value: number) {
+  return `${rsdFormatter.format(Math.max(0, Math.round(value)))} RSD`;
+}
+
 function IconEdit() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -691,58 +630,5 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
         {children}
       </div>
     </div>
-  );
-}
-
-function OrderModal({
-  product,
-  onClose,
-  onSubmit,
-}: {
-  product: Product;
-  onClose: () => void;
-  onSubmit: (args: { productId: string; customer: OrderForm }) => Promise<void>;
-}) {
-  const { t } = useLanguage();
-  const [form, setForm] = useState<OrderForm>(orderEmptyForm);
-  const [busy, setBusy] = useState(false);
-
-  return (
-    <Modal onClose={onClose}>
-      <h2>{t.order.title}</h2>
-      <p className="order-summary">
-        Poručujete: <strong>{product.title}</strong>
-      </p>
-      <form
-        className="modal-form"
-        onSubmit={async (event) => {
-          event.preventDefault();
-          setBusy(true);
-          try {
-            await onSubmit({ productId: product._id, customer: form });
-            onClose();
-          } finally {
-            setBusy(false);
-          }
-        }}
-      >
-        <div className="form-row-2">
-          <input required placeholder={t.order.firstName} value={form.firstName} onChange={(event) => setForm((value) => ({ ...value, firstName: event.target.value }))} />
-          <input required placeholder={t.order.lastName} value={form.lastName} onChange={(event) => setForm((value) => ({ ...value, lastName: event.target.value }))} />
-        </div>
-        <div className="form-row-2">
-          <input required placeholder={t.order.street} value={form.street} onChange={(event) => setForm((value) => ({ ...value, street: event.target.value }))} />
-          <input required placeholder={t.order.number} value={form.number} onChange={(event) => setForm((value) => ({ ...value, number: event.target.value }))} />
-        </div>
-        <div className="form-row-2">
-          <input required placeholder={t.order.postalCode} value={form.postalCode} onChange={(event) => setForm((value) => ({ ...value, postalCode: event.target.value }))} />
-          <input required placeholder={t.order.city} value={form.city} onChange={(event) => setForm((value) => ({ ...value, city: event.target.value }))} />
-        </div>
-        <input required placeholder={t.order.phone} value={form.phone} onChange={(event) => setForm((value) => ({ ...value, phone: event.target.value }))} />
-        <button type="submit" className="primary-btn" disabled={busy}>
-          {t.order.submit}
-        </button>
-      </form>
-    </Modal>
   );
 }
