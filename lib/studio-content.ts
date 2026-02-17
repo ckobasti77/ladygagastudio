@@ -1,38 +1,38 @@
 export const founderStory = [
-  "Moje ime je Dragana i iza studija Lady Gaga no 1 stoji dugogodisnja posvecenost lepoti, detaljima i profesionalnoj nezi kose.",
-  "Specijalizovana sam za tretmane ostecene i blajhane kose, zahtevne koloracije i glam stil sminke i frizura.",
-  "Verujem da svaka zena moze da zablista uz pravi pristup, kvalitetne proizvode i strucno vodjenu negu.",
-  "U svom radu spajam iskustvo, preciznost i osecaj za estetiku, sa ciljem da svaka klijentkinja dobije rezultat koji je ne samo lep, vec i zdrav i dugotrajan.",
-  "Za mene je lepota vise od izgleda. To je samopouzdanje koje zena ponese sa sobom kada zna da izgleda najbolje.",
+  "Moje ime je Dragana i iza studija Lady Gaga stoji dugogodišnja posvećenost lepoti, detaljima i profesionalnoj nezi kose.",
+  "Specijalizovana sam za tretmane oštećene i blajhane kose, zahtevne koloracije i glam stil frizura.",
+  "Verujem da svaka žena može da zablista uz pravi pristup, kvalitetne proizvode i stručno vođenu negu.",
+  "U svom radu spajam iskustvo, preciznost i osećaj za estetiku, sa ciljem da svaka klijentkinja dobije rezultat koji je ne samo lep, već i zdrav i dugotrajan.",
+  "Za mene je lepota više od izgleda. To je samopouzdanje koje žena ponese sa sobom kada zna da izgleda najbolje.",
 ];
 
 export const milkShakeTreatments = [
   {
     name: "Milk Shake profesionalni tretmani",
     description:
-      "Kompletna linija tretmana za hidrataciju, obnovu i zastitu kose, prilagodjena stvarnom stanju vlasi.",
-    benefit: "Hidratacija + obnova + zastita",
+      "Kompletna linija tretmana za hidrataciju, obnovu i zaštitu kose, prilagođena stvarnom stanju vlasi.",
+    benefit: "Hidratacija + obnova + zaštita",
   },
   {
     name: "Amino 18",
     description:
-      "Intenzivna obnova strukture vlasi i jacanje kose koja je oslabljena blajhanjem, farbanjem ili toplotom.",
+      "Intenzivna obnova strukture vlasi i jačanje kose koja je oslabljena blajhanjem, farbanjem ili toplotom.",
     benefit: "Dubinska rekonstrukcija",
   },
   {
     name: "K-Silk Keratin",
     description:
-      "Tretman za ispravljanje i zagladjivanje sa dugotrajnim sjajem, uz smanjenje frizza i lakse feniranje.",
+      "Tretman za ispravljanje i zaglađivanje sa dugotrajnim sjajem, uz smanjenje frizza i lakše feniranje.",
     benefit: "Ravna, glatka i sjajna kosa",
   },
 ] as const;
 
 export const studioServices = [
-  "Tretmani ostecene i blajhane kose",
+  "Tretmani oštećene i blajhane kose",
   "Koloracije i korekcije boje",
   "Keratin tretmani",
-  "Glam sminka",
-  "Svecane i dnevne frizure",
+  "Dubinska nega i oporavak kose",
+  "Svečane i dnevne frizure",
 ] as const;
 
 export const qualityPillars = [
@@ -46,7 +46,7 @@ export const qualityPillars = [
   },
   {
     title: "Transformacija koja traje",
-    text: "Cilj je rezultat koji izgleda odlicno odmah, ali ostaje stabilan i narednih nedelja.",
+    text: "Cilj je rezultat koji izgleda odlično odmah, ali ostaje stabilan i narednih nedelja.",
   },
 ] as const;
 

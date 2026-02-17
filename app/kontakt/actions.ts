@@ -70,7 +70,7 @@ export async function sendContactInquiryEmail(payload: ContactInquiryPayload): P
   if (!apiKey) {
     return {
       ok: false,
-      error: "RESEND_API_KEY nije postavljen. Upit je sacuvan, ali email nije poslat.",
+      error: "RESEND_API_KEY nije postavljen. Upit je sačuvan, ali email nije poslat.",
     };
   }
 

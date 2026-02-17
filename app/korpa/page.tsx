@@ -17,9 +17,9 @@ export default function CartPage() {
       <section className="page-grid cart-page">
         <article className="hero cart-hero">
           <p className="eyebrow">Korpa</p>
-          <h1>Vasa korpa je trenutno prazna.</h1>
+          <h1>Vaša korpa je trenutno prazna.</h1>
           <p className="subtitle">Dodajte proizvode iz kataloga i nastavite na checkout.</p>
-          <Link href="/products" className="primary-btn">
+          <Link href="/proizvodi" className="primary-btn">
             Idi na proizvode
           </Link>
         </article>
@@ -31,7 +31,7 @@ export default function CartPage() {
     <section className="page-grid cart-page">
       <article className="hero cart-hero">
         <p className="eyebrow">Korpa</p>
-        <h1>Pregled korpe i priprema za narucivanje</h1>
+        <h1>Pregled korpe i priprema za naručivanje</h1>
         <p className="subtitle">
           U korpi imate <strong>{itemCount}</strong> artikala.
         </p>
@@ -66,7 +66,7 @@ export default function CartPage() {
                       type="button"
                       className="icon-btn"
                       onClick={() => setQuantity(item.productId, item.quantity - 1)}
-                      aria-label={`Smanji kolicinu za ${item.title}`}
+                      aria-label={`Smanji količinu za ${item.title}`}
                     >
                       -
                     </button>
@@ -75,14 +75,14 @@ export default function CartPage() {
                       min={1}
                       value={item.quantity}
                       onChange={(event) => setQuantity(item.productId, Number(event.target.value))}
-                      aria-label={`Kolicina za ${item.title}`}
+                      aria-label={`Količina za ${item.title}`}
                     />
                     <button
                       type="button"
                       className="icon-btn"
                       onClick={() => setQuantity(item.productId, item.quantity + 1)}
                       disabled={item.stock > 0 && item.quantity >= item.stock}
-                      aria-label={`Povecaj kolicinu za ${item.title}`}
+                      aria-label={`Povećaj količinu za ${item.title}`}
                     >
                       +
                     </button>
@@ -104,15 +104,15 @@ export default function CartPage() {
             <strong>{itemCount}</strong>
           </div>
           <div className="cart-summary-line cart-summary-total">
-            <span>Ukupno za placanje</span>
+            <span>Ukupno za plaćanje</span>
             <strong>{formatRsd(subtotal)}</strong>
           </div>
           <div className="cart-summary-actions">
-            <Link href="/checkout" className="primary-btn">
+            <Link href="/placanje" className="primary-btn">
               Nastavi na checkout
             </Link>
-            <Link href="/products" className="ghost-btn">
-              Dodaj jos proizvoda
+            <Link href="/proizvodi" className="ghost-btn">
+              Dodaj još proizvoda
             </Link>
           </div>
         </aside>

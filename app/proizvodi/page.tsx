@@ -1,11 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { ProductCardImageSlider } from "@/components/product-card-image-slider";
 import { useAuth } from "@/contexts/auth-context";
+import { useCart } from "@/contexts/cart-context";
+import { useLanguage } from "@/contexts/language-context";
 
 type Category = { _id: string; name: string };
 type StorageImage = { storageId: string; url: string };
@@ -17,10 +21,13 @@ type Product = {
   price: number;
   stock: number;
   discount?: number;
+  recommended?: boolean;
   categoryId: string;
   images: string[];
   storageImageIds?: string[];
   storageImages?: StorageImage[];
+  primaryImageStorageId?: string;
+  primaryImageUrl?: string;
 };
 
 type ProductForm = {
@@ -30,35 +37,13 @@ type ProductForm = {
   price: string;
   stock: string;
   discount: string;
+  recommended: boolean;
   categoryId: string;
   storageImageIds: string[];
+  primaryImageStorageId: string | null;
 };
 
-type StockFilter = "all" | "inStock" | "lowStock" | "outOfStock";
-type SortBy = "titleAsc" | "priceAsc" | "priceDesc" | "stockDesc" | "discountDesc" | "valueDesc";
-type SalesSortBy = "soldDesc" | "soldAsc" | "revenueDesc" | "ordersDesc" | "lastSoldDesc";
 type MutationReference = Parameters<typeof useMutation>[0];
-
-type SalesAnalytics = {
-  summary: {
-    ordersCount: number;
-    totalItems: number;
-    totalAmount: number;
-    uniqueProducts: number;
-  };
-  products: Array<{
-    productId: string;
-    title: string;
-    soldQuantity: number;
-    revenue: number;
-    ordersCount: number;
-    lastSoldAt: number;
-    currentStock: number;
-    categoryName: string;
-  }>;
-};
-
-const LOW_STOCK_LIMIT = 5;
 
 const EMPTY_PRODUCTS: Product[] = [];
 const EMPTY_CATEGORIES: Category[] = [];
@@ -69,56 +54,23 @@ const emptyForm: ProductForm = {
   description: "",
   price: "",
   stock: "",
-  discount: "0",
+  discount: "",
+  recommended: false,
   categoryId: "",
   storageImageIds: [],
+  primaryImageStorageId: null,
 };
 
-function finalPrice(product: Pick<Product, "price" | "discount">) {
-  const discount = product.discount ?? 0;
-  if (discount <= 0) return product.price;
-  return Math.max(0, Math.round(product.price * (1 - discount / 100)));
-}
-
-function formatRsd(value: number) {
-  if (!Number.isFinite(value) || value <= 0) return "0 RSD";
-  return `${Math.round(value).toLocaleString("sr-Latn-RS")} RSD`;
-}
-
-type StockTone = "ready" | "low" | "critical" | "out";
-
-function getStockMeta(stock: number): {
-  tone: StockTone;
-  badgeText: string;
-} {
-  const safeStock = Math.max(0, Math.floor(stock));
-
-  if (safeStock === 0) {
-    return { tone: "out", badgeText: "Rasprodato" };
-  }
-
-  if (safeStock <= 3) {
-    return { tone: "critical", badgeText: `Samo ${safeStock}` };
-  }
-
-  if (safeStock <= 10) {
-    return { tone: "low", badgeText: `Stanje ${safeStock}` };
-  }
-
-  return { tone: "ready", badgeText: `Stanje ${safeStock}` };
-}
-
-export default function AdminPage() {
+export default function ProductsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { session } = useAuth();
+  const { addItem, itemCount } = useCart();
 
   const rawProducts = useQuery(api.products.list, {}) as Product[] | undefined;
   const rawCategories = useQuery(api.products.listCategories, {}) as Category[] | undefined;
-  const rawSales = useQuery(api.orders.salesAnalytics, {}) as SalesAnalytics | undefined;
   const products = rawProducts ?? EMPTY_PRODUCTS;
   const categories = rawCategories ?? EMPTY_CATEGORIES;
-  const sales = rawSales?.products ?? [];
-  const salesSummary = rawSales?.summary ?? { ordersCount: 0, totalItems: 0, totalAmount: 0, uniqueProducts: 0 };
 
   const saveProduct = useMutation(api.products.upsertProduct) as unknown as (args: {
     productId?: string;
@@ -128,19 +80,32 @@ export default function AdminPage() {
     price: number;
     stock: number;
     discount: number;
+    recommended?: boolean;
     categoryId: string;
     images: string[];
     storageImageIds?: string[];
+    primaryImageStorageId?: string;
+    primaryImageUrl?: string;
   }) => Promise<unknown>;
 
-  const removeProduct = useMutation(api.products.deleteProduct) as unknown as (args: { productId: string }) => Promise<unknown>;
+  const setRecommended = useMutation(api.products.setRecommended) as unknown as (args: {
+    productId: string;
+    recommended: boolean;
+  }) => Promise<unknown>;
+
+  const removeProduct = useMutation(api.products.deleteProduct) as unknown as (args: {
+    productId: string;
+  }) => Promise<unknown>;
+
   const saveCategory = useMutation(api.products.upsertCategory) as unknown as (args: {
     name: string;
     categoryId?: string;
   }) => Promise<unknown>;
+
   const removeCategory = useMutation(api.products.deleteCategory) as unknown as (args: {
     categoryId: string;
   }) => Promise<unknown>;
+
   const generateUploadUrl = useMutation(
     (
       api as unknown as {
@@ -149,25 +114,20 @@ export default function AdminPage() {
     ).products.generateUploadUrl,
   ) as () => Promise<string>;
 
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [stockFilter, setStockFilter] = useState<StockFilter>("all");
-  const [discountOnly, setDiscountOnly] = useState(false);
-  const [priceMin, setPriceMin] = useState("");
-  const [priceMax, setPriceMax] = useState("");
-  const [sortBy, setSortBy] = useState<SortBy>("valueDesc");
-  const [salesSortBy, setSalesSortBy] = useState<SalesSortBy>("soldDesc");
-  const [salesSearch, setSalesSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"featured" | "priceAsc" | "priceDesc" | "stockDesc">("featured");
 
   const [showProductModal, setShowProductModal] = useState(false);
+  const [showDiscardCreateModal, setShowDiscardCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [editProductId, setEditProductId] = useState<string | null>(null);
   const [form, setForm] = useState<ProductForm>(emptyForm);
   const [localPreviewByStorageId, setLocalPreviewByStorageId] = useState<Record<string, string>>({});
 
   const [newCategoryInput, setNewCategoryInput] = useState("");
-  const [categoryEditInput, setCategoryEditInput] = useState("");
   const [categoryEditId, setCategoryEditId] = useState<string | null>(null);
+  const [categoryEditInput, setCategoryEditInput] = useState("");
   const [categoryDeleteTarget, setCategoryDeleteTarget] = useState<Category | null>(null);
   const categoryEditInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -175,16 +135,11 @@ export default function AdminPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [recommendedBusyProductId, setRecommendedBusyProductId] = useState<string | null>(null);
   const [isManagingCategory, setIsManagingCategory] = useState(false);
   const [isGlobalFileDrag, setIsGlobalFileDrag] = useState(false);
   const dragDepthRef = useRef(0);
   const uploadFromDropRef = useRef<(files: FileList | null) => void>(() => {});
-
-  useEffect(() => {
-    if (session && !session.isAdmin) {
-      router.replace("/");
-    }
-  }, [router, session]);
 
   useEffect(() => {
     if (!feedback) return;
@@ -199,6 +154,10 @@ export default function AdminPage() {
     input.setSelectionRange(0, input.value.length);
   }, [categoryEditId]);
 
+  const categoriesById = useMemo(() => {
+    return new Map(categories.map((category) => [category._id, category.name]));
+  }, [categories]);
+
   const categoryCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const product of products) {
@@ -207,94 +166,42 @@ export default function AdminPage() {
     return counts;
   }, [products]);
 
-  const categoriesById = useMemo(
-    () => new Map(categories.map((category) => [category._id, category.name])),
-    [categories],
-  );
-
   const filteredProducts = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase();
-    const min = priceMin.trim() === "" ? null : Number(priceMin);
-    const max = priceMax.trim() === "" ? null : Number(priceMax);
-    const hasMin = min !== null && Number.isFinite(min);
-    const hasMax = max !== null && Number.isFinite(max);
-
-    const filtered = products.filter((product) => {
-      if (activeCategory !== "all" && product.categoryId !== activeCategory) return false;
-      if (stockFilter === "inStock" && product.stock <= 0) return false;
-      if (stockFilter === "lowStock" && !(product.stock > 0 && product.stock <= LOW_STOCK_LIMIT)) return false;
-      if (stockFilter === "outOfStock" && product.stock !== 0) return false;
-      if (discountOnly && (product.discount ?? 0) <= 0) return false;
-
-      const price = finalPrice(product);
-      if (hasMin && min !== null && price < min) return false;
-      if (hasMax && max !== null && price > max) return false;
-
-      if (!query) return true;
-      return [product.title, product.subtitle, product.description].join(" ").toLowerCase().includes(query);
+    const lowered = searchTerm.trim().toLowerCase();
+    const items = products.filter((product) => {
+      const inCategory = activeCategory === "all" || product.categoryId === activeCategory;
+      if (!inCategory) return false;
+      if (!lowered) return true;
+      return [product.title, product.subtitle, product.description]
+        .join(" ")
+        .toLowerCase()
+        .includes(lowered);
     });
 
-    if (sortBy === "titleAsc") {
-      return [...filtered].sort((a, b) => a.title.localeCompare(b.title, "sr-Latn-RS"));
+    if (sortBy === "featured") {
+      return [...items].sort((a, b) => {
+        const recommendedDelta = Number(Boolean(b.recommended)) - Number(Boolean(a.recommended));
+        if (recommendedDelta !== 0) return recommendedDelta;
+        const discountDelta = (b.discount ?? 0) - (a.discount ?? 0);
+        if (discountDelta !== 0) return discountDelta;
+        return b.stock - a.stock;
+      });
     }
+
     if (sortBy === "priceAsc") {
-      return [...filtered].sort((a, b) => finalPrice(a) - finalPrice(b));
+      return [...items].sort((a, b) => getFinalPrice(a) - getFinalPrice(b));
     }
+
     if (sortBy === "priceDesc") {
-      return [...filtered].sort((a, b) => finalPrice(b) - finalPrice(a));
+      return [...items].sort((a, b) => getFinalPrice(b) - getFinalPrice(a));
     }
+
     if (sortBy === "stockDesc") {
-      return [...filtered].sort((a, b) => b.stock - a.stock);
+      return [...items].sort((a, b) => b.stock - a.stock);
     }
-    if (sortBy === "discountDesc") {
-      return [...filtered].sort((a, b) => (b.discount ?? 0) - (a.discount ?? 0));
-    }
-    return [...filtered].sort((a, b) => finalPrice(b) * b.stock - finalPrice(a) * a.stock);
-  }, [activeCategory, discountOnly, priceMax, priceMin, products, searchTerm, sortBy, stockFilter]);
 
-  const stats = useMemo(() => {
-    const totalCount = products.length;
-    const totalStock = products.reduce((sum, item) => sum + item.stock, 0);
-    const lowStock = products.filter((item) => item.stock > 0 && item.stock <= LOW_STOCK_LIMIT).length;
-    const outOfStock = products.filter((item) => item.stock === 0).length;
-    const discounted = products.filter((item) => (item.discount ?? 0) > 0).length;
-    const inventoryValue = products.reduce((sum, item) => sum + finalPrice(item) * item.stock, 0);
-    return { totalCount, totalStock, lowStock, outOfStock, discounted, inventoryValue };
-  }, [products]);
-
-  const filteredSales = useMemo(() => {
-    const query = salesSearch.trim().toLowerCase();
-    const filtered = sales.filter((row) => {
-      if (!query) return true;
-      return `${row.title} ${row.categoryName}`.toLowerCase().includes(query);
-    });
-
-    if (salesSortBy === "soldAsc") {
-      return [...filtered].sort((a, b) => a.soldQuantity - b.soldQuantity);
-    }
-    if (salesSortBy === "revenueDesc") {
-      return [...filtered].sort((a, b) => b.revenue - a.revenue);
-    }
-    if (salesSortBy === "ordersDesc") {
-      return [...filtered].sort((a, b) => b.ordersCount - a.ordersCount);
-    }
-    if (salesSortBy === "lastSoldDesc") {
-      return [...filtered].sort((a, b) => b.lastSoldAt - a.lastSoldAt);
-    }
-    return [...filtered].sort((a, b) => b.soldQuantity - a.soldQuantity);
-  }, [sales, salesSearch, salesSortBy]);
-
-  const filtersApplied = useMemo(() => {
-    let count = 0;
-    if (searchTerm.trim()) count += 1;
-    if (activeCategory !== "all") count += 1;
-    if (stockFilter !== "all") count += 1;
-    if (discountOnly) count += 1;
-    if (priceMin.trim()) count += 1;
-    if (priceMax.trim()) count += 1;
-    if (sortBy !== "valueDesc") count += 1;
-    return count;
-  }, [activeCategory, discountOnly, priceMax, priceMin, searchTerm, sortBy, stockFilter]);
+    return [...items];
+  }, [products, activeCategory, searchTerm, sortBy]);
 
   const editingProduct = useMemo(
     () => products.find((product) => product._id === editProductId) ?? null,
@@ -324,7 +231,24 @@ export default function AdminPage() {
     });
   };
 
+  const hasNewProductDraft = useMemo(() => {
+    if (editProductId !== null) return false;
+    return (
+      form.title.trim().length > 0
+      || form.subtitle.trim().length > 0
+      || form.description.trim().length > 0
+      || form.price.trim().length > 0
+      || form.stock.trim().length > 0
+      || form.discount.trim().length > 0
+      || form.recommended
+      || form.categoryId.trim().length > 0
+      || form.storageImageIds.length > 0
+      || form.primaryImageStorageId !== null
+    );
+  }, [editProductId, form]);
+
   const closeProductModal = () => {
+    setShowDiscardCreateModal(false);
     setShowProductModal(false);
     setEditProductId(null);
     setForm(emptyForm);
@@ -333,10 +257,19 @@ export default function AdminPage() {
     resetLocalPreviews();
   };
 
+  const requestCloseProductModal = () => {
+    if (hasNewProductDraft) {
+      setShowDiscardCreateModal(true);
+      return;
+    }
+    closeProductModal();
+  };
+
   const openCreate = () => {
     resetLocalPreviews();
     setEditProductId(null);
     setForm(emptyForm);
+    setShowDiscardCreateModal(false);
     setShowProductModal(true);
   };
 
@@ -349,21 +282,24 @@ export default function AdminPage() {
       description: product.description,
       price: String(product.price),
       stock: String(product.stock),
-      discount: String(product.discount ?? 0),
+      discount: product.discount ? String(product.discount) : "",
+      recommended: Boolean(product.recommended),
       categoryId: product.categoryId,
       storageImageIds: [...(product.storageImageIds ?? [])],
+      primaryImageStorageId: product.primaryImageStorageId ?? null,
     });
+    setShowDiscardCreateModal(false);
     setShowProductModal(true);
   };
 
-  const clearFilters = () => {
-    setSearchTerm("");
-    setActiveCategory("all");
-    setStockFilter("all");
-    setDiscountOnly(false);
-    setPriceMin("");
-    setPriceMax("");
-    setSortBy("valueDesc");
+  const openProductDetails = (productId: string) => {
+    router.push(`/proizvodi/${productId}`);
+  };
+
+  const onProductCardKeyDown = (event: KeyboardEvent<HTMLElement>, productId: string) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    openProductDetails(productId);
   };
 
   const onUploadImages = useCallback(async (files: FileList | null) => {
@@ -420,7 +356,8 @@ export default function AdminPage() {
               ids.push(item.storageId);
             }
           }
-          return { ...current, storageImageIds: ids };
+          const primaryImageStorageId = current.primaryImageStorageId ?? (ids[0] ?? null);
+          return { ...current, storageImageIds: ids, primaryImageStorageId };
         });
       }
 
@@ -521,10 +458,16 @@ export default function AdminPage() {
       delete next[storageId];
       return next;
     });
-    setForm((current) => ({
-      ...current,
-      storageImageIds: current.storageImageIds.filter((id) => id !== storageId),
-    }));
+    setForm((current) => {
+      const nextIds = current.storageImageIds.filter((id) => id !== storageId);
+      const primaryImageStorageId =
+        current.primaryImageStorageId === storageId ? (nextIds[0] ?? null) : current.primaryImageStorageId;
+      return { ...current, storageImageIds: nextIds, primaryImageStorageId };
+    });
+  };
+
+  const setPrimaryStorageImage = (storageId: string) => {
+    setForm((current) => ({ ...current, primaryImageStorageId: storageId }));
   };
 
   const onSaveProduct = async (event: FormEvent) => {
@@ -559,11 +502,13 @@ export default function AdminPage() {
         price,
         stock,
         discount,
+        recommended: form.recommended,
         categoryId: form.categoryId,
         images: preservedExternalImages,
         storageImageIds: form.storageImageIds,
+        primaryImageStorageId: form.primaryImageStorageId ?? undefined,
       });
-      setFeedback({ type: "success", message: editProductId ? "Proizvod je ažuriran." : "Novi proizvod je dodat." });
+      setFeedback({ type: "success", message: editProductId ? "Proizvod je azuriran." : "Novi proizvod je dodat." });
       closeProductModal();
     } catch {
       setFeedback({ type: "error", message: "Čuvanje proizvoda nije uspelo." });
@@ -572,17 +517,19 @@ export default function AdminPage() {
     }
   };
 
-  const onDeleteProduct = async () => {
-    if (!showDeleteModal) return;
-    setIsDeleting(true);
+  const onToggleRecommended = async (productId: string, recommended: boolean) => {
+    if (!session?.isAdmin) return;
+    setRecommendedBusyProductId(productId);
     try {
-      await removeProduct({ productId: showDeleteModal });
-      setFeedback({ type: "success", message: "Proizvod je obrisan." });
-      setShowDeleteModal(null);
+      await setRecommended({ productId, recommended });
+      setFeedback({
+        type: "success",
+        message: recommended ? "Proizvod je označen kao preporučen." : "Proizvod je uklonjen iz preporučenih.",
+      });
     } catch {
-      setFeedback({ type: "error", message: "Brisanje proizvoda nije uspelo." });
+      setFeedback({ type: "error", message: "Izmena preporučenog statusa nije uspela." });
     } finally {
-      setIsDeleting(false);
+      setRecommendedBusyProductId((current) => (current === productId ? null : current));
     }
   };
 
@@ -601,7 +548,7 @@ export default function AdminPage() {
       setFeedback({ type: "success", message: "Kategorija je dodata." });
       setNewCategoryInput("");
     } catch {
-      setFeedback({ type: "error", message: "Sačuvavanje kategorije nije uspelo." });
+      setFeedback({ type: "error", message: "Dodavanje kategorije nije uspelo." });
     } finally {
       setIsManagingCategory(false);
     }
@@ -622,7 +569,7 @@ export default function AdminPage() {
       setFeedback({ type: "success", message: "Kategorija je izmenjena." });
       resetCategoryEditor();
     } catch {
-      setFeedback({ type: "error", message: "Sačuvavanje kategorije nije uspelo." });
+      setFeedback({ type: "error", message: "Izmena kategorije nije uspela." });
     } finally {
       setIsManagingCategory(false);
     }
@@ -644,251 +591,97 @@ export default function AdminPage() {
     }
   };
 
-  if (!session) {
-    return (
-      <section className="page-grid admin-page">
-        <section className="empty-state">
-          <h3>Morate biti prijavljeni kao admin.</h3>
-          <p>Prijavite se pa otvorite admin tab ponovo.</p>
-          <button type="button" className="primary-btn" onClick={() => router.push("/prijava")}>
-            Idi na prijavu
-          </button>
-        </section>
-      </section>
-    );
-  }
+  const onDeleteProduct = async () => {
+    if (!showDeleteModal) return;
+    setIsDeleting(true);
+    try {
+      await removeProduct({ productId: showDeleteModal });
+      setFeedback({ type: "success", message: "Proizvod je obrisan." });
+      setShowDeleteModal(null);
+    } catch {
+      setFeedback({ type: "error", message: "Brisanje proizvoda nije uspelo." });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
-  if (!session.isAdmin) {
-    return null;
-  }
+  const onAddToCart = (product: Product) => {
+    if (product.stock <= 0) {
+      setFeedback({ type: "error", message: "Proizvod trenutno nije dostupan." });
+      return;
+    }
 
-  const loading = rawProducts === undefined || rawCategories === undefined;
+    addItem({
+      productId: product._id,
+      title: product.title,
+      subtitle: product.subtitle,
+      image: product.images?.[0] ?? "/logo.png",
+      unitPrice: product.price,
+      discount: product.discount ?? 0,
+      stock: product.stock,
+    });
+    setFeedback({ type: "success", message: `"${product.title}" je dodat u korpu.` });
+  };
 
   return (
-    <section className="page-grid admin-page">
-      <section className="hero admin-hero">
-        <div>
-          <p className="eyebrow">Kontrolni centar</p>
-          <h1>Admin studio</h1>
-          <p className="subtitle">Moderni kontrolni panel za katalog, lager i Convex čuvanje slika.</p>
-        </div>
-        <div className="admin-hero-actions">
-          <button type="button" className="primary-btn" onClick={openCreate}>
-            Novi proizvod
-          </button>
-          <button type="button" className="ghost-btn" onClick={clearFilters}>
-            Poništi filtere
-          </button>
-        </div>
-      </section>
-
-      <section className="dashboard-grid admin-kpi-grid">
-        <article className="metric-card">
-          <span>Proizvodi</span>
-          <strong>{stats.totalCount}</strong>
-        </article>
-        <article className="metric-card">
-          <span>Ukupno komada</span>
-          <strong>{stats.totalStock}</strong>
-        </article>
-        <article className="metric-card">
-          <span>Nizak lager</span>
-          <strong>{stats.lowStock}</strong>
-        </article>
-        <article className="metric-card">
-          <span>Rasprodato</span>
-          <strong>{stats.outOfStock}</strong>
-        </article>
-        <article className="metric-card">
-          <span>Na akciji</span>
-          <strong>{stats.discounted}</strong>
-        </article>
-        <article className="metric-card">
-          <span>Vrednost lagera</span>
-          <strong>{stats.inventoryValue.toLocaleString("sr-Latn-RS")} RSD</strong>
-        </article>
-      </section>
-
-      <section className="toolbar-card admin-sales-card">
-        <div className="admin-sales-head">
-          <div>
-            <h2>Prodaja proizvoda</h2>
-            <p>Tracking po proizvodu: prodato, broj porudzbina, prihod i poslednja prodaja.</p>
-          </div>
-          <div className="admin-sales-controls">
-            <input
-              value={salesSearch}
-              onChange={(event) => setSalesSearch(event.target.value)}
-              placeholder="Pretraga prodaje po proizvodu ili kategoriji"
-              aria-label="Pretraga prodaje"
-            />
-            <select value={salesSortBy} onChange={(event) => setSalesSortBy(event.target.value as SalesSortBy)}>
-              <option value="soldDesc">Sort: najprodavaniji</option>
-              <option value="soldAsc">Sort: najmanje prodato</option>
-              <option value="revenueDesc">Sort: najveci prihod</option>
-              <option value="ordersDesc">Sort: najvise porudzbina</option>
-              <option value="lastSoldDesc">Sort: najnovija prodaja</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="dashboard-grid admin-sales-kpis">
-          <article className="metric-card">
-            <span>Ukupno porudzbina</span>
-            <strong>{salesSummary.ordersCount}</strong>
-          </article>
-          <article className="metric-card">
-            <span>Ukupno prodato komada</span>
-            <strong>{salesSummary.totalItems}</strong>
-          </article>
-          <article className="metric-card">
-            <span>Ukupan promet</span>
-            <strong>{formatRsd(salesSummary.totalAmount)}</strong>
-          </article>
-          <article className="metric-card">
-            <span>Proizvoda sa prodajom</span>
-            <strong>{salesSummary.uniqueProducts}</strong>
-          </article>
-        </div>
-
-        {rawSales === undefined ? (
-          <p className="admin-sales-empty">Ucitavanje prodajne analitike...</p>
-        ) : filteredSales.length === 0 ? (
-          <p className="admin-sales-empty">Trenutno nema podataka o prodaji za zadati filter.</p>
-        ) : (
-          <div className="admin-sales-table">
-            <div className="admin-sales-table-head">
-              <span>Proizvod</span>
-              <span>Prodato</span>
-              <span>Porudzbine</span>
-              <span>Prihod</span>
-              <span>Lager</span>
-              <span>Poslednja prodaja</span>
-            </div>
-            {filteredSales.map((row) => (
-              <article key={row.productId} className="admin-sales-row">
-                <div>
-                  <strong>{row.title}</strong>
-                  <p>{row.categoryName}</p>
-                </div>
-                <span>{row.soldQuantity}</span>
-                <span>{row.ordersCount}</span>
-                <span>{formatRsd(row.revenue)}</span>
-                <span className={row.currentStock <= LOW_STOCK_LIMIT ? "sales-stock-low" : "sales-stock-ok"}>
-                  {row.currentStock}
-                </span>
-                <span>
-                  {row.lastSoldAt > 0
-                    ? new Date(row.lastSoldAt).toLocaleString("sr-Latn-RS", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : "-"}
-                </span>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="toolbar-card admin-filter-card">
-        <div className="admin-filter-grid">
+    <section className="page-grid products-page">
+      <section className="toolbar-card">
+        <div className="toolbar-main">
           <input
             className="search-input"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Brza pretraga po nazivu, opisu i podnaslovu"
+            placeholder="Pretraga po nazivu, opisu ili podnaslovu"
             aria-label="Pretraga proizvoda"
           />
-
-          <select className="sort-select" value={activeCategory} onChange={(event) => setActiveCategory(event.target.value)}>
-            <option value="all">Sve kategorije</option>
-            {categories.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
+          <select value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="sort-select">
+            <option value="featured">Preporučeno</option>
+            <option value="priceAsc">Cena: niža ka višoj</option>
+            <option value="priceDesc">Cena: viša ka nižoj</option>
+            <option value="stockDesc">Najveće stanje</option>
           </select>
-
-          <select className="sort-select" value={stockFilter} onChange={(event) => setStockFilter(event.target.value as StockFilter)}>
-            <option value="all">Sve stanje lagera</option>
-            <option value="inStock">Na stanju</option>
-            <option value="lowStock">Nizak lager</option>
-            <option value="outOfStock">Rasprodato</option>
-          </select>
-
-          <select className="sort-select" value={sortBy} onChange={(event) => setSortBy(event.target.value as SortBy)}>
-            <option value="valueDesc">Sortiranje: vrednost lagera</option>
-            <option value="titleAsc">Sortiranje: naziv A-Z</option>
-            <option value="priceAsc">Sortiranje: cena rastuće</option>
-            <option value="priceDesc">Sortiranje: cena opadajuće</option>
-            <option value="stockDesc">Sortiranje: stanje lagera</option>
-            <option value="discountDesc">Sortiranje: najveći popust</option>
-          </select>
-
-          <input
-            type="number"
-            value={priceMin}
-            onChange={(event) => setPriceMin(event.target.value)}
-            placeholder="Cena od (RSD)"
-            aria-label="Minimalna cena"
-          />
-          <input
-            type="number"
-            value={priceMax}
-            onChange={(event) => setPriceMax(event.target.value)}
-            placeholder="Cena do (RSD)"
-            aria-label="Maksimalna cena"
-          />
+          {session?.isAdmin ? (
+            <button type="button" className="primary-btn" onClick={openCreate}>
+              {t.products.createProduct}
+            </button>
+          ) : null}
+          {!session?.isAdmin ? (
+            <Link href="/korpa" className="ghost-btn">
+              Korpa ({itemCount})
+            </Link>
+          ) : null}
         </div>
 
-        <div className="admin-filter-row">
-          <label className="admin-check">
-            <input type="checkbox" checked={discountOnly} onChange={(event) => setDiscountOnly(event.target.checked)} />
-            Samo proizvodi na akciji
-          </label>
-          <p className="admin-filter-summary">
-            Prikazano: <strong>{filteredProducts.length}</strong> / {products.length}
-            {filtersApplied > 0 ? `, aktivnih filtera: ${filtersApplied}` : ""}
-          </p>
-        </div>
-      </section>
-
-      <section className="toolbar-card admin-categories-card">
-        <div className="admin-categories-head">
-          <h2>Kategorije</h2>
-          <span>Upravljanje i brza navigacija kroz katalog</span>
-        </div>
-
-        <form className="inline-form" onSubmit={onCreateCategory}>
-          <input
-            value={newCategoryInput}
-            onChange={(event) => setNewCategoryInput(event.target.value)}
-            placeholder="Dodaj novu kategoriju"
-          />
-          <button type="submit" className="primary-btn" disabled={isManagingCategory}>
-            Dodaj kategoriju
+        <div className="category-row">
+          <button
+            className={`category-pill-button ${activeCategory === "all" ? "active" : ""}`}
+            onClick={() => setActiveCategory("all")}
+            type="button"
+          >
+            <span className="category-pill-count">{products.length}</span>
+            <span className="category-pill-label">{t.products.all}</span>
           </button>
-        </form>
-
-        <div className="admin-category-list">
           {categories.map((category) => {
             const isEditing = categoryEditId === category._id;
+            const isActive = activeCategory === category._id;
+            const categoryCount = categoryCounts.get(category._id) ?? 0;
             return (
-              <article key={category._id} className={`admin-category-item ${isEditing ? "editing" : ""}`}>
+              <div key={category._id} className={`category-pill-wrap ${isEditing ? "editing" : ""} ${!isEditing && isActive ? "active" : ""}`}>
                 {isEditing ? (
-                  <form className="admin-category-main admin-category-inline-edit" onSubmit={(event) => onSubmitCategoryEdit(event, category._id)}>
+                  <form className="category-pill-edit" onSubmit={(event) => onSubmitCategoryEdit(event, category._id)}>
                     <input
                       ref={categoryEditInputRef}
                       value={categoryEditInput}
                       onChange={(event) => setCategoryEditInput(event.target.value)}
                       aria-label={`Izmeni kategoriju ${category.name}`}
                     />
-                    <div className="admin-category-inline-actions">
-                      <button type="submit" className="icon-btn icon-btn-circle" aria-label={`Sačuvaj kategoriju ${category.name}`} disabled={isManagingCategory}>
+                    <div className="category-pill-inline-actions">
+                      <button
+                        type="submit"
+                        className="icon-btn icon-btn-circle"
+                        aria-label={`Sačuvaj kategoriju ${category.name}`}
+                        disabled={isManagingCategory}
+                      >
                         <IconCheck />
                       </button>
                       <button type="button" className="icon-btn icon-btn-circle" aria-label="Odustani od izmene" onClick={resetCategoryEditor}>
@@ -898,70 +691,83 @@ export default function AdminPage() {
                   </form>
                 ) : (
                   <>
-                    <button
-                      type="button"
-                      className={`admin-category-main ${activeCategory === category._id ? "active" : ""}`}
-                      onClick={() => setActiveCategory(category._id)}
-                    >
-                      <span>{category.name}</span>
-                      <strong>{categoryCounts.get(category._id) ?? 0}</strong>
+                    <button className="category-pill-button" onClick={() => setActiveCategory(category._id)} type="button">
+                      <span className="category-pill-count">{categoryCount}</span>
+                      <span className="category-pill-label">{category.name}</span>
                     </button>
-                    <div className="admin-category-corner-actions">
-                      <button
-                        type="button"
-                        className="icon-btn icon-btn-circle"
-                        onClick={() => startCategoryEdit(category)}
-                        aria-label={`Izmeni ${category.name}`}
-                        disabled={isManagingCategory}
-                      >
-                        <IconEdit />
-                      </button>
-                      <button
-                        type="button"
-                        className="icon-btn danger icon-btn-circle"
-                        onClick={() => setCategoryDeleteTarget(category)}
-                        aria-label={`Obriši ${category.name}`}
-                        disabled={isManagingCategory}
-                      >
-                        <IconTrash />
-                      </button>
-                    </div>
+                    {session?.isAdmin ? (
+                      <div className="category-pill-corner-actions">
+                        <button
+                          type="button"
+                          className="icon-btn icon-btn-circle"
+                          onClick={() => startCategoryEdit(category)}
+                          aria-label={`Izmeni ${category.name}`}
+                          disabled={isManagingCategory}
+                        >
+                          <IconEdit />
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-btn danger icon-btn-circle"
+                          onClick={() => setCategoryDeleteTarget(category)}
+                          aria-label={`Obriši ${category.name}`}
+                          disabled={isManagingCategory}
+                        >
+                          <IconTrash />
+                        </button>
+                      </div>
+                    ) : null}
                   </>
                 )}
-              </article>
+              </div>
             );
           })}
         </div>
+
+        {session?.isAdmin ? (
+          <form className="inline-form" onSubmit={onCreateCategory}>
+            <input value={newCategoryInput} onChange={(event) => setNewCategoryInput(event.target.value)} placeholder="Nova kategorija" />
+            <button type="submit" className="primary-btn" disabled={isManagingCategory}>
+              Dodaj kategoriju
+            </button>
+          </form>
+        ) : null}
       </section>
 
       {feedback ? (
         <p className={`status-msg ${feedback.type === "error" ? "admin-status-error" : "admin-status-success"}`}>{feedback.message}</p>
       ) : null}
 
-      {loading ? (
-        <section className="loading-card">Učitavanje podataka...</section>
+      {rawProducts === undefined || rawCategories === undefined ? (
+        <section className="loading-card">Učitavanje proizvoda...</section>
       ) : filteredProducts.length === 0 ? (
         <section className="empty-state">
-          <h3>Nema rezultata za izabrane filtere.</h3>
-          <p>Promenite filtere ili resetujte prikaz.</p>
+          <h3>{t.products.empty}</h3>
+          <p>Probajte sa drugačijom pretragom ili kategorijom.</p>
         </section>
       ) : (
-        <section className="admin-product-grid">
+        <div className="product-grid enhanced-grid">
           {filteredProducts.map((product) => {
             const discount = product.discount ?? 0;
-            const resolvedPrice = finalPrice(product);
+            const finalPrice = getFinalPrice(product);
+            const categoryName = categoriesById.get(product.categoryId) ?? "Bez kategorije";
             const stockMeta = getStockMeta(product.stock);
             return (
-              <article key={product._id} className="admin-product-card product-card cosmic-product-card">
-                <div className="admin-card-media card-media-wrap">
-                  <Image
-                    src={product.images[0] ?? "/logo.png"}
-                    alt={product.title}
-                    width={640}
-                    height={640}
-                    sizes="(max-width: 768px) 100vw, 25vw"
-                    loading="lazy"
-                  />
+              <article
+                key={product._id}
+                className="product-card admin-hover-card cosmic-product-card clickable-product-card"
+                role="link"
+                tabIndex={0}
+                onClick={() => openProductDetails(product._id)}
+                onKeyDown={(event) => onProductCardKeyDown(event, product._id)}
+              >
+                <ProductCardImageSlider
+                  images={product.images}
+                  alt={product.title}
+                  width={420}
+                  height={420}
+                  sizes="(max-width: 768px) 100vw, 25vw"
+                >
                   <span className={`product-stock-chip ${stockMeta.tone}`}>
                     <span className="product-stock-dot" aria-hidden="true" />
                     {stockMeta.badgeText}
@@ -969,12 +775,13 @@ export default function AdminPage() {
                   {discount > 0 ? (
                     <span className="discount-star-badge" aria-label={`Popust ${discount}%`}>
                       <strong>-{discount}%</strong>
-                      <small>OFF</small>
+                      <small>POPUST</small>
                     </span>
                   ) : null}
-                </div>
-                <div className="card-body admin-card-body">
-                  <p className="category-tag">{categoriesById.get(product.categoryId) ?? "Bez kategorije"}</p>
+                </ProductCardImageSlider>
+                <div className="card-body">
+                  <p className="category-tag">{categoryName}</p>
+                  {product.recommended ? <p className="product-recommended-tag">Preporučen proizvod</p> : null}
                   <h3>{product.title}</h3>
                   <p>{product.subtitle}</p>
                   <p className="description-line">{product.description}</p>
@@ -982,28 +789,73 @@ export default function AdminPage() {
                   <div className="price-focus-card">
                     <p className="price-caption">Cena</p>
                     <div className="price-row">
-                      <strong>{formatRsd(resolvedPrice)}</strong>
+                      <strong>{formatRsd(finalPrice)}</strong>
                       {discount > 0 ? <span className="old-price">{formatRsd(product.price)}</span> : null}
                     </div>
-                    {discount > 0 ? <p className="price-saved">Usteda {formatRsd(product.price - resolvedPrice)}</p> : null}
+                    {discount > 0 ? <p className="price-saved">Ušteda {formatRsd(product.price - finalPrice)}</p> : null}
                   </div>
                 </div>
-                <div className="card-actions admin-card-actions">
-                  <button type="button" className="ghost-btn" onClick={() => openEdit(product)}>
-                    Izmeni
+                <div className="card-actions">
+                  <button
+                    className="primary-btn add-cart-btn"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onAddToCart(product);
+                    }}
+                    type="button"
+                    disabled={product.stock <= 0}
+                  >
+                    {stockMeta.buttonLabel}
                   </button>
-                  <button type="button" className="ghost-btn danger" onClick={() => setShowDeleteModal(product._id)}>
-                    Obriši
-                  </button>
+                  {session?.isAdmin ? (
+                    <>
+                      <label
+                        className={`admin-check admin-check-recommended ${product.recommended ? "is-on" : ""}`}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={Boolean(product.recommended)}
+                          onClick={(event) => event.stopPropagation()}
+                          onChange={(event) => {
+                            event.stopPropagation();
+                            void onToggleRecommended(product._id, event.target.checked);
+                          }}
+                          disabled={recommendedBusyProductId === product._id}
+                        />
+                        <span>Preporučen</span>
+                      </label>
+                      <button
+                        className="ghost-btn"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openEdit(product);
+                        }}
+                        type="button"
+                      >
+                        {t.products.edit}
+                      </button>
+                      <button
+                        className="ghost-btn danger"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setShowDeleteModal(product._id);
+                        }}
+                        type="button"
+                      >
+                        {t.products.delete}
+                      </button>
+                    </>
+                  ) : null}
                 </div>
               </article>
             );
           })}
-        </section>
+        </div>
       )}
 
       {showProductModal ? (
-        <Modal onClose={closeProductModal}>
+        <Modal onClose={requestCloseProductModal}>
           <h2>{editProductId ? "Izmena proizvoda" : "Novi proizvod"}</h2>
           <form className="modal-form admin-product-form" onSubmit={onSaveProduct}>
             <div className="form-row-2">
@@ -1045,12 +897,16 @@ export default function AdminPage() {
                 onChange={(event) => setForm((value) => ({ ...value, stock: event.target.value }))}
               />
               <input
-                type="number"
-                min={0}
-                max={100}
-                placeholder="Popust %"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder="Popust (%)"
                 value={form.discount}
-                onChange={(event) => setForm((value) => ({ ...value, discount: event.target.value }))}
+                onChange={(event) => {
+                  const digitsOnly = event.target.value.replace(/\D+/g, "");
+                  const normalized = digitsOnly.replace(/^0+/, "");
+                  setForm((value) => ({ ...value, discount: normalized }));
+                }}
               />
               <select required value={form.categoryId} onChange={(event) => setForm((value) => ({ ...value, categoryId: event.target.value }))}>
                 <option value="">Kategorija</option>
@@ -1061,6 +917,15 @@ export default function AdminPage() {
                 ))}
               </select>
             </div>
+
+            <label className={`admin-check admin-check-recommended admin-check-recommended-modal ${form.recommended ? "is-on" : ""}`}>
+              <input
+                type="checkbox"
+                checked={form.recommended}
+                onChange={(event) => setForm((value) => ({ ...value, recommended: event.target.checked }))}
+              />
+              <span>Preporučen proizvod</span>
+            </label>
 
             <div className={`admin-image-upload-wrap ${isGlobalFileDrag ? "drop-active" : ""}`}>
               <label className={`admin-image-upload ${isGlobalFileDrag ? "drop-active" : ""}`}>
@@ -1086,20 +951,35 @@ export default function AdminPage() {
               {form.storageImageIds.map((storageId) => {
                 const previewUrl = localPreviewByStorageId[storageId] ?? storagePreviewById.get(storageId) ?? null;
                 if (!previewUrl) return null;
+                const primaryImageId = form.primaryImageStorageId ?? form.storageImageIds[0] ?? null;
+                const isPrimary = storageId === primaryImageId;
                 return (
                   <figure key={storageId} className="admin-modal-image">
-                    <Image src={previewUrl} alt="Pregled slike" width={480} height={480} unoptimized />
+                    <div className="admin-modal-image-frame">
+                      <Image src={previewUrl} alt="Pregled slike" width={480} height={480} unoptimized />
+                      {isPrimary ? <span className="admin-image-primary-badge">Glavna</span> : null}
+                    </div>
                     <figcaption>Convex slika</figcaption>
-                    <button type="button" className="icon-btn danger" onClick={() => removeStorageImage(storageId)}>
-                      Ukloni
-                    </button>
+                    <div className="admin-modal-image-actions">
+                      <button
+                        type="button"
+                        className="ghost-btn admin-primary-btn"
+                        onClick={() => setPrimaryStorageImage(storageId)}
+                        disabled={isPrimary}
+                      >
+                        {isPrimary ? "Glavna slika" : "Postavi kao glavnu"}
+                      </button>
+                      <button type="button" className="icon-btn danger" onClick={() => removeStorageImage(storageId)}>
+                        Ukloni
+                      </button>
+                    </div>
                   </figure>
                 );
               })}
             </div>
 
             <div className="modal-actions">
-              <button type="button" className="ghost-btn" onClick={closeProductModal}>
+              <button type="button" className="ghost-btn" onClick={requestCloseProductModal}>
                 Odustani
               </button>
               <button type="submit" className="primary-btn" disabled={isSaving || isUploading}>
@@ -1110,15 +990,30 @@ export default function AdminPage() {
         </Modal>
       ) : null}
 
+      {showDiscardCreateModal ? (
+        <Modal onClose={() => setShowDiscardCreateModal(false)}>
+          <h3>Napustiti unos novog proizvoda?</h3>
+          <p>Uneti podaci nece biti sacuvani.</p>
+          <div className="modal-actions">
+            <button type="button" className="ghost-btn" onClick={() => setShowDiscardCreateModal(false)}>
+              Nazad
+            </button>
+            <button type="button" className="primary-btn danger" onClick={closeProductModal}>
+              Napusti
+            </button>
+          </div>
+        </Modal>
+      ) : null}
+
       {showDeleteModal ? (
         <Modal onClose={() => setShowDeleteModal(null)}>
           <h3>Da li ste sigurni da želite da obrišete proizvod?</h3>
-          <p>Brišu se i sve povezane Convex skladišne slike.</p>
+          <p>Brisu se i sve povezane Convex skladisne slike.</p>
           <div className="modal-actions">
-            <button type="button" className="ghost-btn" onClick={() => setShowDeleteModal(null)}>
+            <button className="ghost-btn" onClick={() => setShowDeleteModal(null)} type="button">
               Odustani
             </button>
-            <button type="button" className="primary-btn danger" disabled={isDeleting} onClick={onDeleteProduct}>
+            <button className="primary-btn danger" onClick={onDeleteProduct} type="button" disabled={isDeleting}>
               {isDeleting ? "Brisanje..." : "Potvrdi brisanje"}
             </button>
           </div>
@@ -1130,10 +1025,10 @@ export default function AdminPage() {
           <h3>Da li ste sigurni da želite da obrišete kategoriju &quot;{categoryDeleteTarget.name}&quot;?</h3>
           <p>Ako je kategorija povezana sa proizvodima, brisanje neće uspeti.</p>
           <div className="modal-actions">
-            <button type="button" className="ghost-btn" onClick={() => setCategoryDeleteTarget(null)}>
+            <button className="ghost-btn" onClick={() => setCategoryDeleteTarget(null)} type="button">
               Odustani
             </button>
-            <button type="button" className="primary-btn danger" disabled={isManagingCategory} onClick={onDeleteCategory}>
+            <button className="primary-btn danger" onClick={onDeleteCategory} type="button" disabled={isManagingCategory}>
               {isManagingCategory ? "Brisanje..." : "Potvrdi brisanje"}
             </button>
           </div>
@@ -1150,6 +1045,58 @@ export default function AdminPage() {
       ) : null}
     </section>
   );
+}
+
+function getFinalPrice(product: Pick<Product, "price" | "discount">) {
+  const discount = product.discount ?? 0;
+  if (discount <= 0) return product.price;
+  return Math.max(0, Math.round(product.price * (1 - discount / 100)));
+}
+
+type StockTone = "ready" | "low" | "critical" | "out";
+
+function getStockMeta(stock: number): {
+  tone: StockTone;
+  badgeText: string;
+  buttonLabel: string;
+} {
+  const safeStock = Math.max(0, Math.floor(stock));
+
+  if (safeStock === 0) {
+    return {
+      tone: "out",
+      badgeText: "Rasprodato",
+      buttonLabel: "Rasprodato",
+    };
+  }
+
+  if (safeStock <= 3) {
+    return {
+      tone: "critical",
+      badgeText: `Samo ${safeStock}`,
+      buttonLabel: "Dodaj odmah",
+    };
+  }
+
+  if (safeStock <= 10) {
+    return {
+      tone: "low",
+      badgeText: `Stanje ${safeStock}`,
+      buttonLabel: "Dodaj u korpu",
+    };
+  }
+
+  return {
+    tone: "ready",
+    badgeText: `Stanje ${safeStock}`,
+    buttonLabel: "Dodaj u korpu",
+  };
+}
+
+const rsdFormatter = new Intl.NumberFormat("sr-Latn-RS");
+
+function formatRsd(value: number) {
+  return `${rsdFormatter.format(Math.max(0, Math.round(value)))} RSD`;
 }
 
 function IconEdit() {
@@ -1194,8 +1141,8 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card admin-modal-card" onClick={(event) => event.stopPropagation()}>
-        <button type="button" className="modal-close" onClick={onClose} aria-label="Zatvori">
-          x
+        <button className="modal-close" onClick={onClose} type="button" aria-label="Zatvori">
+          <IconClose />
         </button>
         {children}
       </div>

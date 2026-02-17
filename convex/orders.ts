@@ -150,7 +150,7 @@ async function prepareOrderItems(ctx: MutationCtx, items: OrderItemInput[]) {
 
   const missing = products.find((entry) => !entry.product);
   if (missing) {
-    throw new Error("Jedan od proizvoda vise ne postoji.");
+    throw new Error("Jedan od proizvoda više ne postoji.");
   }
 
   const prepared: PreparedOrderItem[] = [];

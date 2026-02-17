@@ -19,9 +19,12 @@ export default defineSchema({
     price: v.number(),
     stock: v.number(),
     discount: v.number(),
+    recommended: v.optional(v.boolean()),
     categoryId: v.id("categories"),
     images: v.array(v.string()),
     storageImageIds: v.optional(v.array(v.id("_storage"))),
+    primaryImageStorageId: v.optional(v.id("_storage")),
+    primaryImageUrl: v.optional(v.string()),
   }).index("by_category", ["categoryId"]),
 
   orders: defineTable({
@@ -67,4 +70,12 @@ export default defineSchema({
     message: v.string(),
     createdAt: v.number(),
   }),
+
+  galleryImages: defineTable({
+    storageId: v.id("_storage"),
+    originalName: v.string(),
+    contentType: v.optional(v.string()),
+    size: v.optional(v.number()),
+    createdAt: v.number(),
+  }).index("by_created_at", ["createdAt"]),
 });

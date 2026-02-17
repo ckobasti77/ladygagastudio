@@ -74,7 +74,7 @@ function resolveErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) {
     return error.message;
   }
-  return "Narucivanje nije uspelo. Pokusajte ponovo.";
+  return "Naručivanje nije uspelo. Pokušajte ponovo.";
 }
 
 export default function CheckoutPage() {
@@ -132,8 +132,8 @@ export default function CheckoutPage() {
       setStatus("success");
       setStatusMessage(
         emailResult.ok
-          ? "Narudzbina je uspesno sacuvana i poslata na email admina."
-          : `Narudzbina je sacuvana, ali email nije poslat: ${emailResult.error}`,
+          ? "Narudžbina je uspešno sačuvana i poslata na email admina."
+          : `Narudžbina je sačuvana, ali email nije poslat: ${emailResult.error}`,
       );
     } catch (error: unknown) {
       setStatus("error");
@@ -145,10 +145,10 @@ export default function CheckoutPage() {
     return (
       <section className="page-grid checkout-page">
         <article className="hero checkout-hero">
-          <p className="eyebrow">Checkout</p>
-          <h1>Nema artikala za narucivanje.</h1>
-          <p className="subtitle">Dodajte proizvode u korpu pa nastavite na checkout.</p>
-          <Link href="/products" className="primary-btn">
+          <p className="eyebrow">Plaćanje</p>
+          <h1>Nema artikala za naručivanje.</h1>
+          <p className="subtitle">Dodajte proizvode u korpu pa nastavite na plaćanje.</p>
+          <Link href="/proizvodi" className="primary-btn">
             Idi na proizvode
           </Link>
         </article>
@@ -160,17 +160,17 @@ export default function CheckoutPage() {
     return (
       <section className="page-grid checkout-page">
         <article className="hero checkout-hero">
-          <p className="eyebrow">Checkout</p>
-          <h1>Narudzbina je uspesno kreirana.</h1>
+          <p className="eyebrow">Plaćanje</p>
+          <h1>Narudžbina je uspešno kreirana.</h1>
           <p className="subtitle">
             {statusMessage}
-            {createdOrderNumber ? ` Broj narudzbine: ${createdOrderNumber}.` : ""}
+            {createdOrderNumber ? ` Broj narudžbine: ${createdOrderNumber}.` : ""}
           </p>
           <div className="checkout-form-actions">
-            <Link href="/products" className="primary-btn">
+            <Link href="/proizvodi" className="primary-btn">
               Nastavi kupovinu
             </Link>
-            <Link href="/contact" className="ghost-btn">
+            <Link href="/kontakt" className="ghost-btn">
               Kontakt
             </Link>
           </div>
@@ -182,10 +182,10 @@ export default function CheckoutPage() {
   return (
     <section className="page-grid checkout-page">
       <article className="hero checkout-hero">
-        <p className="eyebrow">Checkout</p>
-        <h1>Unesite podatke i potvrdite narudzbinu</h1>
+        <p className="eyebrow">Plaćanje</p>
+        <h1>Unesite podatke i potvrdite narudžbinu</h1>
         <p className="subtitle">
-          Placanje karticom nije ukljuceno. Narudzbina se salje direktno na email admina.
+          Plaćanje karticom nije uključeno. Narudžbina se šalje direktno na email admina.
         </p>
       </article>
 
@@ -194,7 +194,7 @@ export default function CheckoutPage() {
           className={`status-msg ${status === "error" ? "admin-status-error" : ""}`}
         >
           {statusMessage}
-          {createdOrderNumber ? ` (Broj narudzbine: ${createdOrderNumber})` : ""}
+          {createdOrderNumber ? ` (Broj narudžbine: ${createdOrderNumber})` : ""}
         </p>
       ) : null}
 
@@ -247,7 +247,7 @@ export default function CheckoutPage() {
           <div className="checkout-grid-2">
             <input
               required
-              placeholder="Postanski broj"
+              placeholder="Poštanski broj"
               value={form.postalCode}
               onChange={(event) => setForm((value) => ({ ...value, postalCode: event.target.value }))}
             />
@@ -266,16 +266,16 @@ export default function CheckoutPage() {
 
           <div className="checkout-form-actions">
             <button type="submit" className="primary-btn" disabled={status === "submitting"}>
-              {status === "submitting" ? "Obrada narudzbine..." : "Potvrdi narudzbinu"}
+              {status === "submitting" ? "Obrada narudžbine..." : "Potvrdi narudžbinu"}
             </button>
-            <Link href="/cart" className="ghost-btn">
+            <Link href="/korpa" className="ghost-btn">
               Nazad na korpu
             </Link>
           </div>
         </form>
 
         <aside className="toolbar-card checkout-summary-card">
-          <h2>Rezime narudzbine</h2>
+          <h2>Rezime narudžbine</h2>
           <div className="checkout-summary-items">
             {items.map((item) => (
               <article key={item.productId} className="checkout-summary-item">

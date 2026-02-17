@@ -11,7 +11,7 @@ import { sendContactInquiryEmail } from "./actions";
 const responseWindows = [
   "Upiti do 15h: odgovor istog dana",
   "Hitni termini: prioritetna obrada",
-  "Online podrska: 7 dana u nedelji",
+  "Onlajn podrška: 7 dana u nedelji",
 ] as const;
 
 const contactNodes = [
@@ -55,14 +55,14 @@ export default function ContactPage() {
       setForm({ name: "", email: "", message: "" });
       if (emailResult.ok) {
         setStatus("sent");
-        setStatusMessage("Poruka je uspesno poslata.");
+        setStatusMessage("Poruka je uspešno poslata.");
       } else {
         setStatus("error");
-        setStatusMessage(`Upit je sacuvan, ali email nije poslat: ${emailResult.error}`);
+        setStatusMessage(`Upit je sačuvan, ali email nije poslat: ${emailResult.error}`);
       }
     } catch {
       setStatus("error");
-      setStatusMessage("Slanje nije uspelo. Pokusajte ponovo za par sekundi.");
+      setStatusMessage("Slanje nije uspelo. Pokušajte ponovo za par sekundi.");
     }
   };
 
@@ -71,14 +71,14 @@ export default function ContactPage() {
       <article className="orbit-hero contact-hero orbit-reveal">
         <div className="orbit-hud" aria-hidden>
           <span>Rezervacije</span>
-          <strong>Studio Lady Gaga no 1 | Direktan kontakt</strong>
+          <strong>Studio Lady Gaga | Direktan kontakt</strong>
         </div>
 
         <p className="orbit-eyebrow">Kontakt</p>
-        <h1>Posaljite poruku i dobijate jasan plan za vasu kosu.</h1>
+        <h1>Pošaljite poruku i dobijate jasan plan za vašu kosu.</h1>
         <p className="orbit-lead">
-          Ostavite upit za tretman, koloraciju, keratin, sminku ili frizuru. Dobijate predlog usluge i preporuku
-          proizvoda za odrzavanje rezultata.
+          Ostavite upit za tretman, koloraciju, keratin ili frizuru. Dobijate predlog usluge i preporuku
+          proizvoda za održavanje rezultata.
         </p>
 
         <div className="orbit-badge-row">
@@ -93,7 +93,7 @@ export default function ContactPage() {
       <section className="contact-node-grid orbit-reveal">
         {contactNodes.map((node) => (
           <article key={node.title} className="orbit-panel contact-node-card">
-            <p className="orbit-panel-tag">Kontakt tacka</p>
+            <p className="orbit-panel-tag">Kontakt tačka</p>
             <h2>{node.title}</h2>
             <strong>{node.value}</strong>
             <p>{node.detail}</p>
@@ -102,8 +102,8 @@ export default function ContactPage() {
       </section>
 
       <section className="orbit-panel orbit-reveal contact-offer-board">
-        <p className="orbit-panel-tag">Sta mozete zakazati</p>
-        <h2>Usluge i tretmani koje najcesce biraju klijentkinje.</h2>
+        <p className="orbit-panel-tag">Šta možete zakazati</p>
+        <h2>Usluge i tretmani koje najčešće biraju klijentkinje.</h2>
         <div className="contact-offer-grid">
           <article>
             <h3>Usluge</h3>
@@ -135,7 +135,7 @@ export default function ContactPage() {
           <p className="orbit-panel-tag">Mapa dolaska</p>
           <h2>Locirajte studio i planirajte dolazak.</h2>
           <p>
-            Ako dolazite prvi put, napisite u poruci da ste nova klijentkinja i dobijate smernice za najbrzi dolazak.
+            Ako dolazite prvi put, napišite u poruci da ste nova klijentkinja i dobijate smernice za najbrži dolazak.
           </p>
           <iframe title="Studio Lady Gaga mapa" src="https://www.google.com/maps?q=Belgrade&output=embed" loading="lazy" />
         </article>
@@ -143,7 +143,7 @@ export default function ContactPage() {
         <form className="orbit-panel contact-form-panel" onSubmit={submit}>
           <p className="orbit-panel-tag">Kontakt forma</p>
           <h2>{t.contact.form}</h2>
-          <p>U poruci navedite kratko stanje kose i zelju koju imate.</p>
+          <p>U poruci navedite kratko stanje kose i želju koju imate.</p>
 
           {status === "sent" ? <p className="status-msg contact-status success">{statusMessage}</p> : null}
           {status === "error" ? (
@@ -189,7 +189,7 @@ export default function ContactPage() {
           </button>
 
           <p className="contact-footnote">
-            Za brzu kupovinu preporucenih artikala otvorite <Link href="/products">stranicu proizvoda</Link>.
+            Za brzu kupovinu preporučenih artikala otvorite <Link href="/proizvodi">stranicu proizvoda</Link>.
           </p>
         </form>
       </section>

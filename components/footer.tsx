@@ -12,12 +12,12 @@ export function Footer() {
       <div className="container footer-content">
         <div className="footer-nav">
           <Link href="/">{t.nav.home}</Link>
-          <Link href="/about">{t.nav.about}</Link>
-          <Link href="/products">{t.nav.products}</Link>
-          <Link href="/contact">{t.nav.contact}</Link>
+          <Link href="/o-nama">{t.nav.about}</Link>
+          <Link href="/proizvodi">{t.nav.products}</Link>
+          <Link href="/kontakt">{t.nav.contact}</Link>
         </div>
         <p className="footer-tagline">
-          Studio Lady Gaga no 1 | Tretmani ostecene i blajhane kose, zahtevne koloracije, keratin, sminka i frizure.
+          Studio Lady Gaga | Tretmani oštećene i blajhane kose, zahtevne koloracije, keratin i frizure.
         </p>
         <div className="footer-contact">
           <p>+381 60 123 4567</p>

@@ -5,6 +5,7 @@ export const translations = {
     nav: {
       home: "Početna",
       about: "O nama",
+      gallery: "Galerija",
       products: "Proizvodi",
       cart: "Korpa",
       contact: "Kontakt",

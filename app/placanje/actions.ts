@@ -53,7 +53,7 @@ function escapeHtml(value: string) {
 
 function buildTextPayload(payload: CheckoutEmailPayload) {
   const lines = [
-    `Narudzbina: ${payload.orderNumber}`,
+    `Narudžbina: ${payload.orderNumber}`,
     `Vreme: ${new Date(payload.createdAt).toLocaleString("sr-Latn-RS")}`,
     "",
     "Kupac:",
@@ -95,7 +95,7 @@ function buildHtmlPayload(payload: CheckoutEmailPayload) {
     <div style="background:#f4f5f7;padding:24px 12px;font-family:Arial,sans-serif;color:#111827;">
       <div style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">
         <div style="background:linear-gradient(135deg,#e56f4a,#ca4d2a);color:#ffffff;padding:18px 20px;">
-          <p style="margin:0 0 6px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">Nova narudzbina</p>
+          <p style="margin:0 0 6px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">Nova narudžbina</p>
           <h1 style="margin:0;font-size:24px;">${escapeHtml(payload.orderNumber)}</h1>
           <p style="margin:8px 0 0;font-size:13px;opacity:.92;">Kreirano: ${escapeHtml(createdAt)}</p>
         </div>
@@ -119,12 +119,12 @@ function buildHtmlPayload(payload: CheckoutEmailPayload) {
               : ""
           }
 
-          <h2 style="margin:24px 0 12px;font-size:18px;">Stavke porudzbine</h2>
+          <h2 style="margin:24px 0 12px;font-size:18px;">Stavke porudžbine</h2>
           <table style="width:100%;border-collapse:collapse;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
             <thead>
               <tr style="background:#f9fafb;">
                 <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Proizvod</th>
-                <th style="text-align:center;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Kolicina</th>
+                <th style="text-align:center;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Količina</th>
                 <th style="text-align:right;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Cena</th>
                 <th style="text-align:right;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Ukupno</th>
               </tr>
@@ -150,7 +150,7 @@ export async function sendCheckoutOrderEmail(payload: CheckoutEmailPayload): Pro
   if (!apiKey) {
     return {
       ok: false,
-      error: "RESEND_API_KEY nije postavljen. Narudzbina je sacuvana, ali email nije poslat.",
+      error: "RESEND_API_KEY nije postavljen. Narudžbina je sačuvana, ali email nije poslat.",
     };
   }
 
@@ -163,7 +163,7 @@ export async function sendCheckoutOrderEmail(payload: CheckoutEmailPayload): Pro
     body: JSON.stringify({
       from: fromEmail,
       to: [recipient],
-      subject: `Nova narudzbina ${payload.orderNumber}`,
+      subject: `Nova narudžbina ${payload.orderNumber}`,
       html: buildHtmlPayload(payload),
       text: buildTextPayload(payload),
       reply_to: payload.customer.email,

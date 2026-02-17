@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Moon, ShoppingCart, Sun } from "lucide-react";
+import { Menu, Moon, ShoppingCart, Sun, X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useCart } from "@/contexts/cart-context";
 import { useLanguage } from "@/contexts/language-context";
@@ -20,12 +20,14 @@ export function Navbar() {
   const menuId = "primary-navigation";
   const open = openForPath === pathname;
   const themeToggleLabel = theme === "light" ? "Prebaci na tamnu temu" : "Prebaci na svetlu temu";
+  const menuToggleLabel = open ? "Zatvori meni" : "Otvori meni";
 
   const navItems = [
     { href: "/", label: t.nav.home },
-    { href: "/about", label: t.nav.about },
-    { href: "/products", label: t.nav.products },
-    { href: "/contact", label: t.nav.contact },
+    { href: "/o-nama", label: t.nav.about },
+    { href: "/galerija", label: t.nav.gallery },
+    { href: "/proizvodi", label: t.nav.products },
+    { href: "/kontakt", label: t.nav.contact },
   ];
 
   return (
@@ -37,22 +39,45 @@ export function Navbar() {
             <span className="brand-pulse" aria-hidden />
           </span>
           <span className="brand-copy">
-            <span className="brand-title">Studio Lady Gaga</span>
-            <span className="brand-subtitle">Hair + beauty no 1</span>
+            <span className="brand-title">
+              <span className="brand-title-line">Studio</span>
+              <span className="brand-title-line">Lady Gaga</span>
+            </span>
+            <span className="brand-subtitle">Kosa + lepota</span>
           </span>
         </Link>
+
+        <div className="nav-quick-actions">
+          <Link
+            href="/korpa"
+            className={`cart-nav-link ${pathname === "/korpa" ? "active" : ""}`}
+            onClick={() => setOpenForPath(null)}
+            aria-label={t.nav.cart}
+            title={t.nav.cart}
+          >
+            <ShoppingCart aria-hidden />
+            {itemCount > 0 ? <span className="nav-count-badge cart-nav-badge">{itemCount}</span> : null}
+          </Link>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="switch-btn nav-chip theme-switch-btn"
+            aria-label={themeToggleLabel}
+            title={themeToggleLabel}
+          >
+            {theme === "light" ? <Moon aria-hidden /> : <Sun aria-hidden />}
+          </button>
+        </div>
 
         <button
           className={`burger ${open ? "open" : ""}`}
           onClick={() => setOpenForPath((currentPath) => (currentPath === pathname ? null : pathname))}
-          aria-label="Meni"
+          aria-label={menuToggleLabel}
           aria-controls={menuId}
           aria-expanded={open}
           type="button"
         >
-          <span />
-          <span />
-          <span />
+          {open ? <X aria-hidden strokeWidth={2.4} /> : <Menu aria-hidden strokeWidth={2.4} />}
         </button>
 
         <div className={`nav-right ${open ? "open" : ""}`} id={menuId}>
@@ -82,8 +107,8 @@ export function Navbar() {
           </ul>
 
           <Link
-            href="/cart"
-            className={`cart-nav-link ${pathname === "/cart" ? "active" : ""}`}
+            href="/korpa"
+            className={`hidden md:visible cart-nav-link ${pathname === "/korpa" ? "active" : ""}`}
             onClick={() => setOpenForPath(null)}
             aria-label={t.nav.cart}
             title={t.nav.cart}
@@ -114,7 +139,7 @@ export function Navbar() {
                 {t.nav.logout}
               </button>
             ) : (
-              <Link href="/login" className="switch-btn nav-chip nav-chip-primary" onClick={() => setOpenForPath(null)}>
+              <Link href="/prijava" className="switch-btn nav-chip nav-chip-primary" onClick={() => setOpenForPath(null)}>
                 {t.nav.login}
               </Link>
             )}

@@ -5,9 +5,9 @@ import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: "Studio Lady Gaga no 1",
+  title: "Studio Lady Gaga",
   description:
-    "Profesionalni tretmani kose, koloracije, keratin, sminka i frizure uz proizvode za dugotrajnu negu.",
+    "Profesionalni tretmani kose, koloracije, keratin i frizure uz proizvode za dugotrajnu negu.",
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",

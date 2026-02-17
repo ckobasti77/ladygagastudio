@@ -13,7 +13,7 @@ import {
 
 const studioHighlights = [
   { label: "Godina iskustva", value: "12+" },
-  { label: "Specijalizacija", value: "Blajhana i ostecena kosa" },
+  { label: "Specijalizacija", value: "Blajhana i oštećena kosa" },
   { label: "Rezultat", value: "Lep + zdrav + dugotrajan" },
 ] as const;
 
@@ -22,8 +22,8 @@ export default function AboutPage() {
     <section className="page-grid orbit-page about-orbit about-rebuild">
       <article className="orbit-hero orbit-reveal">
         <div className="orbit-hud" aria-hidden>
-          <span>Founder Story</span>
-          <strong>Dragana | Studio Lady Gaga no 1</strong>
+          <span>Priča osnivačice</span>
+          <strong>Dragana | Studio Lady Gaga</strong>
         </div>
 
         <p className="orbit-eyebrow">O studiju</p>
@@ -33,10 +33,10 @@ export default function AboutPage() {
         </p>
 
         <div className="orbit-actions">
-          <Link href="/contact" className="primary-btn orbit-main-action">
-            Zakazi konsultaciju
+          <Link href="/kontakt" className="primary-btn orbit-main-action">
+            Zakaži konsultaciju
           </Link>
-          <Link href="/products" className="ghost-btn orbit-second-action">
+          <Link href="/proizvodi" className="ghost-btn orbit-second-action">
             Pogledaj proizvode
           </Link>
         </div>
@@ -53,15 +53,15 @@ export default function AboutPage() {
 
       <section className="orbit-split orbit-reveal about-founder-split">
         <article className="orbit-panel">
-          <p className="orbit-panel-tag">Licni potpis</p>
-          <h2>Svaka klijentkinja dobija plan koji odgovara bas njenoj kosi.</h2>
+          <p className="orbit-panel-tag">Lični potpis</p>
+          <h2>Svaka klijentkinja dobija plan koji odgovara baš njenoj kosi.</h2>
           <div className="about-founder-copy">
             {founderStory.slice(2).map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
           <p className="about-founder-note">
-            Lepota je vise od izgleda. To je samopouzdanje koje nosis sa sobom.
+            Lepota je više od izgleda. To je samopouzdanje koje nosiš sa sobom.
           </p>
         </article>
 
@@ -86,7 +86,7 @@ export default function AboutPage() {
 
       <section className="orbit-panel orbit-reveal about-service-board">
         <p className="orbit-panel-tag">Usluge</p>
-        <h2>Tretmani kose, koloracije, keratin, sminka i frizure.</h2>
+        <h2>Tretmani kose, koloracije, keratin i frizure.</h2>
         <div className="about-service-chips">
           {studioServices.map((service) => (
             <span key={service} className="home-chip">
@@ -123,17 +123,17 @@ export default function AboutPage() {
       </section>
 
       <section className="orbit-final orbit-reveal">
-        <p className="orbit-panel-tag">Dobrodosli</p>
+        <p className="orbit-panel-tag">Dobrodošli</p>
         <h2>Ovde se neguju kvalitet, sigurnost i transformacija.</h2>
         <p>
-          Ako zelis da osvezis boju, oporavis kosu ili pripremis glam look, posalji poruku i dobices jasan plan rada.
+          Ako želiš da osvežiš boju, oporaviš kosu ili pripremiš novu frizuru, pošalji poruku i dobićeš jasan plan rada.
         </p>
         <div className="orbit-actions">
-          <Link href="/contact" className="primary-btn orbit-main-action">
-            Rezervisi termin
+          <Link href="/kontakt" className="primary-btn orbit-main-action">
+            Rezerviši termin
           </Link>
-          <Link href="/products" className="ghost-btn orbit-second-action">
-            Aktiviraj kucnu negu
+          <Link href="/proizvodi" className="ghost-btn orbit-second-action">
+            Aktiviraj kućnu negu
           </Link>
         </div>
       </section>
