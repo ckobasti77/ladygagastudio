@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Eye, EyeOff, KeyRound, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
@@ -15,7 +15,7 @@ function resolveErrorMessage(error: unknown) {
   return "Dogodila se greska. Pokusajte ponovo.";
 }
 
-export default function AuthPage() {
+function AuthPageContent() {
   const { loginUser, registerUser } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -365,5 +365,13 @@ export default function AuthPage() {
         </article>
       </div>
     </section>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<section className="auth-cosmos" />}>
+      <AuthPageContent />
+    </Suspense>
   );
 }
