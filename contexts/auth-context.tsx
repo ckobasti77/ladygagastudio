@@ -6,19 +6,24 @@ import { api } from "@/convex/_generated/api";
 
 type Session = {
   userId: string;
-  username: string;
   isAdmin: boolean;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
 };
 
-type LoginResult = {
+type UserAuthResult = {
   _id: string;
-  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   isAdmin: boolean;
 } | null;
 
 type AuthContextValue = {
   session: Session | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  loginUser: (email: string, password: string) => Promise<Session | null>;
+  registerUser: (firstName: string, lastName: string, email: string, password: string) => Promise<Session>;
   logout: () => void;
 };
 
@@ -38,15 +43,44 @@ const initialSession: Session | null = (() => {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(initialSession);
-  const loginMutation = useMutation(api.users.login) as (args: { username: string; password: string }) => Promise<LoginResult>;
+  const loginUserMutation = useMutation(api.users.loginCustomer) as (args: { email: string; password: string }) => Promise<UserAuthResult>;
+  const registerUserMutation = useMutation(api.users.registerCustomer) as (args: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }) => Promise<Exclude<UserAuthResult, null>>;
 
-  const login = async (username: string, password: string) => {
-    const result = await loginMutation({ username, password });
-    if (!result) return false;
-    const nextSession: Session = { userId: result._id, username: result.username, isAdmin: result.isAdmin };
+  const setAndPersistSession = (nextSession: Session) => {
     setSession(nextSession);
     localStorage.setItem("session", JSON.stringify(nextSession));
-    return true;
+  };
+
+  const loginUser = async (email: string, password: string) => {
+    const result = await loginUserMutation({ email, password });
+    if (!result) return null;
+    const nextSession: Session = {
+      userId: result._id,
+      isAdmin: result.isAdmin === true,
+      firstName: result.firstName,
+      lastName: result.lastName,
+      email: result.email,
+    };
+    setAndPersistSession(nextSession);
+    return nextSession;
+  };
+
+  const registerUser = async (firstName: string, lastName: string, email: string, password: string) => {
+    const result = await registerUserMutation({ firstName, lastName, email, password });
+    const nextSession: Session = {
+      userId: result._id,
+      isAdmin: false,
+      firstName: result.firstName,
+      lastName: result.lastName,
+      email: result.email,
+    };
+    setAndPersistSession(nextSession);
+    return nextSession;
   };
 
   const logout = () => {
@@ -54,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("session");
   };
 
-  const value = { session, login, logout };
+  const value = { session, loginUser, registerUser, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

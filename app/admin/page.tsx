@@ -7,7 +7,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/contexts/auth-context";
 
-type Category = { _id: string; name: string };
+type Category = { _id: string; name: string; featuredOnHome?: boolean };
 type StorageImage = { storageId: string; url: string };
 type Product = {
   _id: string;
@@ -141,6 +141,13 @@ export default function AdminPage() {
   const removeCategory = useMutation(api.products.deleteCategory) as unknown as (args: {
     categoryId: string;
   }) => Promise<unknown>;
+  const setCategoryFeaturedOnHome = useMutation(
+    (
+      api as unknown as {
+        products: { setCategoryFeaturedOnHome: MutationReference };
+      }
+    ).products.setCategoryFeaturedOnHome,
+  ) as (args: { categoryId: string; featuredOnHome: boolean }) => Promise<unknown>;
   const generateUploadUrl = useMutation(
     (
       api as unknown as {
@@ -176,6 +183,7 @@ export default function AdminPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isManagingCategory, setIsManagingCategory] = useState(false);
+  const [featuredCategoryBusyId, setFeaturedCategoryBusyId] = useState<string | null>(null);
   const [isGlobalFileDrag, setIsGlobalFileDrag] = useState(false);
   const dragDepthRef = useRef(0);
   const uploadFromDropRef = useRef<(files: FileList | null) => void>(() => {});
@@ -644,6 +652,25 @@ export default function AdminPage() {
     }
   };
 
+  const onToggleCategoryFeatured = async (category: Category) => {
+    const isFeaturedNow = category.featuredOnHome !== false;
+    const nextValue = !isFeaturedNow;
+    setFeaturedCategoryBusyId(category._id);
+    try {
+      await setCategoryFeaturedOnHome({ categoryId: category._id, featuredOnHome: nextValue });
+      setFeedback({
+        type: "success",
+        message: nextValue
+          ? `Kategorija "${category.name}" je istaknuta na početnoj.`
+          : `Kategorija "${category.name}" je uklonjena sa istaknutih na početnoj.`,
+      });
+    } catch {
+      setFeedback({ type: "error", message: "Izmena istaknute kategorije nije uspela." });
+    } finally {
+      setFeaturedCategoryBusyId((current) => (current === category._id ? null : current));
+    }
+  };
+
   if (!session) {
     return (
       <section className="page-grid admin-page">
@@ -669,12 +696,15 @@ export default function AdminPage() {
       <section className="hero admin-hero">
         <div>
           <p className="eyebrow">Kontrolni centar</p>
-          <h1>Admin studio</h1>
+          <h1>Administracija studija</h1>
           <p className="subtitle">Moderni kontrolni panel za katalog, lager i Convex čuvanje slika.</p>
         </div>
         <div className="admin-hero-actions">
           <button type="button" className="primary-btn" onClick={openCreate}>
             Novi proizvod
+          </button>
+          <button type="button" className="ghost-btn" onClick={() => router.push("/admin/ponude")}>
+            Ponude mejlom
           </button>
           <button type="button" className="ghost-btn" onClick={clearFilters}>
             Poništi filtere
@@ -877,6 +907,7 @@ export default function AdminPage() {
         <div className="admin-category-list">
           {categories.map((category) => {
             const isEditing = categoryEditId === category._id;
+            const isFeaturedForHome = category.featuredOnHome !== false;
             return (
               <article key={category._id} className={`admin-category-item ${isEditing ? "editing" : ""}`}>
                 {isEditing ? (
@@ -907,6 +938,16 @@ export default function AdminPage() {
                       <strong>{categoryCounts.get(category._id) ?? 0}</strong>
                     </button>
                     <div className="admin-category-corner-actions">
+                      <label className={`admin-category-feature-check ${isFeaturedForHome ? "is-on" : ""}`}>
+                        <input
+                          type="checkbox"
+                          checked={isFeaturedForHome}
+                          onChange={() => void onToggleCategoryFeatured(category)}
+                          aria-label={`Prikaži kategoriju ${category.name} u home sliderima`}
+                          disabled={featuredCategoryBusyId === category._id || isManagingCategory}
+                        />
+                        <span>Pocetni klizac</span>
+                      </label>
                       <button
                         type="button"
                         className="icon-btn icon-btn-circle"
@@ -969,7 +1010,7 @@ export default function AdminPage() {
                   {discount > 0 ? (
                     <span className="discount-star-badge" aria-label={`Popust ${discount}%`}>
                       <strong>-{discount}%</strong>
-                      <small>OFF</small>
+                      <small>POPUST</small>
                     </span>
                   ) : null}
                 </div>

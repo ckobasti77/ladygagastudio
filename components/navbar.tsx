@@ -139,7 +139,7 @@ export function Navbar() {
                 {t.nav.logout}
               </button>
             ) : (
-              <Link href="/prijava" className="switch-btn nav-chip nav-chip-primary" onClick={() => setOpenForPath(null)}>
+              <Link href="/prijava" style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="switch-btn nav-chip nav-chip-primary" onClick={() => setOpenForPath(null)}>
                 {t.nav.login}
               </Link>
             )}

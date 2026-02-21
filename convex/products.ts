@@ -127,10 +127,20 @@ export const homeSnapshot = query({
     ]);
 
     const categoryById = new Map(categories.map((category) => [category._id as string, category.name]));
+    const featuredCategoryIds = categories
+      .filter((category) => category.featuredOnHome !== false)
+      .map((category) => category._id as string);
     const categoryCounts = new Map<string, number>();
+    const productsByCategory = new Map<string, ProductDoc[]>();
     for (const product of products) {
       const key = product.categoryId as string;
       categoryCounts.set(key, (categoryCounts.get(key) ?? 0) + 1);
+      const bucket = productsByCategory.get(key);
+      if (bucket) {
+        bucket.push(product);
+      } else {
+        productsByCategory.set(key, [product]);
+      }
     }
 
     const topCategories = [...categoryCounts.entries()]
@@ -163,6 +173,25 @@ export const homeSnapshot = query({
 
     const featuredProducts = await Promise.all(featuredRaw.map((product) => serializeProductForHome(product)));
     const sidebarProducts = await Promise.all(sidebarRaw.map((product) => serializeProductForHome(product)));
+    const featuredCategorySliders = await Promise.all(
+      featuredCategoryIds
+        .map((categoryId) => {
+          const categoryProducts = [...(productsByCategory.get(categoryId) ?? [])]
+            .sort(sortFeaturedProducts)
+            .slice(0, 14);
+          return {
+            categoryId,
+            categoryName: categoryById.get(categoryId) ?? "Istaknuta kategorija",
+            products: categoryProducts,
+          };
+        })
+        .filter((slider) => slider.products.length > 0)
+        .map(async (slider) => ({
+          categoryId: slider.categoryId,
+          categoryName: slider.categoryName,
+          products: await Promise.all(slider.products.map((product) => serializeProductForHome(product))),
+        })),
+    );
 
     return {
       catalogCount: products.length,
@@ -170,6 +199,7 @@ export const homeSnapshot = query({
       topCategories,
       featuredProducts,
       sidebarProducts,
+      featuredCategorySliders,
     };
   },
 });
@@ -181,7 +211,21 @@ export const upsertCategory = mutation({
       await ctx.db.patch(args.categoryId, { name: args.name });
       return args.categoryId;
     }
-    return await ctx.db.insert("categories", { name: args.name });
+    return await ctx.db.insert("categories", { name: args.name, featuredOnHome: true });
+  },
+});
+
+export const setCategoryFeaturedOnHome = mutation({
+  args: {
+    categoryId: v.id("categories"),
+    featuredOnHome: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const category = await ctx.db.get(args.categoryId);
+    if (!category) {
+      throw new Error("Category not found.");
+    }
+    await ctx.db.patch(args.categoryId, { featuredOnHome: args.featuredOnHome });
   },
 });
 

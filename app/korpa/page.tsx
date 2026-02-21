@@ -18,7 +18,7 @@ export default function CartPage() {
         <article className="hero cart-hero">
           <p className="eyebrow">Korpa</p>
           <h1>Vaša korpa je trenutno prazna.</h1>
-          <p className="subtitle">Dodajte proizvode iz kataloga i nastavite na checkout.</p>
+          <p className="subtitle">Dodajte proizvode iz kataloga i nastavite na placanje.</p>
           <Link href="/proizvodi" className="primary-btn">
             Idi na proizvode
           </Link>
@@ -109,7 +109,7 @@ export default function CartPage() {
           </div>
           <div className="cart-summary-actions">
             <Link href="/placanje" className="primary-btn">
-              Nastavi na checkout
+              Nastavi na placanje
             </Link>
             <Link href="/proizvodi" className="ghost-btn">
               Dodaj još proizvoda

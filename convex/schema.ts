@@ -8,8 +8,20 @@ export default defineSchema({
     isAdmin: v.boolean(),
   }).index("by_username", ["username"]),
 
+  customers: defineTable({
+    firstName: v.string(),
+    lastName: v.string(),
+    email: v.string(),
+    passwordHash: v.string(),
+    isAdmin: v.boolean(),
+    resetTokenHash: v.optional(v.string()),
+    resetTokenExpiresAt: v.optional(v.number()),
+    createdAt: v.number(),
+  }).index("by_email", ["email"]),
+
   categories: defineTable({
     name: v.string(),
+    featuredOnHome: v.optional(v.boolean()),
   }).index("by_name", ["name"]),
 
   products: defineTable({

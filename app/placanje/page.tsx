@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
@@ -74,7 +74,7 @@ function resolveErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) {
     return error.message;
   }
-  return "Naručivanje nije uspelo. Pokušajte ponovo.";
+  return "Narucivanje nije uspelo. Pokusajte ponovo.";
 }
 
 export default function CheckoutPage() {
@@ -88,6 +88,8 @@ export default function CheckoutPage() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState("");
   const [createdOrderNumber, setCreatedOrderNumber] = useState<string | null>(null);
+  const [legalAccepted, setLegalAccepted] = useState(false);
+  const [marketingAccepted, setMarketingAccepted] = useState(false);
 
   const checkoutItems = useMemo(
     () =>
@@ -100,6 +102,13 @@ export default function CheckoutPage() {
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!legalAccepted) {
+      setStatus("error");
+      setStatusMessage("Potrebno je da prihvatite pravila koriscenja i politiku privatnosti.");
+      return;
+    }
+
     if (checkoutItems.length === 0) {
       setStatus("error");
       setStatusMessage("Korpa je prazna.");
@@ -129,11 +138,13 @@ export default function CheckoutPage() {
       clearCart();
       setCreatedOrderNumber(order.orderNumber);
       setForm(emptyForm);
+      setLegalAccepted(false);
+      setMarketingAccepted(false);
       setStatus("success");
       setStatusMessage(
         emailResult.ok
-          ? "Narudžbina je uspešno sačuvana i poslata na email admina."
-          : `Narudžbina je sačuvana, ali email nije poslat: ${emailResult.error}`,
+          ? "Narudzbina je uspesno sacuvana i poslata na email admina."
+          : `Narudzbina je sacuvana, ali email nije poslat: ${emailResult.error}`,
       );
     } catch (error: unknown) {
       setStatus("error");
@@ -145,9 +156,9 @@ export default function CheckoutPage() {
     return (
       <section className="page-grid checkout-page">
         <article className="hero checkout-hero">
-          <p className="eyebrow">Plaćanje</p>
-          <h1>Nema artikala za naručivanje.</h1>
-          <p className="subtitle">Dodajte proizvode u korpu pa nastavite na plaćanje.</p>
+          <p className="eyebrow">Placanje</p>
+          <h1>Nema artikala za narucivanje.</h1>
+          <p className="subtitle">Dodajte proizvode u korpu pa nastavite na placanje.</p>
           <Link href="/proizvodi" className="primary-btn">
             Idi na proizvode
           </Link>
@@ -160,11 +171,11 @@ export default function CheckoutPage() {
     return (
       <section className="page-grid checkout-page">
         <article className="hero checkout-hero">
-          <p className="eyebrow">Plaćanje</p>
-          <h1>Narudžbina je uspešno kreirana.</h1>
+          <p className="eyebrow">Placanje</p>
+          <h1>Narudzbina je uspesno kreirana.</h1>
           <p className="subtitle">
             {statusMessage}
-            {createdOrderNumber ? ` Broj narudžbine: ${createdOrderNumber}.` : ""}
+            {createdOrderNumber ? ` Broj narudzbine: ${createdOrderNumber}.` : ""}
           </p>
           <div className="checkout-form-actions">
             <Link href="/proizvodi" className="primary-btn">
@@ -182,19 +193,15 @@ export default function CheckoutPage() {
   return (
     <section className="page-grid checkout-page">
       <article className="hero checkout-hero">
-        <p className="eyebrow">Plaćanje</p>
-        <h1>Unesite podatke i potvrdite narudžbinu</h1>
-        <p className="subtitle">
-          Plaćanje karticom nije uključeno. Narudžbina se šalje direktno na email admina.
-        </p>
+        <p className="eyebrow">Placanje</p>
+        <h1>Unesite podatke i potvrdite narudzbinu</h1>
+        <p className="subtitle">Placanje karticom nije ukljuceno. Narudzbina se salje direktno na email admina.</p>
       </article>
 
       {status !== "idle" ? (
-        <p
-          className={`status-msg ${status === "error" ? "admin-status-error" : ""}`}
-        >
+        <p className={`status-msg ${status === "error" ? "admin-status-error" : ""}`}>
           {statusMessage}
-          {createdOrderNumber ? ` (Broj narudžbine: ${createdOrderNumber})` : ""}
+          {createdOrderNumber ? ` (Broj narudzbine: ${createdOrderNumber})` : ""}
         </p>
       ) : null}
 
@@ -247,7 +254,7 @@ export default function CheckoutPage() {
           <div className="checkout-grid-2">
             <input
               required
-              placeholder="Poštanski broj"
+              placeholder="Postanski broj"
               value={form.postalCode}
               onChange={(event) => setForm((value) => ({ ...value, postalCode: event.target.value }))}
             />
@@ -264,9 +271,35 @@ export default function CheckoutPage() {
             onChange={(event) => setForm((value) => ({ ...value, note: event.target.value }))}
           />
 
+          <div className="legal-consent-block">
+            <label className="legal-consent-checkbox" htmlFor="checkout-legal-consent">
+              <input
+                id="checkout-legal-consent"
+                type="checkbox"
+                required
+                checked={legalAccepted}
+                onChange={(event) => setLegalAccepted(event.target.checked)}
+              />
+              <span>
+                Potvrdjujem da sam procitala i prihvatam <Link href="/pravila-koriscenja">Pravila koriscenja</Link> i{" "}
+                <Link href="/politika-privatnosti">Politiku privatnosti</Link>.
+              </span>
+            </label>
+
+            <label className="legal-consent-checkbox" htmlFor="checkout-marketing-consent">
+              <input
+                id="checkout-marketing-consent"
+                type="checkbox"
+                checked={marketingAccepted}
+                onChange={(event) => setMarketingAccepted(event.target.checked)}
+              />
+              <span>Opcionalno: pristajem da mi povremeno stizu promo ponude i novosti studija email-om.</span>
+            </label>
+          </div>
+
           <div className="checkout-form-actions">
-            <button type="submit" className="primary-btn" disabled={status === "submitting"}>
-              {status === "submitting" ? "Obrada narudžbine..." : "Potvrdi narudžbinu"}
+            <button type="submit" className="primary-btn" disabled={status === "submitting" || !legalAccepted}>
+              {status === "submitting" ? "Obrada narudzbine..." : "Potvrdi narudzbinu"}
             </button>
             <Link href="/korpa" className="ghost-btn">
               Nazad na korpu
@@ -275,7 +308,7 @@ export default function CheckoutPage() {
         </form>
 
         <aside className="toolbar-card checkout-summary-card">
-          <h2>Rezime narudžbine</h2>
+          <h2>Rezime narudzbine</h2>
           <div className="checkout-summary-items">
             {items.map((item) => (
               <article key={item.productId} className="checkout-summary-item">

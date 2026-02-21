@@ -67,7 +67,6 @@ export default function AboutPage() {
 
         <article className="orbit-panel about-founder-media">
           <p className="orbit-panel-tag">Studio atmosfera</p>
-          <Image src={studioGallery[2].src} alt={studioGallery[2].alt} width={920} height={920} sizes="(max-width: 1080px) 100vw, 34vw" />
           <video controls preload="metadata" playsInline poster={studioGallery[3].src}>
             <source src={studioVideos[1].src} type="video/webm" />
           </video>

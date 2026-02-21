@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
@@ -11,7 +11,7 @@ import { sendContactInquiryEmail } from "./actions";
 const responseWindows = [
   "Upiti do 15h: odgovor istog dana",
   "Hitni termini: prioritetna obrada",
-  "Onlajn podrška: 7 dana u nedelji",
+  "Online podrska: 7 dana u nedelji",
 ] as const;
 
 const contactNodes = [
@@ -40,11 +40,20 @@ export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [status, setStatus] = useState<InquiryStatus>("idle");
   const [statusMessage, setStatusMessage] = useState("");
+  const [legalAccepted, setLegalAccepted] = useState(false);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!legalAccepted) {
+      setStatus("error");
+      setStatusMessage("Potrebno je da prihvatite politiku privatnosti i pravila koriscenja.");
+      return;
+    }
+
     setStatus("sending");
     setStatusMessage("");
+
     try {
       const createdAt = Date.now();
       await createInquiry(form);
@@ -53,16 +62,17 @@ export default function ContactPage() {
         createdAt,
       });
       setForm({ name: "", email: "", message: "" });
+      setLegalAccepted(false);
       if (emailResult.ok) {
         setStatus("sent");
-        setStatusMessage("Poruka je uspešno poslata.");
+        setStatusMessage("Poruka je uspesno poslata.");
       } else {
         setStatus("error");
-        setStatusMessage(`Upit je sačuvan, ali email nije poslat: ${emailResult.error}`);
+        setStatusMessage(`Upit je sacuvan, ali email nije poslat: ${emailResult.error}`);
       }
     } catch {
       setStatus("error");
-      setStatusMessage("Slanje nije uspelo. Pokušajte ponovo za par sekundi.");
+      setStatusMessage("Slanje nije uspelo. Pokusajte ponovo za par sekundi.");
     }
   };
 
@@ -75,10 +85,10 @@ export default function ContactPage() {
         </div>
 
         <p className="orbit-eyebrow">Kontakt</p>
-        <h1>Pošaljite poruku i dobijate jasan plan za vašu kosu.</h1>
+        <h1>Posaljite poruku i dobijate jasan plan za vasu kosu.</h1>
         <p className="orbit-lead">
-          Ostavite upit za tretman, koloraciju, keratin ili frizuru. Dobijate predlog usluge i preporuku
-          proizvoda za održavanje rezultata.
+          Ostavite upit za tretman, koloraciju, keratin ili frizuru. Dobijate predlog usluge i preporuku proizvoda za
+          odrzavanje rezultata.
         </p>
 
         <div className="orbit-badge-row">
@@ -93,7 +103,7 @@ export default function ContactPage() {
       <section className="contact-node-grid orbit-reveal">
         {contactNodes.map((node) => (
           <article key={node.title} className="orbit-panel contact-node-card">
-            <p className="orbit-panel-tag">Kontakt tačka</p>
+            <p className="orbit-panel-tag">Kontakt tacka</p>
             <h2>{node.title}</h2>
             <strong>{node.value}</strong>
             <p>{node.detail}</p>
@@ -102,8 +112,8 @@ export default function ContactPage() {
       </section>
 
       <section className="orbit-panel orbit-reveal contact-offer-board">
-        <p className="orbit-panel-tag">Šta možete zakazati</p>
-        <h2>Usluge i tretmani koje najčešće biraju klijentkinje.</h2>
+        <p className="orbit-panel-tag">Sta mozete zakazati</p>
+        <h2>Usluge i tretmani koje najcesce biraju klijentkinje.</h2>
         <div className="contact-offer-grid">
           <article>
             <h3>Usluge</h3>
@@ -135,7 +145,7 @@ export default function ContactPage() {
           <p className="orbit-panel-tag">Mapa dolaska</p>
           <h2>Locirajte studio i planirajte dolazak.</h2>
           <p>
-            Ako dolazite prvi put, napišite u poruci da ste nova klijentkinja i dobijate smernice za najbrži dolazak.
+            Ako dolazite prvi put, napisite u poruci da ste nova klijentkinja i dobijate smernice za najbrzi dolazak.
           </p>
           <iframe title="Studio Lady Gaga mapa" src="https://www.google.com/maps?q=Belgrade&output=embed" loading="lazy" />
         </article>
@@ -143,12 +153,10 @@ export default function ContactPage() {
         <form className="orbit-panel contact-form-panel" onSubmit={submit}>
           <p className="orbit-panel-tag">Kontakt forma</p>
           <h2>{t.contact.form}</h2>
-          <p>U poruci navedite kratko stanje kose i želju koju imate.</p>
+          <p>U poruci navedite kratko stanje kose i zelju koju imate.</p>
 
           {status === "sent" ? <p className="status-msg contact-status success">{statusMessage}</p> : null}
-          {status === "error" ? (
-            <p className="status-msg contact-status error">{statusMessage}</p>
-          ) : null}
+          {status === "error" ? <p className="status-msg contact-status error">{statusMessage}</p> : null}
 
           <label className="contact-label" htmlFor="contact-name">
             {t.contact.name}
@@ -184,12 +192,26 @@ export default function ContactPage() {
             onChange={(event) => setForm((value) => ({ ...value, message: event.target.value }))}
           />
 
-          <button type="submit" className="primary-btn contact-submit" disabled={status === "sending"}>
+          <label className="legal-consent-checkbox" htmlFor="contact-legal-consent">
+            <input
+              id="contact-legal-consent"
+              type="checkbox"
+              required
+              checked={legalAccepted}
+              onChange={(event) => setLegalAccepted(event.target.checked)}
+            />
+            <span>
+              Potvrdjujem da sam procitala i prihvatam <Link href="/politika-privatnosti">Politiku privatnosti</Link> i{" "}
+              <Link href="/pravila-koriscenja">Pravila koriscenja</Link>.
+            </span>
+          </label>
+
+          <button type="submit" className="primary-btn contact-submit" disabled={status === "sending" || !legalAccepted}>
             {status === "sending" ? "Slanje..." : t.contact.submit}
           </button>
 
           <p className="contact-footnote">
-            Za brzu kupovinu preporučenih artikala otvorite <Link href="/proizvodi">stranicu proizvoda</Link>.
+            Za brzu kupovinu preporucenih artikala otvorite <Link href="/proizvodi">stranicu proizvoda</Link>.
           </p>
         </form>
       </section>
