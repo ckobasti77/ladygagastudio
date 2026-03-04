@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { MouseEvent, ReactNode, useEffect, useMemo, useState } from "react";
+import { MouseEvent, ReactNode, useMemo, useState } from "react";
 
 type ProductCardImageSliderProps = {
   images: string[];
@@ -30,14 +30,12 @@ export function ProductCardImageSlider({
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const totalImages = safeImages.length;
   const hasMultipleImages = totalImages > 1;
-
-  useEffect(() => {
-    setActiveImageIndex(0);
-  }, [safeImages]);
+  const displayIndex = activeImageIndex >= totalImages ? 0 : activeImageIndex;
 
   const moveImage = (direction: 1 | -1) => {
     setActiveImageIndex((current) => {
-      const next = current + direction;
+      const currentIndex = current >= totalImages ? 0 : current;
+      const next = currentIndex + direction;
       if (next < 0) return totalImages - 1;
       if (next >= totalImages) return 0;
       return next;
@@ -54,7 +52,7 @@ export function ProductCardImageSlider({
 
   return (
     <div className="card-media-wrap product-card-slider">
-      <Image src={safeImages[activeImageIndex]} alt={alt} width={width} height={height} sizes={sizes} loading={loading} />
+      <Image src={safeImages[displayIndex]} alt={alt} width={width} height={height} sizes={sizes} loading={loading} />
       {children}
       {hasMultipleImages ? (
         <div className="product-card-slider-controls" onClick={(event) => event.stopPropagation()}>
@@ -67,7 +65,7 @@ export function ProductCardImageSlider({
             <ChevronLeft />
           </button>
           <span className="product-card-slider-counter">
-            {activeImageIndex + 1}/{totalImages}
+            {displayIndex + 1}/{totalImages}
           </span>
           <button type="button" className="product-card-slider-arrow" aria-label="Sledeća slika" onClick={onArrowClick(1)}>
             <ChevronRight />

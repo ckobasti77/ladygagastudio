@@ -135,24 +135,13 @@ export default function HomePage() {
   const [homeLightboxIndex, setHomeLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    if (homeLightboxIndex === null) return;
-    if (featuredImages.length === 0) {
-      setHomeLightboxIndex(null);
-      return;
-    }
-    if (homeLightboxIndex >= featuredImages.length) {
-      setHomeLightboxIndex(0);
-    }
-  }, [featuredImages, homeLightboxIndex]);
-
-  useEffect(() => {
-    if (homeLightboxIndex === null) return;
+    if (homeLightboxIndex === null || featuredImages.length === 0) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [homeLightboxIndex]);
+  }, [featuredImages.length, homeLightboxIndex]);
 
   const openHomeLightbox = useCallback(
     (index: number) => {
@@ -178,8 +167,18 @@ export default function HomePage() {
     });
   }, [featuredImages.length]);
 
+  const activeHomeLightboxIndex = useMemo(() => {
+    if (homeLightboxIndex === null || featuredImages.length === 0) return null;
+    return ((homeLightboxIndex % featuredImages.length) + featuredImages.length) % featuredImages.length;
+  }, [featuredImages.length, homeLightboxIndex]);
+
+  const activeHomeLightboxMedia = useMemo(() => {
+    if (activeHomeLightboxIndex === null) return null;
+    return featuredImages[activeHomeLightboxIndex] ?? null;
+  }, [activeHomeLightboxIndex, featuredImages]);
+
   useEffect(() => {
-    if (homeLightboxIndex === null) return;
+    if (activeHomeLightboxMedia === null) return;
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -199,12 +198,7 @@ export default function HomePage() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [closeHomeLightbox, homeLightboxIndex, nextHomeMedia, previousHomeMedia]);
-
-  const activeHomeLightboxMedia = useMemo(() => {
-    if (homeLightboxIndex === null) return null;
-    return featuredImages[homeLightboxIndex] ?? null;
-  }, [featuredImages, homeLightboxIndex]);
+  }, [activeHomeLightboxMedia, closeHomeLightbox, nextHomeMedia, previousHomeMedia]);
 
   const onHomeGalleryCardKeyDown = (event: ReactKeyboardEvent<HTMLElement>, index: number) => {
     if (event.key !== "Enter" && event.key !== " ") return;
@@ -275,7 +269,7 @@ export default function HomePage() {
           {HERO_SERVICE_CARDS.map((card) => {
             const Icon = card.Icon;
             return (
-              <article key={card.title} className="xeno-hero-service-card">
+              <article key={card.title} className="xeno-hero-service-card" data-cosmic-tilt>
                 <span className="xeno-hero-service-icon" aria-hidden="true">
                   <Icon />
                 </span>
@@ -311,7 +305,7 @@ export default function HomePage() {
                     </span>
                   ))
                 ) : (
-                  <span className="home-chip">Kategorije će biti prikazane kada dodate proizvode.</span>
+                  <span className="home-chip">Uskoro stize nova selekcija proizvoda.</span>
                 )}
               </div>
             </div>
@@ -339,7 +333,7 @@ export default function HomePage() {
 
             <div className="xeno-pillar-grid">
               {qualityPillars.map((pillar) => (
-                <article key={pillar.title} className="xeno-pillar-card">
+                <article key={pillar.title} className="xeno-pillar-card" data-cosmic-tilt>
                   <h3>{pillar.title}</h3>
                   <p>{pillar.text}</p>
                 </article>
@@ -354,7 +348,7 @@ export default function HomePage() {
                   <Images className="home-kicker-glyph" aria-hidden="true" />
                   <span>Galerija uživo</span>
                 </p>
-                <h2>Najnovije fotografije iz galerije automatski se prikazuju na početnoj.</h2>
+                <h2>Najnovije transformacije iz studija, direktno sa realnih termina.</h2>
               </div>
               <Link href="/galerija" className="ghost-btn home-second-action">
                 Otvori celu galeriju
@@ -366,7 +360,7 @@ export default function HomePage() {
             ) : featuredImages.length === 0 ? (
               <div className="empty-state xeno-empty">
                 <h3>Trenutno nema slika u galeriji.</h3>
-                <p>Dodajte slike preko admin galerije i odmah će se pojaviti na početnoj.</p>
+                <p>Nova inspiracija i sveze transformacije uskoro stizu.</p>
               </div>
             ) : (
               <div className="xeno-gallery-grid">
@@ -379,6 +373,7 @@ export default function HomePage() {
                     onClick={() => openHomeLightbox(index)}
                     onKeyDown={(event) => onHomeGalleryCardKeyDown(event, index)}
                     aria-label={`Otvori sliku ${index + 1} od ${featuredImages.length}`}
+                    data-cosmic-tilt
                   >
                     <Image
                       src={image.url}
@@ -401,7 +396,7 @@ export default function HomePage() {
                   <Video className="home-kicker-glyph" aria-hidden="true" />
                   <span>Snimci iz galerije</span>
                 </p>
-                <h2>Video materijal iz galerije se ovde prikazuje odvojeno od slika.</h2>
+                <h2>Snimci koji prikazuju teksturu, sjaj i finalni finish u pokretu.</h2>
               </div>
               <Link href="/galerija" className="ghost-btn home-second-action">
                 Pogledaj sve snimke
@@ -413,12 +408,12 @@ export default function HomePage() {
             ) : featuredVideos.length === 0 ? (
               <div className="empty-state xeno-empty">
                 <h3>Trenutno nema snimaka u galeriji.</h3>
-                <p>Dodajte snimke u galeriju i odmah će biti prikazani i ovde.</p>
+                <p>Novi video materijal iz studija uskoro ce biti objavljen.</p>
               </div>
             ) : (
               <div className="xeno-video-grid">
                 {featuredVideos.map((video) => (
-                  <article key={video._id} className="xeno-video-card">
+                  <article key={video._id} className="xeno-video-card" data-cosmic-tilt>
                     <video controls preload="metadata" playsInline muted>
                       <source src={video.url} type={video.contentType || "video/mp4"} />
                     </video>
@@ -443,7 +438,7 @@ export default function HomePage() {
 
             <div className="xeno-treatment-grid">
               {milkShakeTreatments.map((treatment) => (
-                <article key={treatment.name} className="xeno-treatment-card">
+                <article key={treatment.name} className="xeno-treatment-card" data-cosmic-tilt>
                   <p className="xeno-treatment-badge">{treatment.benefit}</p>
                   <h3>{treatment.name}</h3>
                   <p>{treatment.description}</p>
@@ -459,7 +454,7 @@ export default function HomePage() {
                   <ShoppingBag className="home-kicker-glyph" aria-hidden="true" />
                   <span>Istaknute kategorije</span>
                 </p>
-                <h2>Admin bira kategorije, a svaka dobija poseban horizontalni slider proizvoda.</h2>
+                <h2>Istaknute kategorije koje klijentkinje najvise biraju za kucnu negu.</h2>
               </div>
               <Link href="/proizvodi" className="ghost-btn home-second-action">
                 Kompletna ponuda
@@ -467,7 +462,7 @@ export default function HomePage() {
             </div>
 
             {sliderSections.length === 0 ? (
-              <p className="home-empty">Izaberite istaknute kategorije u admin panelu da se ovde pojave slideri.</p>
+              <p className="home-empty">Nova selekcija proizvoda ce biti aktivirana uskoro.</p>
             ) : (
               <div className="xeno-category-slider-stack">
                 {sliderSections.map((slider) => (
@@ -477,7 +472,7 @@ export default function HomePage() {
             )}
           </section>
 
-          <section className="home-panel home-reveal xeno-final-cta">
+          <section style={{ display: 'flex', flexDirection: 'column' }} className="home-panel home-reveal xeno-final-cta">
             <div>
               <p className="home-kicker home-kicker-row">
                 <SendHorizontal className="home-kicker-glyph" aria-hidden="true" />
@@ -534,11 +529,11 @@ export default function HomePage() {
         </aside>
       </section>
 
-      {activeHomeLightboxMedia && homeLightboxIndex !== null ? (
+      {activeHomeLightboxMedia && activeHomeLightboxIndex !== null ? (
         <GalleryLightbox
-          key={`${activeHomeLightboxMedia._id}:${homeLightboxIndex}`}
+          key={`${activeHomeLightboxMedia._id}:${activeHomeLightboxIndex}`}
           media={activeHomeLightboxMedia}
-          index={homeLightboxIndex}
+          index={activeHomeLightboxIndex}
           total={featuredImages.length}
           onClose={closeHomeLightbox}
           onNext={nextHomeMedia}
@@ -570,12 +565,13 @@ function FeaturedCategorySlider({
 
   useEffect(() => {
     if (!rail) return;
-    updateScrollState();
+    const frame = window.requestAnimationFrame(() => updateScrollState());
     const onScroll = () => updateScrollState();
     const onResize = () => updateScrollState();
     rail.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     return () => {
+      window.cancelAnimationFrame(frame);
       rail.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
     };
@@ -613,7 +609,7 @@ function FeaturedCategorySlider({
 
         <div id={sliderId} className="xeno-category-slider-rail" ref={setRail}>
           {products.map((product) => (
-            <Link key={product._id} href={`/proizvodi/${product._id}`} className="xeno-slider-card">
+            <Link key={product._id} href={`/proizvodi/${product._id}`} className="xeno-slider-card" data-cosmic-tilt>
               <div className="xeno-slider-card-media">
                 <Image
                   src={product.image || "/logo.png"}

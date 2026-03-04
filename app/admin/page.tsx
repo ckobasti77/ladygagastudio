@@ -38,6 +38,19 @@ type StockFilter = "all" | "inStock" | "lowStock" | "outOfStock";
 type SortBy = "titleAsc" | "priceAsc" | "priceDesc" | "stockDesc" | "discountDesc" | "valueDesc";
 type SalesSortBy = "soldDesc" | "soldAsc" | "revenueDesc" | "ordersDesc" | "lastSoldDesc";
 type MutationReference = Parameters<typeof useMutation>[0];
+type QueryReference = Parameters<typeof useQuery>[0];
+
+type InquiryStatus = "new" | "in_progress" | "resolved";
+
+type Inquiry = {
+  _id: string;
+  name: string;
+  email: string;
+  message: string;
+  createdAt: number;
+  status?: InquiryStatus;
+  handledAt?: number;
+};
 
 type SalesAnalytics = {
   summary: {
@@ -62,6 +75,8 @@ const LOW_STOCK_LIMIT = 5;
 
 const EMPTY_PRODUCTS: Product[] = [];
 const EMPTY_CATEGORIES: Category[] = [];
+const EMPTY_SALES: SalesAnalytics["products"] = [];
+const EMPTY_INQUIRIES: Inquiry[] = [];
 
 const emptyForm: ProductForm = {
   title: "",
@@ -115,10 +130,19 @@ export default function AdminPage() {
   const rawProducts = useQuery(api.products.list, {}) as Product[] | undefined;
   const rawCategories = useQuery(api.products.listCategories, {}) as Category[] | undefined;
   const rawSales = useQuery(api.orders.salesAnalytics, {}) as SalesAnalytics | undefined;
+  const rawInquiries = useQuery(
+    (
+      api as unknown as {
+        orders: { listInquiries: QueryReference };
+      }
+    ).orders.listInquiries,
+    {},
+  ) as Inquiry[] | undefined;
   const products = rawProducts ?? EMPTY_PRODUCTS;
   const categories = rawCategories ?? EMPTY_CATEGORIES;
-  const sales = rawSales?.products ?? [];
+  const sales = rawSales?.products ?? EMPTY_SALES;
   const salesSummary = rawSales?.summary ?? { ordersCount: 0, totalItems: 0, totalAmount: 0, uniqueProducts: 0 };
+  const inquiries = rawInquiries ?? EMPTY_INQUIRIES;
 
   const saveProduct = useMutation(api.products.upsertProduct) as unknown as (args: {
     productId?: string;
@@ -155,9 +179,16 @@ export default function AdminPage() {
       }
     ).products.generateUploadUrl,
   ) as () => Promise<string>;
+  const setInquiryStatus = useMutation(
+    (
+      api as unknown as {
+        orders: { setInquiryStatus: MutationReference };
+      }
+    ).orders.setInquiryStatus,
+  ) as (args: { inquiryId: string; status: InquiryStatus }) => Promise<unknown>;
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set());
   const [stockFilter, setStockFilter] = useState<StockFilter>("all");
   const [discountOnly, setDiscountOnly] = useState(false);
   const [priceMin, setPriceMin] = useState("");
@@ -165,6 +196,8 @@ export default function AdminPage() {
   const [sortBy, setSortBy] = useState<SortBy>("valueDesc");
   const [salesSortBy, setSalesSortBy] = useState<SalesSortBy>("soldDesc");
   const [salesSearch, setSalesSearch] = useState("");
+  const [inquirySearch, setInquirySearch] = useState("");
+  const [inquiryStatusFilter, setInquiryStatusFilter] = useState<InquiryStatus | "all">("all");
 
   const [showProductModal, setShowProductModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
@@ -184,6 +217,7 @@ export default function AdminPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isManagingCategory, setIsManagingCategory] = useState(false);
   const [featuredCategoryBusyId, setFeaturedCategoryBusyId] = useState<string | null>(null);
+  const [inquiryBusyId, setInquiryBusyId] = useState<string | null>(null);
   const [isGlobalFileDrag, setIsGlobalFileDrag] = useState(false);
   const dragDepthRef = useRef(0);
   const uploadFromDropRef = useRef<(files: FileList | null) => void>(() => {});
@@ -228,7 +262,7 @@ export default function AdminPage() {
     const hasMax = max !== null && Number.isFinite(max);
 
     const filtered = products.filter((product) => {
-      if (activeCategory !== "all" && product.categoryId !== activeCategory) return false;
+      if (activeCategories.size > 0 && !activeCategories.has(product.categoryId)) return false;
       if (stockFilter === "inStock" && product.stock <= 0) return false;
       if (stockFilter === "lowStock" && !(product.stock > 0 && product.stock <= LOW_STOCK_LIMIT)) return false;
       if (stockFilter === "outOfStock" && product.stock !== 0) return false;
@@ -258,7 +292,7 @@ export default function AdminPage() {
       return [...filtered].sort((a, b) => (b.discount ?? 0) - (a.discount ?? 0));
     }
     return [...filtered].sort((a, b) => finalPrice(b) * b.stock - finalPrice(a) * a.stock);
-  }, [activeCategory, discountOnly, priceMax, priceMin, products, searchTerm, sortBy, stockFilter]);
+  }, [activeCategories, discountOnly, priceMax, priceMin, products, searchTerm, sortBy, stockFilter]);
 
   const stats = useMemo(() => {
     const totalCount = products.length;
@@ -292,17 +326,40 @@ export default function AdminPage() {
     return [...filtered].sort((a, b) => b.soldQuantity - a.soldQuantity);
   }, [sales, salesSearch, salesSortBy]);
 
+  const inquirySummary = useMemo(() => {
+    let fresh = 0;
+    let inProgress = 0;
+    let resolved = 0;
+    for (const inquiry of inquiries) {
+      const status = inquiry.status ?? "new";
+      if (status === "new") fresh += 1;
+      if (status === "in_progress") inProgress += 1;
+      if (status === "resolved") resolved += 1;
+    }
+    return { total: inquiries.length, fresh, inProgress, resolved };
+  }, [inquiries]);
+
+  const filteredInquiries = useMemo(() => {
+    const query = inquirySearch.trim().toLowerCase();
+    return inquiries.filter((inquiry) => {
+      const status = inquiry.status ?? "new";
+      if (inquiryStatusFilter !== "all" && status !== inquiryStatusFilter) return false;
+      if (!query) return true;
+      return `${inquiry.name} ${inquiry.email} ${inquiry.message}`.toLowerCase().includes(query);
+    });
+  }, [inquiries, inquirySearch, inquiryStatusFilter]);
+
   const filtersApplied = useMemo(() => {
     let count = 0;
     if (searchTerm.trim()) count += 1;
-    if (activeCategory !== "all") count += 1;
+    if (activeCategories.size > 0) count += 1;
     if (stockFilter !== "all") count += 1;
     if (discountOnly) count += 1;
     if (priceMin.trim()) count += 1;
     if (priceMax.trim()) count += 1;
     if (sortBy !== "valueDesc") count += 1;
     return count;
-  }, [activeCategory, discountOnly, priceMax, priceMin, searchTerm, sortBy, stockFilter]);
+  }, [activeCategories, discountOnly, priceMax, priceMin, searchTerm, sortBy, stockFilter]);
 
   const editingProduct = useMemo(
     () => products.find((product) => product._id === editProductId) ?? null,
@@ -366,7 +423,7 @@ export default function AdminPage() {
 
   const clearFilters = () => {
     setSearchTerm("");
-    setActiveCategory("all");
+    setActiveCategories(new Set());
     setStockFilter("all");
     setDiscountOnly(false);
     setPriceMin("");
@@ -641,7 +698,7 @@ export default function AdminPage() {
     setIsManagingCategory(true);
     try {
       await removeCategory({ categoryId: categoryDeleteTarget._id });
-      if (activeCategory === categoryDeleteTarget._id) setActiveCategory("all");
+      setActiveCategories((prev) => { const next = new Set(prev); next.delete(categoryDeleteTarget._id); return next; });
       if (categoryEditId === categoryDeleteTarget._id) resetCategoryEditor();
       setCategoryDeleteTarget(null);
       setFeedback({ type: "success", message: "Kategorija je obrisana." });
@@ -671,6 +728,26 @@ export default function AdminPage() {
     }
   };
 
+  const onChangeInquiryStatus = async (inquiryId: string, status: InquiryStatus) => {
+    setInquiryBusyId(inquiryId);
+    try {
+      await setInquiryStatus({ inquiryId, status });
+      setFeedback({
+        type: "success",
+        message:
+          status === "resolved"
+            ? "Upit je oznacen kao resen."
+            : status === "in_progress"
+              ? "Upit je oznacen kao u obradi."
+              : "Upit je vracen u novi status.",
+      });
+    } catch {
+      setFeedback({ type: "error", message: "Promena statusa upita nije uspela." });
+    } finally {
+      setInquiryBusyId((current) => (current === inquiryId ? null : current));
+    }
+  };
+
   if (!session) {
     return (
       <section className="page-grid admin-page">
@@ -697,11 +774,17 @@ export default function AdminPage() {
         <div>
           <p className="eyebrow">Kontrolni centar</p>
           <h1>Administracija studija</h1>
-          <p className="subtitle">Moderni kontrolni panel za katalog, lager i Convex čuvanje slika.</p>
+          <p className="subtitle">Jedinstven pogled na katalog, prodaju, upite i kampanje.</p>
         </div>
         <div className="admin-hero-actions">
           <button type="button" className="primary-btn" onClick={openCreate}>
             Novi proizvod
+          </button>
+          <button type="button" className="ghost-btn" onClick={() => router.push("/admin/evidencija-narudzbina")}>
+            Evidencija narudzbina
+          </button>
+          <button type="button" className="ghost-btn" onClick={() => setStockFilter("lowStock")}>
+            Nizak lager
           </button>
           <button type="button" className="ghost-btn" onClick={() => router.push("/admin/ponude")}>
             Ponude mejlom
@@ -824,6 +907,108 @@ export default function AdminPage() {
         )}
       </section>
 
+      <section className="toolbar-card admin-inquiries-card">
+        <div className="admin-sales-head">
+          <div>
+            <h2>Kontakt upiti</h2>
+            <p>Pregled svih poruka sa sajta sa statusom obrade.</p>
+          </div>
+          <div className="admin-sales-controls">
+            <input
+              value={inquirySearch}
+              onChange={(event) => setInquirySearch(event.target.value)}
+              placeholder="Pretraga po imenu, emailu ili poruci"
+              aria-label="Pretraga upita"
+            />
+            <select
+              value={inquiryStatusFilter}
+              onChange={(event) => setInquiryStatusFilter(event.target.value as InquiryStatus | "all")}
+            >
+              <option value="all">Svi statusi</option>
+              <option value="new">Novi</option>
+              <option value="in_progress">U obradi</option>
+              <option value="resolved">Reseni</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="dashboard-grid admin-sales-kpis">
+          <article className="metric-card">
+            <span>Ukupno upita</span>
+            <strong>{inquirySummary.total}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Novi</span>
+            <strong>{inquirySummary.fresh}</strong>
+          </article>
+          <article className="metric-card">
+            <span>U obradi</span>
+            <strong>{inquirySummary.inProgress}</strong>
+          </article>
+          <article className="metric-card">
+            <span>Reseni</span>
+            <strong>{inquirySummary.resolved}</strong>
+          </article>
+        </div>
+
+        {rawInquiries === undefined ? (
+          <p className="admin-sales-empty">Ucitavanje upita...</p>
+        ) : filteredInquiries.length === 0 ? (
+          <p className="admin-sales-empty">Nema upita za izabrani filter.</p>
+        ) : (
+          <div className="admin-inquiry-list">
+            {filteredInquiries.map((inquiry) => {
+              const status = inquiry.status ?? "new";
+              const isBusy = inquiryBusyId === inquiry._id;
+              return (
+                <article key={inquiry._id} className={`admin-inquiry-item status-${status}`}>
+                  <div className="admin-inquiry-head">
+                    <div>
+                      <strong>{inquiry.name}</strong>
+                      <p>{formatDateTime(inquiry.createdAt)}</p>
+                    </div>
+                    <span className={`admin-inquiry-status status-${status}`}>{inquiryStatusLabel(status)}</span>
+                  </div>
+                  <a className="admin-inquiry-email" href={`mailto:${inquiry.email}`}>
+                    {inquiry.email}
+                  </a>
+                  <p className="admin-inquiry-message">{inquiry.message}</p>
+                  {inquiry.handledAt ? (
+                    <p className="admin-inquiry-handled">Zatvoreno: {formatDateTime(inquiry.handledAt)}</p>
+                  ) : null}
+                  <div className="admin-inquiry-actions">
+                    <button
+                      type="button"
+                      className={`ghost-btn ${status === "new" ? "active" : ""}`}
+                      onClick={() => void onChangeInquiryStatus(inquiry._id, "new")}
+                      disabled={isBusy || status === "new"}
+                    >
+                      Novo
+                    </button>
+                    <button
+                      type="button"
+                      className={`ghost-btn ${status === "in_progress" ? "active" : ""}`}
+                      onClick={() => void onChangeInquiryStatus(inquiry._id, "in_progress")}
+                      disabled={isBusy || status === "in_progress"}
+                    >
+                      U obradi
+                    </button>
+                    <button
+                      type="button"
+                      className={`ghost-btn ${status === "resolved" ? "active" : ""}`}
+                      onClick={() => void onChangeInquiryStatus(inquiry._id, "resolved")}
+                      disabled={isBusy || status === "resolved"}
+                    >
+                      Reseno
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
       <section className="toolbar-card admin-filter-card">
         <div className="admin-filter-grid">
           <input
@@ -834,8 +1019,17 @@ export default function AdminPage() {
             aria-label="Pretraga proizvoda"
           />
 
-          <select className="sort-select" value={activeCategory} onChange={(event) => setActiveCategory(event.target.value)}>
-            <option value="all">Sve kategorije</option>
+          <select
+            className="sort-select"
+            value={activeCategories.size === 1 ? [...activeCategories][0] : "all"}
+            onChange={(event) => {
+              if (event.target.value === "all") setActiveCategories(new Set());
+              else setActiveCategories(new Set([event.target.value]));
+            }}
+          >
+            <option value="all">
+              {activeCategories.size > 1 ? `${activeCategories.size} kategorije` : "Sve kategorije"}
+            </option>
             {categories.map((category) => (
               <option key={category._id} value={category._id}>
                 {category.name}
@@ -909,7 +1103,7 @@ export default function AdminPage() {
             const isEditing = categoryEditId === category._id;
             const isFeaturedForHome = category.featuredOnHome !== false;
             return (
-              <article key={category._id} className={`admin-category-item ${isEditing ? "editing" : ""}`}>
+              <article key={category._id} className={`admin-category-item${isEditing ? " editing" : ""}${isFeaturedForHome ? " featured" : ""}`}>
                 {isEditing ? (
                   <form className="admin-category-main admin-category-inline-edit" onSubmit={(event) => onSubmitCategoryEdit(event, category._id)}>
                     <input
@@ -931,23 +1125,30 @@ export default function AdminPage() {
                   <>
                     <button
                       type="button"
-                      className={`admin-category-main ${activeCategory === category._id ? "active" : ""}`}
-                      onClick={() => setActiveCategory(category._id)}
+                      className={`admin-category-main${activeCategories.has(category._id) ? " active" : ""}`}
+                      onClick={() =>
+                        setActiveCategories((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(category._id)) next.delete(category._id);
+                          else next.add(category._id);
+                          return next;
+                        })
+                      }
                     >
-                      <span>{category.name}</span>
-                      <strong>{categoryCounts.get(category._id) ?? 0}</strong>
+                      <span className="admin-category-name">{category.name}</span>
+                      <span className="admin-category-count">{categoryCounts.get(category._id) ?? 0}</span>
                     </button>
                     <div className="admin-category-corner-actions">
-                      <label className={`admin-category-feature-check ${isFeaturedForHome ? "is-on" : ""}`}>
-                        <input
-                          type="checkbox"
-                          checked={isFeaturedForHome}
-                          onChange={() => void onToggleCategoryFeatured(category)}
-                          aria-label={`Prikaži kategoriju ${category.name} u home sliderima`}
-                          disabled={featuredCategoryBusyId === category._id || isManagingCategory}
-                        />
-                        <span>Pocetni klizac</span>
-                      </label>
+                      <button
+                        type="button"
+                        className={`icon-btn icon-btn-circle admin-category-home-btn${isFeaturedForHome ? " is-on" : ""}`}
+                        onClick={() => void onToggleCategoryFeatured(category)}
+                        aria-label={isFeaturedForHome ? `Ukloni kategoriju "${category.name}" sa početne strane` : `Istakni kategoriju "${category.name}" na početnoj strani`}
+                        title={isFeaturedForHome ? "Prikazano na početnoj" : "Nije prikazano na početnoj"}
+                        disabled={featuredCategoryBusyId === category._id || isManagingCategory}
+                      >
+                        <IconHome />
+                      </button>
                       <button
                         type="button"
                         className="icon-btn icon-btn-circle"
@@ -1193,6 +1394,23 @@ export default function AdminPage() {
   );
 }
 
+function inquiryStatusLabel(status: InquiryStatus) {
+  if (status === "resolved") return "Reseno";
+  if (status === "in_progress") return "U obradi";
+  return "Novo";
+}
+
+function formatDateTime(timestamp: number) {
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return "-";
+  return new Date(timestamp).toLocaleString("sr-Latn-RS", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function IconEdit() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1227,6 +1445,15 @@ function IconClose() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M18 6 6 18" />
       <path d="m6 6 12 12" />
+    </svg>
+  );
+}
+
+function IconHome() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
   );
 }

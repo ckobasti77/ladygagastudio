@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Download, Trash2, X } from "lucide-react";
+import Image from "next/image";
 import { PointerEvent, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
@@ -123,10 +124,12 @@ export function GalleryLightbox({
 
         <div className="gallery-lightbox-media" key={`${media.kind}:${media.url}`}>
           {media.kind === "image" ? (
-            <img
+            <Image
               src={media.url}
               alt={media.originalName ? `Frizura: ${media.originalName}` : "Frizura iz galerije"}
               className="gallery-lightbox-img"
+              fill
+              sizes="100vw"
               loading="eager"
               draggable={false}
             />

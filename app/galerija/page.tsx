@@ -387,8 +387,8 @@ export default function GalleryPage() {
         <h1>{isAdmin ? "Slike i snimci koji prikazuju realne rezultate iz studija." : "Galerija transformacija iz studija Lady Gaga."}</h1>
         <p className="orbit-lead">
           {isAdmin
-            ? "Klikni na karticu za uvećanje i listanje. Admin može da doda fajlove prevlačenjem i puštanjem bilo gde."
-            : "Sav medijski sadržaj je prikazan zajedno kao jedinstvena galerija. Dugme za reprodukciju pušta snimak na licu mesta, a klik na kadar otvara uvećani prikaz."}
+            ? "Klikni na karticu za uvecanje i listanje. Admin moze da doda fajlove prevlacenjem i pustanjem bilo gde."
+            : "Pogledaj poslednje transformacije i otvori kadar preko celog ekrana za detaljan prikaz."}
         </p>
 
         {!isAdmin ? (
@@ -426,7 +426,7 @@ export default function GalleryPage() {
               </article>
               <article className="orbit-metric">
                 <strong>Uživo</strong>
-                <span>osvežava se automatski</span>
+                <span>sveze transformacije</span>
               </article>
               <article className="orbit-metric">
                 <strong>Ceo ekran</strong>
@@ -477,7 +477,7 @@ export default function GalleryPage() {
           <p className="gallery-board-sub">
             {isAdmin
               ? "Slike i snimci su odvojeni po tipu. Tasteri: "
-              : "Sav sadržaj je objedinjen u jednom nizu. Dugme za reprodukciju pušta snimak u kartici, a klik na karticu ga otvara preko celog ekrana. Tasteri: "}
+              : "Istrazi galeriju i otvori kadar koji zelis da pregledas preko celog ekrana. Tasteri: "}
             <kbd>Left</kbd> <kbd>Right</kbd> i <kbd>Esc</kbd>.
           </p>
         </div>
@@ -487,7 +487,7 @@ export default function GalleryPage() {
         ) : media.length === 0 ? (
           <div className="empty-state gallery-empty">
             <h3>Galerija je trenutno prazna.</h3>
-            <p>{isAdmin ? "Dodajte fajlove na vrhu ili prevucite medije na stranicu." : "Pogledajte ponovo uskoro."}</p>
+            <p>{isAdmin ? "Dodajte fajlove na vrhu ili prevucite medije na stranicu." : "Nove transformacije stizu uskoro."}</p>
           </div>
         ) : isAdmin ? (
           <div className="gallery-media-sections">
@@ -628,6 +628,7 @@ function GalleryMediaSection({
               onClick={() => onOpen(kind, index)}
               onKeyDown={(event) => onCardKeyDown(event, kind, index)}
               aria-label={`Otvori ${kind === "image" ? "sliku" : "snimak"} ${index + 1} od ${items.length}`}
+              data-cosmic-tilt
             >
               <div className="gallery-card-media">
                 {kind === "image" ? (
@@ -756,6 +757,7 @@ function GalleryLookbookGrid({
             onClick={() => openCard(index)}
             onKeyDown={(event) => onCardKeyDown(event, index)}
             aria-label={`Otvori kadar ${index + 1} od ${items.length}`}
+            data-cosmic-tilt
           >
             <div className={`gallery-card gallery-lookbook-card ${isVideo ? "is-video" : ""}`}>
               <div className="gallery-card-media">

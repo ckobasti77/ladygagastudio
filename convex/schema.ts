@@ -80,8 +80,10 @@ export default defineSchema({
     name: v.string(),
     email: v.string(),
     message: v.string(),
+    status: v.optional(v.union(v.literal("new"), v.literal("in_progress"), v.literal("resolved"))),
+    handledAt: v.optional(v.number()),
     createdAt: v.number(),
-  }),
+  }).index("by_created_at", ["createdAt"]),
 
   galleryImages: defineTable({
     storageId: v.id("_storage"),

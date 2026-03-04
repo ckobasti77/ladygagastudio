@@ -50,6 +50,18 @@ type SalesRow = {
   categoryName: string;
 };
 
+type OrderStatus = "pending" | "processed" | "completed";
+
+type AdminOrderItem = {
+  productId: Id<"products">;
+  title: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  finalUnitPrice: number;
+  lineTotal: number;
+};
+
 const customerValidator = v.object({
   firstName: v.string(),
   lastName: v.string(),
@@ -61,6 +73,9 @@ const customerValidator = v.object({
   phone: v.string(),
   note: v.optional(v.string()),
 });
+
+const inquiryStatusValidator = v.union(v.literal("new"), v.literal("in_progress"), v.literal("resolved"));
+const orderStatusValidator = v.union(v.literal("pending"), v.literal("processed"), v.literal("completed"));
 
 function normalizeText(value: string) {
   return value.trim();
@@ -133,6 +148,70 @@ function createOrderNumber(createdAt: number) {
   ).padStart(2, "0")}`;
   const randomPart = Math.floor(1000 + Math.random() * 9000);
   return `SLG-${datePart}-${randomPart}`;
+}
+
+function createDeterministicFallbackOrderNumber(createdAt: number, orderId: Id<"orders">) {
+  const d = new Date(createdAt);
+  const datePart = `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}${String(
+    d.getUTCDate(),
+  ).padStart(2, "0")}`;
+  const idPart = String(orderId).replace(/[^a-z0-9]/gi, "").toUpperCase().slice(-5) || "LEGCY";
+  return `SLG-${datePart}-${idPart}`;
+}
+
+function normalizeOrderStatus(status: Doc<"orders">["status"]): OrderStatus {
+  if (status === "processed") return "processed";
+  if (status === "completed") return "completed";
+  return "pending";
+}
+
+function normalizeAdminOrderItems(
+  order: Doc<"orders">,
+  productById: Map<string, Doc<"products">>,
+): AdminOrderItem[] {
+  if (order.items && order.items.length > 0) {
+    return order.items
+      .map((item) => {
+        const quantity = Math.max(1, Math.floor(item.quantity));
+        const unitPrice = Math.max(0, Math.round(item.unitPrice));
+        const discount = Math.max(0, Math.min(100, Math.round(item.discount)));
+        const finalUnitPrice =
+          Number.isFinite(item.finalUnitPrice) && item.finalUnitPrice >= 0
+            ? Math.max(0, Math.round(item.finalUnitPrice))
+            : resolveFinalUnitPrice(unitPrice, discount);
+        const lineTotal =
+          Number.isFinite(item.lineTotal) && item.lineTotal >= 0
+            ? Math.max(0, Math.round(item.lineTotal))
+            : finalUnitPrice * quantity;
+        return {
+          productId: item.productId,
+          title: item.title || "Nepoznat proizvod",
+          quantity,
+          unitPrice,
+          discount,
+          finalUnitPrice,
+          lineTotal,
+        };
+      })
+      .filter((item) => item.quantity > 0);
+  }
+
+  if (!order.productId) return [];
+  const product = productById.get(order.productId as string);
+  const unitPrice = Math.max(0, Math.round(product?.price ?? 0));
+  const discount = Math.max(0, Math.min(100, Math.round(product?.discount ?? 0)));
+  const finalUnitPrice = resolveFinalUnitPrice(unitPrice, discount);
+  return [
+    {
+      productId: order.productId,
+      title: product?.title ?? "Nepoznat proizvod",
+      quantity: 1,
+      unitPrice,
+      discount,
+      finalUnitPrice,
+      lineTotal: finalUnitPrice,
+    },
+  ];
 }
 
 async function prepareOrderItems(ctx: MutationCtx, items: OrderItemInput[]) {
@@ -371,6 +450,60 @@ export const salesAnalytics = query({
   },
 });
 
+export const listOrdersForAdmin = query({
+  args: {},
+  handler: async (ctx) => {
+    const [orders, products] = await Promise.all([ctx.db.query("orders").collect(), ctx.db.query("products").collect()]);
+    const productById = new Map(products.map((product) => [product._id as string, product]));
+
+    return orders
+      .map((order) => {
+        const items = normalizeAdminOrderItems(order, productById);
+        const fallbackItemsCount = items.reduce((sum, item) => sum + item.quantity, 0);
+        const fallbackAmount = items.reduce((sum, item) => sum + item.lineTotal, 0);
+
+        const totalItemsFromDoc = order.totals?.totalItems;
+        const totalAmountFromDoc = order.totals?.totalAmount;
+        const totalItems =
+          typeof totalItemsFromDoc === "number" && Number.isFinite(totalItemsFromDoc)
+            ? Math.max(0, Math.floor(totalItemsFromDoc))
+            : fallbackItemsCount;
+        const totalAmount =
+          typeof totalAmountFromDoc === "number" && Number.isFinite(totalAmountFromDoc)
+            ? Math.max(0, Math.round(totalAmountFromDoc))
+            : fallbackAmount;
+
+        return {
+          _id: order._id,
+          orderNumber: order.orderNumber ?? createDeterministicFallbackOrderNumber(order.createdAt, order._id),
+          createdAt: order.createdAt,
+          status: normalizeOrderStatus(order.status),
+          customer: order.customer,
+          totals: {
+            totalItems,
+            totalAmount,
+          },
+          items,
+        };
+      })
+      .sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+export const setOrderStatus = mutation({
+  args: {
+    orderId: v.id("orders"),
+    status: orderStatusValidator,
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db.get(args.orderId);
+    if (!order) {
+      throw new Error("Porudzbina nije pronadjena.");
+    }
+    await ctx.db.patch(args.orderId, { status: args.status });
+  },
+});
+
 export const createInquiry = mutation({
   args: {
     name: v.string(),
@@ -380,7 +513,40 @@ export const createInquiry = mutation({
   handler: async (ctx, args) => {
     return await ctx.db.insert("inquiries", {
       ...args,
+      status: "new",
+      handledAt: undefined,
       createdAt: Date.now(),
+    });
+  },
+});
+
+export const listInquiries = query({
+  args: {},
+  handler: async (ctx) => {
+    const inquiries = await ctx.db.query("inquiries").collect();
+    return [...inquiries]
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .map((inquiry) => ({
+        ...inquiry,
+        status: inquiry.status ?? "new",
+      }));
+  },
+});
+
+export const setInquiryStatus = mutation({
+  args: {
+    inquiryId: v.id("inquiries"),
+    status: inquiryStatusValidator,
+  },
+  handler: async (ctx, args) => {
+    const inquiry = await ctx.db.get(args.inquiryId);
+    if (!inquiry) {
+      throw new Error("Inquiry not found.");
+    }
+
+    await ctx.db.patch(args.inquiryId, {
+      status: args.status,
+      handledAt: args.status === "resolved" ? Date.now() : undefined,
     });
   },
 });

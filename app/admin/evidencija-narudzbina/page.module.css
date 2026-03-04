@@ -1,0 +1,569 @@
+.ordersPage {
+  position: relative;
+  isolation: isolate;
+  gap: 1.1rem;
+}
+
+.ordersPage::before {
+  content: "";
+  position: absolute;
+  inset: -40px -30px auto -30px;
+  height: 420px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--accent) 32%, transparent), transparent 46%),
+    radial-gradient(circle at 92% 8%, color-mix(in srgb, #32d7ff 34%, transparent), transparent 44%);
+  filter: blur(2px);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, #33d8ff 34%, var(--border));
+  background:
+    radial-gradient(circle at 8% -20%, color-mix(in srgb, #48dbff 20%, transparent), transparent 56%),
+    radial-gradient(circle at 96% 120%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 52%),
+    linear-gradient(130deg, color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--surface-soft) 84%, transparent));
+  box-shadow:
+    0 28px 44px -34px rgba(2, 8, 22, 0.75),
+    inset 0 1px 0 color-mix(in srgb, #fff 22%, transparent);
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.hero::before {
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(95deg, transparent 8%, color-mix(in srgb, #67e2ff 20%, transparent) 48%, transparent 90%);
+  background-size: 240% 100%;
+  animation: heroScan 9s linear infinite;
+}
+
+.hero::after {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  right: -130px;
+  top: -120px;
+  background: radial-gradient(circle, color-mix(in srgb, #67ddff 20%, transparent) 0%, transparent 70%);
+}
+
+@keyframes heroScan {
+  0% {
+    background-position: -180% 0;
+  }
+  100% {
+    background-position: 180% 0;
+  }
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.heroActionBtn {
+  border-color: color-mix(in srgb, #4ad9ff 38%, var(--border));
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.kpiCard {
+  position: relative;
+  overflow: hidden;
+  padding: 0.95rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  background:
+    radial-gradient(circle at 94% -12%, color-mix(in srgb, #35d8ff 16%, transparent), transparent 52%),
+    linear-gradient(145deg, color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--surface-soft) 84%, transparent));
+  box-shadow: 0 20px 32px -34px rgba(2, 8, 21, 0.9);
+}
+
+.kpiCard span {
+  display: block;
+  font-size: 0.77rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.45rem;
+}
+
+.kpiCard strong {
+  display: block;
+  font-size: clamp(1rem, 1.5vw, 1.24rem);
+  line-height: 1.2;
+  color: color-mix(in srgb, var(--text) 88%, #6fe3ff);
+}
+
+.filterPanel {
+  display: grid;
+  gap: 0.9rem;
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--accent) 30%, #36d8ff);
+}
+
+.filterPanel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 8% 8%, color-mix(in srgb, var(--accent) 11%, transparent), transparent 38%),
+    radial-gradient(circle at 90% 84%, color-mix(in srgb, #37d7ff 10%, transparent), transparent 34%);
+}
+
+.filterPanel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.filterHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filterHead h2 {
+  margin: 0;
+}
+
+.filterHead p {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+}
+
+.filterMeta {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.filterMeta span {
+  padding: 0.32rem 0.62rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  font-size: 0.78rem;
+}
+
+.quickStatusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.quickStatusChip {
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.84rem;
+  padding: 0.42rem 0.86rem;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.quickStatusChip:hover {
+  transform: translateY(-1px);
+}
+
+.activeChip {
+  border-color: color-mix(in srgb, #39d8ff 48%, var(--accent));
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--accent) 24%, var(--surface)),
+    color-mix(in srgb, #39d8ff 22%, var(--surface))
+  );
+}
+
+.pendingChip {
+  border-color: color-mix(in srgb, #6dbfff 34%, var(--border));
+}
+
+.processedChip {
+  border-color: color-mix(in srgb, #f7ba55 34%, var(--border));
+}
+
+.completedChip {
+  border-color: color-mix(in srgb, #46cf91 34%, var(--border));
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.66rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.32rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.field span {
+  color: color-mix(in srgb, var(--text) 74%, var(--muted));
+  font-weight: 600;
+}
+
+.field input,
+.field select,
+.rowsPerPage select {
+  width: 100%;
+  padding: 0.6rem 0.72rem;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.field input:focus,
+.field select:focus,
+.rowsPerPage select:focus {
+  outline: none;
+  border-color: color-mix(in srgb, #37d8ff 52%, var(--accent));
+  box-shadow: 0 0 0 3px color-mix(in srgb, #37d8ff 16%, transparent);
+}
+
+.filterFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.noteCheck {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.noteCheck input {
+  accent-color: var(--accent-strong);
+  width: 16px;
+  height: 16px;
+}
+
+.rowsPerPage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.rowsPerPage select {
+  width: auto;
+  min-width: 88px;
+}
+
+.tablePanel {
+  display: grid;
+  gap: 0.8rem;
+  border-color: color-mix(in srgb, #37d8ff 30%, var(--border));
+}
+
+.tableInfo p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.tableWrap {
+  overflow: auto;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+}
+
+.ordersTable {
+  width: 100%;
+  min-width: 1180px;
+  border-collapse: collapse;
+  background: color-mix(in srgb, var(--surface) 93%, transparent);
+}
+
+.ordersTable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  text-align: left;
+  padding: 0.78rem 0.86rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  background:
+    radial-gradient(circle at 84% 12%, color-mix(in srgb, #37d8ff 14%, transparent), transparent 44%),
+    color-mix(in srgb, var(--surface-soft) 92%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  color: color-mix(in srgb, var(--text) 72%, var(--muted));
+}
+
+.orderRow td {
+  vertical-align: top;
+  padding: 0.78rem 0.86rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+}
+
+.orderRow:hover {
+  background: color-mix(in srgb, var(--surface-soft) 72%, transparent);
+}
+
+.orderCellMain,
+.customerCell,
+.addressCell,
+.itemsCell,
+.amountCell,
+.statusCell {
+  display: grid;
+  gap: 0.24rem;
+}
+
+.orderCellMain strong {
+  color: color-mix(in srgb, #39d8ff 42%, var(--text));
+}
+
+.orderCellMain span,
+.customerCell span,
+.addressCell span,
+.itemsCell span,
+.amountCell span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.customerCell a {
+  color: color-mix(in srgb, var(--text) 88%, var(--accent));
+  text-decoration: none;
+}
+
+.customerCell a:hover {
+  text-decoration: underline;
+}
+
+.amountCell strong {
+  color: color-mix(in srgb, var(--accent-strong) 74%, var(--text));
+}
+
+.statusPill {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  padding: 0.26rem 0.6rem;
+  font-size: 0.77rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.statusPending {
+  border-color: color-mix(in srgb, #66bfff 52%, var(--border));
+  color: color-mix(in srgb, #2f8dd2 74%, var(--text));
+  background: color-mix(in srgb, #66bfff 15%, transparent);
+}
+
+.statusProcessed {
+  border-color: color-mix(in srgb, #f4be63 52%, var(--border));
+  color: color-mix(in srgb, #b67b1f 72%, var(--text));
+  background: color-mix(in srgb, #f4be63 16%, transparent);
+}
+
+.statusCompleted {
+  border-color: color-mix(in srgb, #56ce9a 52%, var(--border));
+  color: color-mix(in srgb, #2d9a6d 74%, var(--text));
+  background: color-mix(in srgb, #56ce9a 16%, transparent);
+}
+
+.statusCell select {
+  min-width: 128px;
+  padding: 0.44rem 0.52rem;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.86rem;
+}
+
+.statusCell select:focus {
+  outline: none;
+  border-color: color-mix(in srgb, #38d8ff 56%, var(--accent));
+}
+
+.detailButton {
+  border-color: color-mix(in srgb, var(--border) 80%, transparent);
+  min-width: 94px;
+}
+
+.detailButtonActive {
+  border-color: color-mix(in srgb, #37d8ff 52%, var(--border));
+  background: color-mix(in srgb, #37d8ff 12%, transparent);
+}
+
+.detailRow td {
+  padding: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.76rem;
+  padding: 0.9rem;
+  background:
+    radial-gradient(circle at 4% 12%, color-mix(in srgb, #37d8ff 10%, transparent), transparent 40%),
+    color-mix(in srgb, var(--surface-soft) 90%, transparent);
+}
+
+.detailCard {
+  padding: 0.82rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+}
+
+.detailCard h4 {
+  margin: 0 0 0.55rem;
+}
+
+.detailCard p {
+  margin: 0.36rem 0;
+  color: color-mix(in srgb, var(--text) 84%, var(--muted));
+}
+
+.noteBadge {
+  margin-top: 0.42rem;
+  padding: 0.48rem 0.58rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 34%, transparent);
+}
+
+.itemList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.52rem;
+}
+
+.itemList li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: flex-start;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  border-radius: 12px;
+  padding: 0.58rem 0.62rem;
+}
+
+.itemList li div {
+  display: grid;
+  gap: 0.26rem;
+}
+
+.itemList li span {
+  color: var(--muted);
+  font-size: 0.83rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.58rem;
+  flex-wrap: wrap;
+}
+
+.pagination span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2.2rem 1rem;
+}
+
+.emptyState h3 {
+  margin: 0;
+}
+
+.emptyState p {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+}
+
+@media (max-width: 1200px) {
+  .kpiGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .filterGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filterGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .filterMeta {
+    width: 100%;
+  }
+
+  .filterFooter {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pagination {
+    justify-content: flex-start;
+  }
+}

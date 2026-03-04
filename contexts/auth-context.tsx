@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
@@ -29,20 +29,8 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const initialSession: Session | null = (() => {
-  if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem("session");
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as Session;
-  } catch {
-    localStorage.removeItem("session");
-    return null;
-  }
-})();
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(initialSession);
+  const [session, setSession] = useState<Session | null>(null);
   const loginUserMutation = useMutation(api.users.loginCustomer) as (args: { email: string; password: string }) => Promise<UserAuthResult>;
   const registerUserMutation = useMutation(api.users.registerCustomer) as (args: {
     firstName: string;
@@ -50,6 +38,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string;
     password: string;
   }) => Promise<Exclude<UserAuthResult, null>>;
+
+  useEffect(() => {
+    const raw = localStorage.getItem("session");
+    if (!raw) return;
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate persisted auth only on client after mount
+      setSession(JSON.parse(raw) as Session);
+    } catch {
+      localStorage.removeItem("session");
+    }
+  }, []);
 
   const setAndPersistSession = (nextSession: Session) => {
     setSession(nextSession);

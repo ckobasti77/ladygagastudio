@@ -27,6 +27,9 @@ type OfferRecipient = {
   lastName: string;
 };
 
+let cachedTransporter: nodemailer.Transporter | null = null;
+let cachedTransporterKey = "";
+
 function escapeHtml(value: string) {
   return value
     .replaceAll("&", "&amp;")
@@ -107,6 +110,37 @@ function readSmtpConfig() {
   };
 }
 
+function getTransporter(config: {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  secure: boolean;
+}) {
+  const cacheKey = `${config.host}:${config.port}:${config.user}:${config.secure}`;
+  if (cachedTransporter && cachedTransporterKey === cacheKey) {
+    return cachedTransporter;
+  }
+
+  cachedTransporter = nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
+    pool: true,
+    maxConnections: 3,
+    maxMessages: 100,
+    connectionTimeout: 120000,
+    greetingTimeout: 30000,
+    socketTimeout: 600000,
+    auth: {
+      user: config.user,
+      pass: config.pass,
+    },
+  });
+  cachedTransporterKey = cacheKey;
+  return cachedTransporter;
+}
+
 export async function sendOfferCampaign(payload: OfferCampaignPayload): Promise<SendOfferCampaignResult> {
   const subject = payload.subject.trim();
   const message = payload.message.trim();
@@ -144,14 +178,12 @@ export async function sendOfferCampaign(payload: OfferCampaignPayload): Promise<
       return { ok: true, recipients: 0 };
     }
 
-    const transporter = nodemailer.createTransport({
+    const transporter = getTransporter({
       host: smtpConfig.value.host,
       port: smtpConfig.value.port,
       secure: smtpConfig.value.secure,
-      auth: {
-        user: smtpConfig.value.user,
-        pass: smtpConfig.value.pass,
-      },
+      user: smtpConfig.value.user,
+      pass: smtpConfig.value.pass,
     });
 
     await transporter.sendMail({
