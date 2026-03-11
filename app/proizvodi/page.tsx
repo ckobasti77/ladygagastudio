@@ -81,7 +81,7 @@ export default function ProductsPage() {
     stock: number;
     discount: number;
     recommended?: boolean;
-    categoryId: string;
+    categoryId?: string;
     images: string[];
     storageImageIds?: string[];
     primaryImageStorageId?: string;
@@ -487,8 +487,9 @@ export default function ProductsPage() {
       setFeedback({ type: "error", message: "Popust mora biti između 0 i 100." });
       return;
     }
-    if (!form.categoryId) {
-      setFeedback({ type: "error", message: "Kategorija je obavezna." });
+    const hasAtLeastOneImage = form.storageImageIds.length > 0 || preservedExternalImages.length > 0;
+    if (!hasAtLeastOneImage) {
+      setFeedback({ type: "error", message: "Bar jedna slika je obavezna." });
       return;
     }
 
@@ -503,7 +504,7 @@ export default function ProductsPage() {
         stock,
         discount,
         recommended: form.recommended,
-        categoryId: form.categoryId,
+        categoryId: form.categoryId || undefined,
         images: preservedExternalImages,
         storageImageIds: form.storageImageIds,
         primaryImageStorageId: form.primaryImageStorageId ?? undefined,
@@ -860,13 +861,11 @@ export default function ProductsPage() {
           <form className="modal-form admin-product-form" onSubmit={onSaveProduct}>
             <div className="form-row-2">
               <input
-                required
                 placeholder="Naziv proizvoda"
                 value={form.title}
                 onChange={(event) => setForm((value) => ({ ...value, title: event.target.value }))}
               />
               <input
-                required
                 placeholder="Podnaslov"
                 value={form.subtitle}
                 onChange={(event) => setForm((value) => ({ ...value, subtitle: event.target.value }))}
@@ -874,7 +873,6 @@ export default function ProductsPage() {
             </div>
 
             <textarea
-              required
               placeholder="Opis proizvoda"
               value={form.description}
               onChange={(event) => setForm((value) => ({ ...value, description: event.target.value }))}
@@ -882,7 +880,6 @@ export default function ProductsPage() {
 
             <div className="admin-form-grid-4">
               <input
-                required
                 type="number"
                 min={0}
                 placeholder="Cena"
@@ -908,7 +905,7 @@ export default function ProductsPage() {
                   setForm((value) => ({ ...value, discount: normalized }));
                 }}
               />
-              <select required value={form.categoryId} onChange={(event) => setForm((value) => ({ ...value, categoryId: event.target.value }))}>
+              <select value={form.categoryId} onChange={(event) => setForm((value) => ({ ...value, categoryId: event.target.value }))}>
                 <option value="">Kategorija</option>
                 {categories.map((category) => (
                   <option key={category._id} value={category._id}>

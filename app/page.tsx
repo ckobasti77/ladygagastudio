@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -79,8 +79,8 @@ const EMPTY_MEDIA: GalleryMedia[] = [];
 const HERO_SERVICE_CARDS = [
   {
     Icon: ShieldCheck,
-    title: "Oštećena i blajhana kosa",
-    text: "Intenzivna obnova uz pažljivo očuvanje kvaliteta vlasi.",
+    title: "Oštecena i blajhana kosa",
+    text: "Intenzivna obnova uz pažljivo ocuvanje kvaliteta vlasi.",
   },
   {
     Icon: Palette,
@@ -90,7 +90,7 @@ const HERO_SERVICE_CARDS = [
   {
     Icon: Sparkles,
     title: "Keratin tretmani",
-    text: "Glatkoća, sjaj i lakše održavanje tokom svakog dana.",
+    text: "Glatkoca, sjaj i lakše održavanje tokom svakog dana.",
   },
   {
     Icon: Droplets,
@@ -99,7 +99,7 @@ const HERO_SERVICE_CARDS = [
   },
   {
     Icon: Scissors,
-    title: "Svečane i dnevne frizure",
+    title: "Svecane i dnevne frizure",
     text: "Glam završnica i postojan oblik za svaku priliku.",
   },
   {
@@ -129,7 +129,7 @@ export default function HomePage() {
   const sliderSections = featuredCategorySliders.length > 0
     ? featuredCategorySliders
     : featuredProducts.length > 0
-      ? [{ categoryId: "featured-fallback", categoryName: "Preporučeni proizvodi", products: featuredProducts }]
+      ? [{ categoryId: "featured-fallback", categoryName: "Preporuceni proizvodi", products: featuredProducts }]
       : [];
 
   const [homeLightboxIndex, setHomeLightboxIndex] = useState<number | null>(null);
@@ -223,7 +223,7 @@ export default function HomePage() {
               <span>Studio Lady Gaga</span>
             </p>
             <h1>Lepota, zdravlje i transformacija kose na jednom mestu.</h1>
-            <p className="home-lead">Iza studija Lady Gaga stoji dugogodišnja posvećenost lepoti, detaljima i profesionalnoj nezi kose.</p>
+            <p className="home-lead">Iza studija Lady Gaga stoji dugogodišnja posvecenost lepoti, detaljima i profesionalnoj nezi kose.</p>
             <p className="home-lead">{founderStory[1]}</p>
 
             <div className="home-hero-actions">
@@ -262,24 +262,33 @@ export default function HomePage() {
             </figure>
           </div>
         </div>
-      </section>
+          </section>
 
       <section className="home-reveal xeno-hero-services" aria-label="Studio fokus">
         <div className="xeno-hero-service-grid">
-          {HERO_SERVICE_CARDS.map((card) => {
+          {HERO_SERVICE_CARDS.map((card, i) => {
             const Icon = card.Icon;
             return (
-              <article key={card.title} className="xeno-hero-service-card" data-cosmic-tilt>
+              <article
+                key={card.title}
+                className="xeno-hero-service-card"
+                style={{ "--card-i": i } as React.CSSProperties}
+              >
                 <span className="xeno-hero-service-icon" aria-hidden="true">
                   <Icon />
                 </span>
-                <h3>{card.title}</h3>
-                <p>{card.text}</p>
+                <div className="xeno-hero-service-content">
+                  <h3>{card.title}</h3>
+                  <p>{card.text}</p>
+                </div>
+                <span className="xeno-hero-service-arrow" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 13L13 5M13 5H6M13 5V12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </span>
               </article>
             );
           })}
         </div>
-      </section>
+          </section>
 
       <section className="xeno-after-hero home-reveal">
         <div className="xeno-main-column">
@@ -290,7 +299,7 @@ export default function HomePage() {
                   <Sparkles className="home-kicker-glyph" aria-hidden="true" />
                   <span>Vizija studija</span>
                 </p>
-                <h2>Svaki detalj tretmana je planiran da rezultat izgleda luksuzno odmah i ostane zdrav dugoročno.</h2>
+                <h2>Svaki detalj tretmana je planiran da rezultat izgleda luksuzno odmah i ostane zdrav dugorocno.</h2>
               </div>
 
               {founderStory.slice(2).map((paragraph) => (
@@ -356,7 +365,7 @@ export default function HomePage() {
             </div>
 
             {rawGalleryMedia === undefined ? (
-              <p className="home-empty">Učitavanje galerije...</p>
+              <p className="home-empty">Ucitavanje galerije...</p>
             ) : featuredImages.length === 0 ? (
               <div className="empty-state xeno-empty">
                 <h3>Trenutno nema slika u galeriji.</h3>
@@ -404,7 +413,7 @@ export default function HomePage() {
             </div>
 
             {rawGalleryMedia === undefined ? (
-              <p className="home-empty">Učitavanje snimaka...</p>
+              <p className="home-empty">Ucitavanje snimaka...</p>
             ) : featuredVideos.length === 0 ? (
               <div className="empty-state xeno-empty">
                 <h3>Trenutno nema snimaka u galeriji.</h3>
@@ -425,25 +434,52 @@ export default function HomePage() {
                 ))}
               </div>
             )}
-          </section>
-
+          </section>
           <section className="home-panel home-reveal xeno-treatments">
-            <div className="home-section-head">
+            <div className="xeno-treatment-hero">
               <p className="home-kicker home-kicker-row">
                 <Droplets className="home-kicker-glyph" aria-hidden="true" />
                 <span>Milk Shake tretmani</span>
               </p>
-              <h2>Program nege biramo prema tipu i stanju kose za zdrav i premium rezultat.</h2>
+              <h2 className="xeno-treatment-title">Brutalna nega. Luksuzan finish.</h2>
+              <p className="xeno-treatment-lead">3 ciljana protokola za sjaj, snagu i kontrolu frizza.</p>
+              <div className="xeno-treatment-meta" aria-hidden="true">
+                <span>
+                  <Sparkles size={13} />
+                  Signature rituali
+                </span>
+                <span>03 protokola</span>
+                <span>100% personalizovano</span>
+              </div>
             </div>
+            <div className="xeno-treatment-grid xeno-treatment-grid-brutal">
+              {milkShakeTreatments.map((treatment, i) => {
+                const compactDescription =
+                  treatment.description.length > 84 ? `${treatment.description.slice(0, 81).trim()}...` : treatment.description;
 
-            <div className="xeno-treatment-grid">
-              {milkShakeTreatments.map((treatment) => (
-                <article key={treatment.name} className="xeno-treatment-card" data-cosmic-tilt>
-                  <p className="xeno-treatment-badge">{treatment.benefit}</p>
-                  <h3>{treatment.name}</h3>
-                  <p>{treatment.description}</p>
-                </article>
-              ))}
+                return (
+                  <article
+                    key={treatment.name}
+                    className="xeno-treatment-card xeno-treatment-card-clean"
+                    style={{ "--t-i": i } as React.CSSProperties}
+                  >
+                    <div className="xeno-treatment-body">
+                      <div className="xeno-treatment-topline">
+                        <span className="xeno-treatment-num" aria-hidden="true">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <h3>{treatment.name}</h3>
+                      </div>
+                      <p className="xeno-treatment-copy">{compactDescription}</p>
+                      <p className="xeno-treatment-badge xeno-treatment-badge-clean">
+                        <Sparkles size={12} aria-hidden="true" />
+                        <span>{treatment.benefit}</span>
+                      </p>
+                    </div>
+                    <span className="xeno-treatment-line" aria-hidden="true" />
+                  </article>
+                );
+              })}
             </div>
           </section>
 
@@ -476,11 +512,11 @@ export default function HomePage() {
             <div>
               <p className="home-kicker home-kicker-row">
                 <SendHorizontal className="home-kicker-glyph" aria-hidden="true" />
-                <span>Sledeći korak</span>
+                <span>Sledeci korak</span>
               </p>
-              <h2>Pošaljite inspiraciju, a mi vraćamo jasan plan tretmana i preporuku proizvoda.</h2>
+              <h2>Pošaljite inspiraciju, a mi vracamo jasan plan tretmana i preporuku proizvoda.</h2>
               <p>
-                Cilj je rezultat koji izgleda odlično odmah, ali i ostaje stabilan tokom narednih nedelja.
+                Cilj je rezultat koji izgleda odlicno odmah, ali i ostaje stabilan tokom narednih nedelja.
               </p>
             </div>
 
@@ -506,7 +542,7 @@ export default function HomePage() {
             </p>
 
             {sidebarDisplayProducts.length === 0 ? (
-              <p className="home-empty">Trenutno nema preporučenih proizvoda.</p>
+              <p className="home-empty">Trenutno nema preporucenih proizvoda.</p>
             ) : (
               <div className="xeno-sidebar-products-scroll">
                 {sidebarDisplayProducts.map((product) => (
@@ -645,7 +681,7 @@ function FeaturedCategorySlider({
         <button
           type="button"
           className="xeno-category-slider-arrow xeno-category-slider-arrow-side"
-          aria-label={`Sledeći proizvodi za kategoriju ${categoryName}`}
+          aria-label={`Sledeci proizvodi za kategoriju ${categoryName}`}
           aria-controls={sliderId}
           disabled={!canScrollNext}
           onClick={() => scrollRail(1)}
@@ -653,7 +689,7 @@ function FeaturedCategorySlider({
           <ChevronRight />
         </button>
       </div>
-    </section>
+          </section>
   );
 }
 
@@ -670,3 +706,4 @@ function formatShortDate(timestamp: number) {
   const year = date.getFullYear();
   return `${day}.${month}.${year}`;
 }
+

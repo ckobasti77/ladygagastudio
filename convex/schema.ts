@@ -32,7 +32,7 @@ export default defineSchema({
     stock: v.number(),
     discount: v.number(),
     recommended: v.optional(v.boolean()),
-    categoryId: v.id("categories"),
+    categoryId: v.optional(v.id("categories")),
     images: v.array(v.string()),
     storageImageIds: v.optional(v.array(v.id("_storage"))),
     primaryImageStorageId: v.optional(v.id("_storage")),

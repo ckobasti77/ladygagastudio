@@ -46,6 +46,10 @@ function orderImages({
   return [primaryUrl, ...merged.filter((url) => url !== primaryUrl)];
 }
 
+function normalizeImageUrls(urls: string[]) {
+  return urls.map((url) => url.trim()).filter((url) => url.length > 0);
+}
+
 async function normalizeProductForClient(ctx: QueryCtx, product: ProductDoc) {
   const storageImageIds = product.storageImageIds ?? [];
   const storageImages = await resolveStorageImages(ctx, storageImageIds);
@@ -60,6 +64,7 @@ async function normalizeProductForClient(ctx: QueryCtx, product: ProductDoc) {
     storageImageIds,
     storageImages,
     images: orderedImages,
+    categoryId: product.categoryId ?? "",
   };
 }
 
@@ -133,7 +138,7 @@ export const homeSnapshot = query({
     const categoryCounts = new Map<string, number>();
     const productsByCategory = new Map<string, ProductDoc[]>();
     for (const product of products) {
-      const key = product.categoryId as string;
+      const key = product.categoryId ?? "__uncategorized__";
       categoryCounts.set(key, (categoryCounts.get(key) ?? 0) + 1);
       const bucket = productsByCategory.get(key);
       if (bucket) {
@@ -145,8 +150,8 @@ export const homeSnapshot = query({
 
     const topCategories = [...categoryCounts.entries()]
       .map(([categoryId, count]) => ({
-        categoryId,
-        name: categoryById.get(categoryId) ?? "Bez kategorije",
+        categoryId: categoryId === "__uncategorized__" ? "" : categoryId,
+        name: categoryId === "__uncategorized__" ? "Bez kategorije" : (categoryById.get(categoryId) ?? "Bez kategorije"),
         count,
       }))
       .sort((a, b) => b.count - a.count)
@@ -167,7 +172,7 @@ export const homeSnapshot = query({
       discount: product.discount ?? 0,
       recommended: product.recommended ?? false,
       finalPrice: resolveFinalUnitPrice(product.price, product.discount),
-      categoryName: categoryById.get(product.categoryId as string) ?? "Kategorija",
+      categoryName: product.categoryId ? (categoryById.get(product.categoryId as string) ?? "Kategorija") : "Bez kategorije",
       image: await resolvePrimaryImage(ctx, product),
     });
 
@@ -260,7 +265,7 @@ export const upsertProduct = mutation({
     stock: v.number(),
     discount: v.number(),
     recommended: v.optional(v.boolean()),
-    categoryId: v.id("categories"),
+    categoryId: v.optional(v.id("categories")),
     images: v.array(v.string()),
     storageImageIds: v.optional(v.array(v.id("_storage"))),
     primaryImageStorageId: v.optional(v.id("_storage")),
@@ -273,7 +278,11 @@ export const upsertProduct = mutation({
         throw new Error("Product not found.");
       }
 
+      const normalizedImages = normalizeImageUrls(args.images);
       const storageImageIds = args.storageImageIds ?? existing.storageImageIds ?? [];
+      if (normalizedImages.length === 0 && storageImageIds.length === 0) {
+        throw new Error("At least one image is required.");
+      }
       let primaryImageStorageId = args.primaryImageStorageId ?? existing.primaryImageStorageId;
       let primaryImageUrl = args.primaryImageUrl ?? existing.primaryImageUrl;
       const recommended = args.recommended ?? existing.recommended ?? false;
@@ -284,7 +293,7 @@ export const upsertProduct = mutation({
 
       if (primaryImageStorageId) {
         primaryImageUrl = undefined;
-      } else if (primaryImageUrl && !args.images.includes(primaryImageUrl)) {
+      } else if (primaryImageUrl && !normalizedImages.includes(primaryImageUrl)) {
         primaryImageUrl = undefined;
       }
 
@@ -297,7 +306,7 @@ export const upsertProduct = mutation({
         discount: args.discount,
         recommended,
         categoryId: args.categoryId,
-        images: args.images,
+        images: normalizedImages,
         storageImageIds,
         primaryImageStorageId,
         primaryImageUrl,
@@ -315,9 +324,13 @@ export const upsertProduct = mutation({
       return args.productId;
     }
 
+    const normalizedImages = normalizeImageUrls(args.images);
     let primaryImageStorageId = args.primaryImageStorageId;
     let primaryImageUrl = args.primaryImageUrl;
     const storageImageIds = args.storageImageIds ?? [];
+    if (normalizedImages.length === 0 && storageImageIds.length === 0) {
+      throw new Error("At least one image is required.");
+    }
 
     if (primaryImageStorageId && !storageImageIds.includes(primaryImageStorageId)) {
       primaryImageStorageId = undefined;
@@ -325,7 +338,7 @@ export const upsertProduct = mutation({
 
     if (primaryImageStorageId) {
       primaryImageUrl = undefined;
-    } else if (primaryImageUrl && !args.images.includes(primaryImageUrl)) {
+    } else if (primaryImageUrl && !normalizedImages.includes(primaryImageUrl)) {
       primaryImageUrl = undefined;
     }
 
@@ -338,7 +351,7 @@ export const upsertProduct = mutation({
       discount: args.discount,
       recommended: args.recommended ?? false,
       categoryId: args.categoryId,
-      images: args.images,
+      images: normalizedImages,
       storageImageIds,
       primaryImageStorageId,
       primaryImageUrl,
