@@ -80,22 +80,34 @@ export default function ProductDetailsPage() {
 
   if (rawProducts === undefined || rawCategories === undefined) {
     return (
-      <section className="page-grid product-detail-page">
-        <section className="loading-card">Učitavanje proizvoda...</section>
+      <section className="page-grid orbit-page product-detail-page">
+        <article className="orbit-panel orbit-reveal">
+          <p className="orbit-panel-tag">Proizvod</p>
+          <p>Ucitavanje proizvoda...</p>
+        </article>
       </section>
     );
   }
 
   if (!product) {
     return (
-      <section className="page-grid product-detail-page">
-        <section className="empty-state toolbar-card">
-          <h3>Proizvod nije pronadjen.</h3>
-          <p>Proverite da li je proizvod obrisan ili izaberite drugi iz kataloga.</p>
-          <Link href="/proizvodi" className="primary-btn">
-            Nazad na proizvode
-          </Link>
-        </section>
+      <section className="page-grid orbit-page product-detail-page">
+        <article className="orbit-hero orbit-reveal">
+          <div className="orbit-hud" aria-hidden>
+            <span>Proizvod</span>
+            <strong>Studio Lady Gaga | Katalog</strong>
+          </div>
+
+          <p className="orbit-eyebrow">Proizvod</p>
+          <h1>Proizvod nije pronadjen.</h1>
+          <p className="orbit-lead">Proverite da li je proizvod obrisan ili izaberite drugi iz kataloga.</p>
+
+          <div className="orbit-actions">
+            <Link href="/proizvodi" className="primary-btn orbit-main-action">
+              Nazad na proizvode
+            </Link>
+          </div>
+        </article>
       </section>
     );
   }
@@ -182,12 +194,12 @@ export default function ProductDetailsPage() {
   };
 
   return (
-    <section className="page-grid product-detail-page">
-      <Link href="/proizvodi" className="ghost-btn product-detail-back">
+    <section className="page-grid orbit-page product-detail-page">
+      <Link href="/proizvodi" className="ghost-btn product-detail-back orbit-reveal">
         Nazad na proizvode
       </Link>
 
-      <article className="toolbar-card product-detail-shell">
+      <article className="product-detail-shell orbit-reveal">
         <div className="product-detail-media-column">
           <div className="product-detail-stage">
             <Image
@@ -252,7 +264,7 @@ export default function ProductDetailsPage() {
         <div className="product-detail-info-column">
           <div className="product-detail-info-head">
             <p className="product-detail-category">{categoryName}</p>
-            {product.recommended ? <span className="product-detail-recommended-pill">Preporučen</span> : null}
+            {product.recommended ? <span className="product-detail-recommended-pill">Preporucen</span> : null}
             <span className={`product-detail-stock-pill ${stockMeta.tone}`}>{stockMeta.badgeText}</span>
           </div>
           <h1>{product.title}</h1>
@@ -265,7 +277,7 @@ export default function ProductDetailsPage() {
               <strong>{formatRsd(resolvedPrice)}</strong>
               {discount > 0 ? <span className="product-detail-old-price">{formatRsd(product.price)}</span> : null}
             </div>
-            {discount > 0 ? <p className="product-detail-price-save">Ušteda {formatRsd(product.price - resolvedPrice)}</p> : null}
+            {discount > 0 ? <p className="product-detail-price-save">Usteda {formatRsd(product.price - resolvedPrice)}</p> : null}
           </div>
 
           <div className="product-detail-meta-grid">
@@ -319,7 +331,7 @@ export default function ProductDetailsPage() {
                   }}
                   disabled={isUpdatingRecommended}
                 />
-                <span>Preporučen proizvod</span>
+                <span>Preporucen proizvod</span>
               </label>
               <Link href="/proizvodi" className="ghost-btn">
                 Idi na upravljanje katalogom
@@ -330,14 +342,15 @@ export default function ProductDetailsPage() {
       </article>
 
       {relatedProducts.length > 0 ? (
-        <section className="toolbar-card product-detail-related">
+        <section className="orbit-panel product-detail-related orbit-reveal">
+          <p className="orbit-panel-tag">Povezano</p>
           <div className="product-detail-related-head">
             <h2>Povezani proizvodi</h2>
-            <span>Još iz iste kategorije</span>
+            <span>Jos iz iste kategorije</span>
           </div>
           <div className="product-detail-related-grid">
             {relatedProducts.map((item) => (
-              <Link key={item._id} href={`/proizvodi/${item._id}`} className="product-detail-related-card">
+              <Link key={item._id} href={`/proizvodi/${item._id}`} className="product-detail-related-card" data-cosmic-tilt>
                 <Image src={item.images[0] ?? "/logo.png"} alt={item.title} width={420} height={420} sizes="(max-width: 768px) 100vw, 25vw" />
                 <div className="product-detail-related-body">
                   <h3>{item.title}</h3>

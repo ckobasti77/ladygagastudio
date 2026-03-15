@@ -14,33 +14,69 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <section className="page-grid cart-page">
-        <article className="hero cart-hero">
-          <p className="eyebrow">Korpa</p>
+      <section className="page-grid orbit-page cart-orbit">
+        <article className="orbit-hero orbit-reveal">
+          <div className="orbit-hud" aria-hidden>
+            <span>Korpa</span>
+            <strong>Studio Lady Gaga | Pregled korpe</strong>
+          </div>
+
+          <p className="orbit-eyebrow">Korpa</p>
           <h1>Vaša korpa je trenutno prazna.</h1>
-          <p className="subtitle">Dodajte proizvode iz kataloga i nastavite na placanje.</p>
-          <Link href="/proizvodi" className="primary-btn">
-            Idi na proizvode
-          </Link>
+          <p className="orbit-lead">
+            Dodajte proizvode iz kataloga i nastavite na placanje.
+          </p>
+
+          <div className="orbit-actions">
+            <Link href="/proizvodi" className="primary-btn orbit-main-action">
+              Idi na proizvode
+            </Link>
+            <Link href="/galerija" className="ghost-btn orbit-second-action">
+              Pogledaj galeriju
+            </Link>
+          </div>
         </article>
       </section>
     );
   }
 
   return (
-    <section className="page-grid cart-page">
-      <article className="hero cart-hero">
-        <p className="eyebrow">Korpa</p>
+    <section className="page-grid orbit-page cart-orbit">
+      <article className="orbit-hero orbit-reveal">
+        <div className="orbit-hud" aria-hidden>
+          <span>Korpa</span>
+          <strong>Studio Lady Gaga | Pregled korpe</strong>
+        </div>
+
+        <p className="orbit-eyebrow">Korpa</p>
         <h1>Pregled korpe i priprema za naručivanje</h1>
-        <p className="subtitle">
-          U korpi imate <strong>{itemCount}</strong> artikala.
+        <p className="orbit-lead">
+          U korpi imate <strong>{itemCount}</strong> artikala. Pregledajte stavke i nastavite na placanje.
         </p>
+
+        <div className="orbit-metric-row">
+          <article className="orbit-metric">
+            <strong>{itemCount}</strong>
+            <span>artikala u korpi</span>
+          </article>
+          <article className="orbit-metric">
+            <strong>{formatRsd(subtotal)}</strong>
+            <span>ukupan iznos</span>
+          </article>
+          <article className="orbit-metric">
+            <strong>{items.length}</strong>
+            <span>razlicitih proizvoda</span>
+          </article>
+        </div>
       </article>
 
-      <section className="cart-layout">
-        <article className="toolbar-card cart-items-card">
+      <section className="cart-layout orbit-reveal">
+        <article className="orbit-panel cart-items-panel">
           <div className="cart-head">
-            <h2>Artikli u korpi</h2>
+            <div>
+              <p className="orbit-panel-tag">Artikli</p>
+              <h2>Artikli u korpi</h2>
+            </div>
             <button type="button" className="ghost-btn danger" onClick={clearCart}>
               Isprazni korpu
             </button>
@@ -97,7 +133,8 @@ export default function CartPage() {
           </div>
         </article>
 
-        <aside className="toolbar-card cart-summary-card">
+        <aside className="orbit-panel cart-summary-panel">
+          <p className="orbit-panel-tag">Rezime</p>
           <h2>Rezime korpe</h2>
           <div className="cart-summary-line">
             <span>Ukupno artikala</span>

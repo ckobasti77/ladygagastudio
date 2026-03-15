@@ -2,7 +2,7 @@
 
 import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CheckCircle2, Eye, EyeOff, KeyRound, ShieldAlert } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, KeyRound, ShieldAlert, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { requestPasswordResetEmail, resetPassword } from "./actions";
 
@@ -149,75 +149,96 @@ function AuthPageContent() {
   };
 
   return (
-    <section className="auth-cosmos">
-      <div className="auth-cosmos-grid">
-        <article className="auth-orbit">
-          <p className="auth-orbit-kicker">Pristup nalogu</p>
-          <h1>Prijava i bezbednost naloga</h1>
-          <p>
-            Prijavite se ili kreirajte nalog kroz jedinstven i bezbedan pristup. Sistem automatski primenjuje nivo
-            ovlascenja prema vasem nalogu.
-          </p>
+    <section className="auth-luxe">
+      <div className="auth-luxe-ambience" aria-hidden="true" />
+      <span className="auth-luxe-sparkle auth-luxe-sparkle-1" aria-hidden="true" />
+      <span className="auth-luxe-sparkle auth-luxe-sparkle-2" aria-hidden="true" />
+      <span className="auth-luxe-sparkle auth-luxe-sparkle-3" aria-hidden="true" />
 
-          <div className="auth-orbit-tags">
-            <span>Prijava</span>
-            <span>Registracija</span>
-            <span>Reset lozinke</span>
+      <div className="auth-luxe-grid">
+        <article className="auth-luxe-info">
+          <span className="auth-luxe-watermark" aria-hidden="true">PRISTUP</span>
+          <div className="auth-luxe-info-inner">
+            <p className="auth-luxe-kicker">
+              <Sparkles size={13} aria-hidden="true" />
+              <span>Pristup nalogu</span>
+            </p>
+            <h1 className="auth-luxe-title">Prijava i bezbednost naloga</h1>
+            <p className="auth-luxe-lead">
+              Prijavite se ili kreirajte nalog kroz jedinstven i bezbedan pristup.
+              Sistem automatski primenjuje nivo ovlascenja prema vasem nalogu.
+            </p>
+            <div className="auth-luxe-tags">
+              <span className="auth-luxe-tag">Prijava</span>
+              <span className="auth-luxe-tag">Registracija</span>
+              <span className="auth-luxe-tag">Reset lozinke</span>
+            </div>
           </div>
         </article>
 
-        <article className="auth-holo-card">
+        <article className="auth-luxe-card">
           {!isResetMode ? (
             <>
-              <div className="auth-holo-head">
+              <div className="auth-luxe-card-head">
                 <h2>{mode === "signin" ? "Prijava naloga" : "Registracija naloga"}</h2>
-                <div className="auth-mode-switch" role="tablist" aria-label="Korisnicka autentikacija">
+                <div className="auth-luxe-tabs" role="tablist" aria-label="Korisnicka autentikacija">
                   <button
                     type="button"
-                    className={`switch-btn nav-chip ${mode === "signin" ? "nav-chip-primary" : ""}`}
+                    className={`auth-luxe-tab ${mode === "signin" ? "is-active" : ""}`}
                     onClick={() => setMode("signin")}
                   >
+                    <span className="auth-luxe-tab-num" aria-hidden="true">01</span>
                     Prijava
                   </button>
                   <button
                     type="button"
-                    className={`switch-btn nav-chip ${mode === "signup" ? "nav-chip-primary" : ""}`}
+                    className={`auth-luxe-tab ${mode === "signup" ? "is-active" : ""}`}
                     onClick={() => setMode("signup")}
                   >
+                    <span className="auth-luxe-tab-num" aria-hidden="true">02</span>
                     Registracija
                   </button>
                 </div>
               </div>
 
-              <form className="modal-form auth-form auth-holo-form" onSubmit={submitUser}>
+              <form className="auth-luxe-form" onSubmit={submitUser}>
                 {mode === "signup" ? (
-                  <div className="form-row-2">
-                    <input required value={firstName} placeholder="Ime" onChange={(event) => setFirstName(event.target.value)} />
-                    <input required value={lastName} placeholder="Prezime" onChange={(event) => setLastName(event.target.value)} />
+                  <div className="auth-luxe-row-2">
+                    <div className="auth-luxe-field">
+                      <input required value={firstName} placeholder="Ime" onChange={(event) => setFirstName(event.target.value)} />
+                    </div>
+                    <div className="auth-luxe-field">
+                      <input required value={lastName} placeholder="Prezime" onChange={(event) => setLastName(event.target.value)} />
+                    </div>
                   </div>
                 ) : null}
 
-                <input required type="email" value={email} placeholder="Email" onChange={(event) => setEmail(event.target.value)} />
-                <input
-                  required
-                  type="password"
-                  value={password}
-                  placeholder="Sifra"
-                  onChange={(event) => setPassword(event.target.value)}
-                  minLength={6}
-                />
+                <div className="auth-luxe-field">
+                  <input required type="email" value={email} placeholder="Email" onChange={(event) => setEmail(event.target.value)} />
+                </div>
+                <div className="auth-luxe-field">
+                  <input
+                    required
+                    type="password"
+                    value={password}
+                    placeholder="Sifra"
+                    onChange={(event) => setPassword(event.target.value)}
+                    minLength={6}
+                  />
+                </div>
 
                 {authStatus.type !== "idle" ? (
                   <p className={authStatus.type === "error" ? "error-text" : "success-text"}>{authStatus.message}</p>
                 ) : null}
 
-                <div className="auth-form-actions">
-                  <button type="submit" className="primary-btn" disabled={authBusy}>
+                <div className="auth-luxe-actions">
+                  <button type="submit" className="auth-luxe-submit" disabled={authBusy}>
+                    <span className="auth-luxe-submit-shine" aria-hidden="true" />
                     {authBusy ? "Obrada..." : mode === "signin" ? "Prijavi se" : "Kreiraj nalog"}
                   </button>
                   <button
                     type="button"
-                    className="ghost-btn"
+                    className="auth-luxe-ghost"
                     onClick={() => {
                       setShowForgotPassword((current) => !current);
                       setForgotStatus({ type: "idle", message: "" });
@@ -229,42 +250,45 @@ function AuthPageContent() {
               </form>
 
               {showForgotPassword ? (
-                <form className="auth-forgot-panel" onSubmit={submitForgotPassword}>
+                <form className="auth-luxe-forgot" onSubmit={submitForgotPassword}>
                   <h3>Reset sifre</h3>
                   <p>Unesite email i poslacemo vam link za postavljanje nove lozinke.</p>
-                  <input
-                    required
-                    type="email"
-                    value={forgotEmail}
-                    placeholder="Email adresa"
-                    onChange={(event) => setForgotEmail(event.target.value)}
-                  />
+                  <div className="auth-luxe-field">
+                    <input
+                      required
+                      type="email"
+                      value={forgotEmail}
+                      placeholder="Email adresa"
+                      onChange={(event) => setForgotEmail(event.target.value)}
+                    />
+                  </div>
                   {forgotStatus.type !== "idle" ? (
                     <p className={forgotStatus.type === "error" ? "error-text" : "success-text"}>{forgotStatus.message}</p>
                   ) : null}
-                  <button type="submit" className="primary-btn" disabled={forgotBusy}>
+                  <button type="submit" className="auth-luxe-submit" disabled={forgotBusy}>
+                    <span className="auth-luxe-submit-shine" aria-hidden="true" />
                     {forgotBusy ? "Slanje..." : "Posalji link za reset"}
                   </button>
                 </form>
               ) : null}
             </>
           ) : (
-            <div className="auth-reset-shell">
-              <div className="auth-holo-head">
+            <div className="auth-luxe-reset-shell">
+              <div className="auth-luxe-card-head">
                 <h2>Bezbedno resetovanje sifre</h2>
-                <p className="auth-reset-caption">
+                <p className="auth-luxe-reset-caption">
                   Link je jednokratan. Postavite jacu sifru kako biste zastitili nalog i nastavili prijavu bez prekida.
                 </p>
               </div>
 
-              <div className="auth-reset-steps" aria-hidden="true">
-                <span className="auth-reset-step is-done">Link otvoren</span>
-                <span className="auth-reset-step is-current">Nova sifra</span>
-                <span className="auth-reset-step">Potvrda</span>
+              <div className="auth-luxe-steps" aria-hidden="true">
+                <span className="auth-luxe-step is-done">Link otvoren</span>
+                <span className="auth-luxe-step is-current">Nova sifra</span>
+                <span className="auth-luxe-step">Potvrda</span>
               </div>
 
               {isResetTokenMalformed ? (
-                <div className="auth-reset-alert">
+                <div className="auth-luxe-alert">
                   <ShieldAlert aria-hidden="true" />
                   <div>
                     <strong>Reset link nije validan.</strong>
@@ -272,11 +296,11 @@ function AuthPageContent() {
                   </div>
                 </div>
               ) : (
-                <form className="modal-form auth-form auth-holo-form" onSubmit={submitResetPassword}>
-                  <label className="auth-reset-label" htmlFor="reset-new-password">
+                <form className="auth-luxe-form" onSubmit={submitResetPassword}>
+                  <label className="auth-luxe-label" htmlFor="reset-new-password">
                     Nova sifra
                   </label>
-                  <div className="auth-password-wrap">
+                  <div className="auth-luxe-pw-wrap">
                     <input
                       id="reset-new-password"
                       required
@@ -288,7 +312,7 @@ function AuthPageContent() {
                     />
                     <button
                       type="button"
-                      className="auth-password-toggle"
+                      className="auth-luxe-pw-toggle"
                       onClick={() => setShowNewPassword((value) => !value)}
                       aria-label={showNewPassword ? "Sakrij sifru" : "Prikazi sifru"}
                     >
@@ -296,10 +320,10 @@ function AuthPageContent() {
                     </button>
                   </div>
 
-                  <label className="auth-reset-label" htmlFor="reset-confirm-password">
+                  <label className="auth-luxe-label" htmlFor="reset-confirm-password">
                     Potvrda nove sifre
                   </label>
-                  <div className="auth-password-wrap">
+                  <div className="auth-luxe-pw-wrap">
                     <input
                       id="reset-confirm-password"
                       required
@@ -311,7 +335,7 @@ function AuthPageContent() {
                     />
                     <button
                       type="button"
-                      className="auth-password-toggle"
+                      className="auth-luxe-pw-toggle"
                       onClick={() => setShowConfirmPassword((value) => !value)}
                       aria-label={showConfirmPassword ? "Sakrij potvrdu sifre" : "Prikazi potvrdu sifre"}
                     >
@@ -319,14 +343,14 @@ function AuthPageContent() {
                     </button>
                   </div>
 
-                  <div className={`auth-strength-meter is-${passwordStrengthTone}`}>
-                    <div className="auth-strength-track" role="presentation">
+                  <div className={`auth-luxe-strength is-${passwordStrengthTone}`}>
+                    <div className="auth-luxe-strength-track" role="presentation">
                       <span style={{ width: `${passwordStrengthPercent}%` }} />
                     </div>
                     <p>{passwordStrengthLabel}</p>
                   </div>
 
-                  <ul className="auth-password-rules" aria-label="Pravila za novu sifru">
+                  <ul className="auth-luxe-rules" aria-label="Pravila za novu sifru">
                     {passwordRules.map((rule) => (
                       <li key={rule.id} className={rule.ok ? "is-ok" : ""}>
                         <CheckCircle2 aria-hidden="true" />
@@ -343,18 +367,19 @@ function AuthPageContent() {
                     <p className={resetStatus.type === "error" ? "error-text" : "success-text"}>{resetStatus.message}</p>
                   ) : null}
 
-                  <div className="auth-form-actions">
-                    <button type="submit" className="primary-btn" disabled={resetBusy || !canSubmitReset}>
+                  <div className="auth-luxe-actions">
+                    <button type="submit" className="auth-luxe-submit" disabled={resetBusy || !canSubmitReset}>
+                      <span className="auth-luxe-submit-shine" aria-hidden="true" />
                       {resetBusy ? "Resetovanje..." : "Sacuvaj novu sifru"}
                     </button>
-                    <button type="button" className="ghost-btn" onClick={() => router.replace("/prijava")}>
+                    <button type="button" className="auth-luxe-ghost" onClick={() => router.replace("/prijava")}>
                       Nazad na prijavu
                     </button>
                   </div>
                 </form>
               )}
 
-              <div className="auth-reset-help">
+              <div className="auth-luxe-help">
                 <KeyRound aria-hidden="true" />
                 <p>
                   Ako je link istekao, vratite se na prijavu i izaberite opciju &quot;Zaboravljena sifra&quot;.
@@ -370,7 +395,7 @@ function AuthPageContent() {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<section className="auth-cosmos" />}>
+    <Suspense fallback={<section className="auth-luxe" />}>
       <AuthPageContent />
     </Suspense>
   );

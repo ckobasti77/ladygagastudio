@@ -1,5 +1,4 @@
-import { mutation } from "./_generated/server";
-import { query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -82,16 +81,144 @@ function assertRegistrationPayload(payload: {
   assertPassword(payload.password);
 }
 
+async function migrateLegacyCustomersIntoUsers(ctx: MutationCtx) {
+  const allUsers = await ctx.db.query("users").collect();
+  const usersByEmail = new Map<string, (typeof allUsers)[number]["_id"]>();
+
+  let normalizedLegacyUsers = 0;
+  let removedLegacyUsers = 0;
+  let migratedCustomers = 0;
+  let mergedCustomers = 0;
+  let removedLegacyCustomers = 0;
+
+  for (const user of allUsers) {
+    const legacyUser = user as unknown as Record<string, unknown>;
+    const currentEmail = typeof user.email === "string" ? normalizeEmail(user.email) : "";
+    const hasTargetShape =
+      currentEmail.length > 0 &&
+      typeof user.firstName === "string" &&
+      typeof user.lastName === "string" &&
+      typeof user.passwordHash === "string" &&
+      typeof user.isAdmin === "boolean" &&
+      typeof user.createdAt === "number";
+
+    if (hasTargetShape) {
+      usersByEmail.set(currentEmail, user._id);
+      continue;
+    }
+
+    const legacyUsername = typeof legacyUser.username === "string" ? legacyUser.username.trim() : "";
+    const legacyEmail = currentEmail || (isValidEmail(legacyUsername) ? normalizeEmail(legacyUsername) : "");
+
+    if (!legacyEmail) {
+      await ctx.db.delete(user._id);
+      removedLegacyUsers += 1;
+      continue;
+    }
+
+    const duplicateId = usersByEmail.get(legacyEmail);
+    if (duplicateId && duplicateId !== user._id) {
+      if (user.isAdmin === true) {
+        await ctx.db.patch(duplicateId, { isAdmin: true });
+      }
+      await ctx.db.delete(user._id);
+      removedLegacyUsers += 1;
+      continue;
+    }
+
+    const passwordHash =
+      typeof legacyUser.passwordHash === "string" && legacyUser.passwordHash.length > 0
+        ? legacyUser.passwordHash
+        : typeof legacyUser.password === "string" && legacyUser.password.length > 0
+          ? await hashPassword(legacyUser.password)
+          : await hashPassword(makeResetToken());
+
+    await ctx.db.patch(user._id, {
+      firstName: typeof user.firstName === "string" && user.firstName.trim().length > 0 ? user.firstName.trim() : "Nalog",
+      lastName: typeof user.lastName === "string" ? user.lastName.trim() : "",
+      email: legacyEmail,
+      passwordHash,
+      isAdmin: user.isAdmin === true,
+      resetTokenHash: typeof user.resetTokenHash === "string" ? user.resetTokenHash : undefined,
+      resetTokenExpiresAt: typeof user.resetTokenExpiresAt === "number" ? user.resetTokenExpiresAt : undefined,
+      createdAt: typeof user.createdAt === "number" ? user.createdAt : Date.now(),
+    });
+
+    usersByEmail.set(legacyEmail, user._id);
+    normalizedLegacyUsers += 1;
+  }
+
+  try {
+    const legacyCustomers = (await ctx.db.query("customers" as never).collect()) as Array<
+      Record<string, unknown> & { _id: unknown }
+    >;
+
+    for (const legacyCustomer of legacyCustomers) {
+      const rawEmail = typeof legacyCustomer.email === "string" ? legacyCustomer.email : "";
+      if (!isValidEmail(rawEmail)) {
+        await ctx.db.delete(legacyCustomer._id as never);
+        removedLegacyCustomers += 1;
+        continue;
+      }
+
+      const email = normalizeEmail(rawEmail);
+      const payload = {
+        firstName:
+          typeof legacyCustomer.firstName === "string" && legacyCustomer.firstName.trim().length > 0
+            ? legacyCustomer.firstName.trim()
+            : "Nalog",
+        lastName: typeof legacyCustomer.lastName === "string" ? legacyCustomer.lastName.trim() : "",
+        email,
+        passwordHash:
+          typeof legacyCustomer.passwordHash === "string" && legacyCustomer.passwordHash.length > 0
+            ? legacyCustomer.passwordHash
+            : await hashPassword(makeResetToken()),
+        isAdmin: legacyCustomer.isAdmin === true,
+        resetTokenHash:
+          typeof legacyCustomer.resetTokenHash === "string" ? legacyCustomer.resetTokenHash : undefined,
+        resetTokenExpiresAt:
+          typeof legacyCustomer.resetTokenExpiresAt === "number" ? legacyCustomer.resetTokenExpiresAt : undefined,
+        createdAt: typeof legacyCustomer.createdAt === "number" ? legacyCustomer.createdAt : Date.now(),
+      };
+
+      const existingUserId = usersByEmail.get(email);
+      if (existingUserId) {
+        await ctx.db.patch(existingUserId, payload);
+        mergedCustomers += 1;
+      } else {
+        const insertedUserId = await ctx.db.insert("users", payload);
+        usersByEmail.set(email, insertedUserId);
+        migratedCustomers += 1;
+      }
+
+      await ctx.db.delete(legacyCustomer._id as never);
+      removedLegacyCustomers += 1;
+    }
+  } catch {
+    // Ignore when legacy table no longer exists.
+  }
+
+  return {
+    normalizedLegacyUsers,
+    removedLegacyUsers,
+    migratedCustomers,
+    mergedCustomers,
+    removedLegacyCustomers,
+  };
+}
+
 async function ensureDefaultAdmin(ctx: MutationCtx) {
+  await migrateLegacyCustomersIntoUsers(ctx);
+
   const email = normalizeEmail(ADMIN_EMAIL);
   const existingAdmin = await ctx.db
-    .query("customers")
+    .query("users")
     .withIndex("by_email", (q) => q.eq("email", email))
     .unique();
 
   if (!existingAdmin) {
     const adminHash = await hashPassword(ADMIN_PASSWORD);
-    await ctx.db.insert("customers", {
+    await ctx.db.insert("users", {
       firstName: ADMIN_FIRST_NAME,
       lastName: ADMIN_LAST_NAME,
       email,
@@ -109,28 +236,42 @@ async function ensureDefaultAdmin(ctx: MutationCtx) {
 
 async function authenticateByEmail(ctx: MutationCtx, email: string, password: string) {
   const normalizedEmail = normalizeEmail(email);
-  const customer = await ctx.db
-    .query("customers")
+  const user = await ctx.db
+    .query("users")
     .withIndex("by_email", (q) => q.eq("email", normalizedEmail))
     .unique();
 
-  if (!customer) {
+  if (
+    !user ||
+    typeof user.passwordHash !== "string" ||
+    user.passwordHash.length === 0 ||
+    typeof user.firstName !== "string" ||
+    typeof user.lastName !== "string" ||
+    typeof user.email !== "string"
+  ) {
     return null;
   }
 
-  const valid = await verifyPassword(password, customer.passwordHash);
+  const valid = await verifyPassword(password, user.passwordHash);
   if (!valid) {
     return null;
   }
 
   return {
-    _id: customer._id,
-    firstName: customer.firstName,
-    lastName: customer.lastName,
-    email: customer.email,
-    isAdmin: customer.isAdmin === true,
+    _id: user._id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    isAdmin: user.isAdmin === true,
   };
 }
+
+export const migrateCustomersToUsers = mutation({
+  args: {},
+  handler: async (ctx) => {
+    return await migrateLegacyCustomersIntoUsers(ctx);
+  },
+});
 
 export const registerCustomer = mutation({
   args: {
@@ -154,7 +295,7 @@ export const registerCustomer = mutation({
     });
 
     const existing = await ctx.db
-      .query("customers")
+      .query("users")
       .withIndex("by_email", (q) => q.eq("email", email))
       .unique();
 
@@ -164,7 +305,7 @@ export const registerCustomer = mutation({
 
     const passwordHash = await hashPassword(args.password);
 
-    const customerId = await ctx.db.insert("customers", {
+    const userId = await ctx.db.insert("users", {
       firstName,
       lastName,
       email,
@@ -174,7 +315,7 @@ export const registerCustomer = mutation({
     });
 
     return {
-      _id: customerId,
+      _id: userId,
       firstName,
       lastName,
       email,
@@ -194,16 +335,19 @@ export const loginCustomer = mutation({
 export const listOfferRecipients = query({
   args: {},
   handler: async (ctx) => {
-    const customers = await ctx.db.query("customers").collect();
+    const users = await ctx.db.query("users").collect();
     const uniqueByEmail = new Map<string, { email: string; firstName: string; lastName: string }>();
 
-    for (const customer of customers) {
-      if (customer.isAdmin) continue;
-      if (!uniqueByEmail.has(customer.email)) {
-        uniqueByEmail.set(customer.email, {
-          email: customer.email,
-          firstName: customer.firstName,
-          lastName: customer.lastName,
+    for (const user of users) {
+      if (typeof user.email !== "string" || !isValidEmail(user.email)) continue;
+      if (typeof user.firstName !== "string" || typeof user.lastName !== "string") continue;
+      if (user.isAdmin) continue;
+      const email = normalizeEmail(user.email);
+      if (!uniqueByEmail.has(email)) {
+        uniqueByEmail.set(email, {
+          email,
+          firstName: user.firstName,
+          lastName: user.lastName,
         });
       }
     }
@@ -222,12 +366,12 @@ export const issuePasswordResetToken = mutation({
       return { ok: true, token: null as string | null };
     }
 
-    const customer = await ctx.db
-      .query("customers")
+    const user = await ctx.db
+      .query("users")
       .withIndex("by_email", (q) => q.eq("email", email))
       .unique();
 
-    if (!customer) {
+    if (!user || typeof user.email !== "string" || typeof user.firstName !== "string") {
       return { ok: true, token: null as string | null };
     }
 
@@ -235,7 +379,7 @@ export const issuePasswordResetToken = mutation({
     const tokenHash = await hashResetToken(token);
     const expiresAt = Date.now() + RESET_TOKEN_TTL_MS;
 
-    await ctx.db.patch(customer._id, {
+    await ctx.db.patch(user._id, {
       resetTokenHash: tokenHash,
       resetTokenExpiresAt: expiresAt,
     });
@@ -244,8 +388,8 @@ export const issuePasswordResetToken = mutation({
       ok: true,
       token,
       expiresAt,
-      email: customer.email,
-      firstName: customer.firstName,
+      email: user.email,
+      firstName: user.firstName,
     };
   },
 });
@@ -253,6 +397,8 @@ export const issuePasswordResetToken = mutation({
 export const resetPasswordWithToken = mutation({
   args: { token: v.string(), password: v.string() },
   handler: async (ctx, args) => {
+    await ensureDefaultAdmin(ctx);
+
     const token = args.token.trim();
     if (token.length < 16) {
       throw new Error("Reset token nije validan.");
@@ -262,21 +408,21 @@ export const resetPasswordWithToken = mutation({
 
     const now = Date.now();
     const tokenHash = await hashResetToken(token);
-    const customers = await ctx.db.query("customers").collect();
-    const customer = customers.find(
+    const users = await ctx.db.query("users").collect();
+    const user = users.find(
       (item) =>
         item.resetTokenHash === tokenHash &&
         typeof item.resetTokenExpiresAt === "number" &&
         item.resetTokenExpiresAt > now,
     );
 
-    if (!customer) {
+    if (!user) {
       throw new Error("Link za reset sifre je nevazeci ili je istekao.");
     }
 
     const passwordHash = await hashPassword(args.password);
 
-    await ctx.db.patch(customer._id, {
+    await ctx.db.patch(user._id, {
       passwordHash,
       resetTokenHash: undefined,
       resetTokenExpiresAt: undefined,

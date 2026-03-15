@@ -1,6 +1,6 @@
 "use server";
 
-const DEFAULT_RECIPIENT_EMAIL = "ladygagastudio@gmail.com";
+const DEFAULT_RECIPIENT_EMAIL = "hello@ladygagastudio.rs";
 
 type CheckoutEmailCustomer = {
   firstName: string;

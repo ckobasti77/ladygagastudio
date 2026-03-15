@@ -5,12 +5,11 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { GalleryLightbox } from "@/components/gallery-lightbox";
-import { founderStory, milkShakeTreatments, qualityPillars, studioGallery, studioVideos } from "@/lib/studio-content";
+import { founderStory, milkShakeTreatments, qualityPillars, studioGallery } from "@/lib/studio-content";
 import {
   ChevronLeft,
   ChevronRight,
   Droplets,
-  Gem,
   Images,
   MessageCircle,
   PackageSearch,
@@ -65,6 +64,17 @@ type GalleryMedia = {
   kind: "image" | "video";
 };
 
+type HeroFeatureCard = {
+  label: string;
+  heroTitle: readonly string[];
+  description: string;
+  cta: string;
+  href: string;
+  image: string;
+  alt: string;
+  variant: "salon" | "shop";
+};
+
 const EMPTY_SNAPSHOT: HomeSnapshot = {
   catalogCount: 0,
   inStockCount: 0,
@@ -75,6 +85,55 @@ const EMPTY_SNAPSHOT: HomeSnapshot = {
 };
 
 const EMPTY_MEDIA: GalleryMedia[] = [];
+
+const HERO_FEATURE_CARDS = [
+  {
+    label: "Frizerski salon",
+    heroTitle: ["Šišanje,", "koloracije", "i tretmani"],
+    description:
+      "Profesionalna nega za oštećenu, blajhanu i zahtevnu kosu, uz individualan pristup svakom tipu vlasi.",
+    cta: "Zakaži termin",
+    href: "/kontakt",
+    image: "/slike/gaga/1.avif",
+    alt: "Rad u frizerskom salonu Studio Lady Gaga",
+    variant: "salon",
+    title: "Oštecena i blajhana kosa",
+    text: "Intenzivna obnova uz pažljivo ocuvanje kvaliteta vlasi.",
+  },
+  {
+    label: "Shop proizvodi",
+    heroTitle: ["Proizvodi", "za negu", "i održavanje"],
+    description:
+      "Šamponi, maske, tretmani i profesionalna nega za kućnu upotrebu i dugotrajan rezultat.",
+    cta: "Pogledaj proizvode",
+    href: "/proizvodi",
+    image: "/slike/gaga/2.avif",
+    alt: "Premium proizvodi za negu i odrzavanje kose",
+    variant: "shop",
+    title: "Koloracije i korekcije boje",
+    text: "Precizno birane nijanse bez neželjenih tonova.",
+  },
+  {
+    Icon: Sparkles,
+    title: "Keratin tretmani",
+    text: "Glatkoca, sjaj i lakše održavanje tokom svakog dana.",
+  },
+  {
+    Icon: Droplets,
+    title: "Dubinska nega i oporavak",
+    text: "Plan nege koji odgovara realnom stanju vaše kose.",
+  },
+  {
+    Icon: Scissors,
+    title: "Svecane i dnevne frizure",
+    text: "Glam završnica i postojan oblik za svaku priliku.",
+  },
+  {
+    Icon: MessageCircle,
+    title: "Konsultacija i rutina",
+    text: "Jasan plan održavanja rezultata i nakon tretmana.",
+  },
+] as const;
 
 const HERO_SERVICE_CARDS = [
   {
@@ -119,10 +178,6 @@ export default function HomePage() {
   const galleryImages = useMemo(() => galleryMedia.filter((item) => item.kind === "image"), [galleryMedia]);
   const galleryVideos = useMemo(() => galleryMedia.filter((item) => item.kind === "video"), [galleryMedia]);
 
-  const heroPoster = galleryImages[0]?.url ?? studioGallery[0].src;
-  const heroVideo = galleryVideos[0]?.url ?? studioVideos[0].src;
-  const heroVideoType = galleryVideos[0]?.contentType || "video/webm";
-
   const featuredImages = useMemo(() => galleryImages.slice(0, 8), [galleryImages]);
   const featuredVideos = useMemo(() => galleryVideos.slice(0, 3), [galleryVideos]);
   const sidebarDisplayProducts = sidebarProducts;
@@ -131,6 +186,7 @@ export default function HomePage() {
     : featuredProducts.length > 0
       ? [{ categoryId: "featured-fallback", categoryName: "Preporuceni proizvodi", products: featuredProducts }]
       : [];
+  const heroFeatureCards = HERO_FEATURE_CARDS.slice(0, 2) as unknown as HeroFeatureCard[];
 
   const [homeLightboxIndex, setHomeLightboxIndex] = useState<number | null>(null);
 
@@ -208,64 +264,88 @@ export default function HomePage() {
 
   return (
     <div className="page-grid home-page xeno-home">
-      <section className="home-panel home-reveal xeno-hero">
-        <div className="xeno-hero-backdrop" aria-hidden>
-          <video className="xeno-hero-video" autoPlay muted loop playsInline preload="metadata" poster={heroPoster}>
-            <source src={heroVideo} type={heroVideoType} />
-          </video>
-          <div className="xeno-hero-overlay" />
+      <section className="home-panel home-reveal xeno-hero" aria-labelledby="home-hero-heading">
+        <div className="xeno-hero-bg" aria-hidden="true" />
+
+        <div className="xeno-hero-portrait">
+          <Image
+            src="/slike/gaga/gaga.avif"
+            alt=""
+            aria-hidden="true"
+            width={880}
+            height={1100}
+            sizes="(max-width: 980px) 0px, 34vw"
+            loading="eager"
+            className="xeno-hero-portrait-img"
+          />
         </div>
 
-        <div className="xeno-hero-grid">
-          <div className="xeno-hero-copy">
-            <p className="home-kicker home-kicker-row">
-              <Gem className="home-kicker-glyph" aria-hidden="true" />
-              <span>Studio Lady Gaga</span>
-            </p>
-            <h1>Lepota, zdravlje i transformacija kose na jednom mestu.</h1>
-            <p className="home-lead">Iza studija Lady Gaga stoji dugogodišnja posvecenost lepoti, detaljima i profesionalnoj nezi kose.</p>
-            <p className="home-lead">{founderStory[1]}</p>
+        <div className="xeno-hero-header">
+          <figure className="xeno-hero-portrait-mobile" aria-hidden="true">
+            <Image
+              src="/slike/gaga/gaga.avif"
+              alt=""
+              width={400}
+              height={500}
+              sizes="44vw"
+              loading="eager"
+            />
+          </figure>
 
-            <div className="home-hero-actions">
-              <Link href="/kontakt" className="primary-btn home-main-action">
-                Zakaži termin
-              </Link>
-              <Link href="/proizvodi" className="ghost-btn home-second-action">
-                Pogledaj proizvode
-              </Link>
-            </div>
-
-            <figure className="xeno-hero-owner-mobile">
-              <Image
-                src="/gaga.png"
-                alt="Dragana, vlasnica studija Lady Gaga"
-                className="xeno-hero-gaga-image"
-                width={880}
-                height={1100}
-                sizes="(max-width: 760px) 76vw, 0px"
-                priority
-              />
-            </figure>
-          </div>
-
-          <div className="xeno-hero-owner-desktop">
-            <figure>
-              <Image
-                src="/gaga.png"
-                alt="Dragana, vlasnica studija Lady Gaga"
-                className="xeno-hero-gaga-image"
-                width={1000}
-                height={1250}
-                sizes="(max-width: 1080px) 74vw, 34vw"
-                priority
-              />
-            </figure>
-          </div>
+          <h1 id="home-hero-heading">
+            Lepota, zdravlje i transformacija kose na jednom mestu.
+          </h1>
+          <p className="xeno-hero-subtitle">
+            Iza studija Lady Gaga stoji dugogodišnja posvećenost lepoti, detaljima i
+            profesionalnoj nezi kose.
+          </p>
+          <p className="xeno-hero-subtitle xeno-hero-subtitle-secondary">
+            Specijalizovana sam za tretmane oštećene i blajhane kose, zahtevne
+            koloracije i glam stil frizura.
+          </p>
         </div>
-          </section>
 
-      <section className="home-reveal xeno-hero-services" aria-label="Studio fokus">
-        <div className="xeno-hero-service-grid">
+        <div className="xeno-hero-card-grid" aria-label="Glavne opcije studija">
+          {heroFeatureCards.map((card) => (
+            <article
+              key={card.label}
+              className={`xeno-hero-feature-card ${card.variant === "salon" ? "is-salon" : "is-shop"}`}
+            >
+              <div className="xeno-hero-feature-copy">
+                <p className="xeno-hero-feature-chip">{card.label}</p>
+                <h2>
+                  {card.heroTitle.map((line) => (
+                    <span key={line}>{line}</span>
+                  ))}
+                </h2>
+                <p>{card.description}</p>
+                <Link
+                  href={card.href}
+                  className={`xeno-hero-card-action ${card.variant === "salon" ? "is-salon-action" : "is-shop-action"}`}
+                >
+                  {card.cta}
+                </Link>
+              </div>
+
+              <div className="xeno-hero-feature-media">
+                <div className="xeno-hero-feature-media-shell">
+                  <Image
+                    src={card.image}
+                    alt={card.alt}
+                    fill
+                    sizes="(max-width: 760px) 100vw, (max-width: 980px) 50vw, 23vw"
+                    className="xeno-hero-feature-image"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="home-panel home-reveal xeno-hero-services-section">
+        <div className="xeno-hero-services-grid">
           {HERO_SERVICE_CARDS.map((card, i) => {
             const Icon = card.Icon;
             return (
@@ -288,7 +368,7 @@ export default function HomePage() {
             );
           })}
         </div>
-          </section>
+      </section>
 
       <section className="xeno-after-hero home-reveal">
         <div className="xeno-main-column">
@@ -434,7 +514,9 @@ export default function HomePage() {
                 ))}
               </div>
             )}
-          </section>
+          </section>
+
+
           <section className="home-panel home-reveal xeno-treatments">
             <div className="xeno-treatment-hero">
               <p className="home-kicker home-kicker-row">

@@ -377,61 +377,77 @@ export default function GalleryPage() {
 
   return (
     <section className="page-grid orbit-page gallery-orbit">
-      <article className={`orbit-hero gallery-hero ${isAdmin ? "" : "gallery-hero-user"} orbit-reveal`}>
-        <div className="orbit-hud" aria-hidden>
-          <span>Transformacije</span>
-          <strong>{isAdmin ? "Galerija radova | Studio Lady Gaga" : "Galerija inspiracije | Studio Lady Gaga"}</strong>
+      <article className="relative overflow-hidden rounded-3xl border border-rose-200/40 dark:border-white/[0.07] bg-gradient-to-br from-[#fdf6f0] via-[#fef0ea] to-[#f9e8df] dark:from-neutral-950 dark:via-[#1a1210] dark:to-[#1c1411] px-6 py-14 sm:px-10 sm:py-20 lg:px-16 lg:py-24 orbit-reveal">
+        {/* Ambient glow orbs */}
+        <div className="pointer-events-none absolute -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-rose-300/20 dark:bg-rose-900/15 blur-[100px]" aria-hidden />
+        <div className="pointer-events-none absolute -bottom-40 -right-40 h-[480px] w-[480px] rounded-full bg-amber-200/25 dark:bg-amber-800/10 blur-[120px]" aria-hidden />
+        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[300px] w-[300px] rounded-full bg-orange-200/15 dark:bg-orange-900/10 blur-[80px]" aria-hidden />
+
+        {/* Watermark */}
+        <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none font-serif text-[clamp(6rem,18vw,14rem)] font-bold uppercase tracking-widest text-neutral-900/[0.03] dark:text-white/[0.03] leading-none" aria-hidden>
+          Galerija
+        </span>
+
+        {/* HUD tag */}
+        <div className="relative mb-6 inline-flex flex-col gap-0.5 rounded-xl border border-rose-200/50 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-sm px-3.5 py-2" aria-hidden>
+          <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.16em] text-neutral-500 dark:text-neutral-500">
+            Transformacije
+          </span>
+          <strong className="text-[0.78rem] tracking-wide text-neutral-800 dark:text-neutral-300">
+            {isAdmin ? "Galerija radova | Studio Lady Gaga" : "Galerija inspiracije | Studio Lady Gaga"}
+          </strong>
         </div>
 
-        <p className="orbit-eyebrow">{t.nav.gallery}</p>
-        <h1>{isAdmin ? "Slike i snimci koji prikazuju realne rezultate iz studija." : "Galerija transformacija iz studija Lady Gaga."}</h1>
-        <p className="orbit-lead">
+        {/* Eyebrow */}
+        <p className="relative mb-3 text-[0.72rem] font-extrabold uppercase tracking-[0.14em] text-rose-500 dark:text-amber-400/80">
+          {t.nav.gallery}
+        </p>
+
+        {/* Main heading */}
+        <h1 className="relative max-w-[16ch] font-serif text-[clamp(2.2rem,5.5vw,4rem)] font-bold leading-[1.05] tracking-tight text-neutral-900 dark:text-neutral-100">
+          {isAdmin
+            ? "Slike i snimci koji prikazuju realne rezultate iz studija."
+            : <>Galerija transformacija iz studija <em className="not-italic text-rose-500 dark:text-amber-400/90">Lady Gaga.</em></>}
+        </h1>
+
+        {/* Lead */}
+        <p className="relative mt-5 max-w-[54ch] text-base leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-lg sm:leading-relaxed">
           {isAdmin
             ? "Klikni na karticu za uvecanje i listanje. Admin moze da doda fajlove prevlacenjem i pustanjem bilo gde."
             : "Pogledaj poslednje transformacije i otvori kadar preko celog ekrana za detaljan prikaz."}
         </p>
 
+        {/* Buttons */}
         {!isAdmin ? (
-          <div className="orbit-actions gallery-hero-actions">
-            <Link href="/kontakt" className="primary-btn orbit-main-action">
+          <div className="relative mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/kontakt"
+              className="inline-flex items-center gap-2 rounded-2xl border border-rose-300/50 dark:border-amber-700/40 bg-gradient-to-r from-rose-400 to-orange-400 dark:from-amber-600 dark:to-orange-700 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-rose-500/20 dark:shadow-amber-900/30 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-rose-500/30 dark:hover:shadow-amber-900/40"
+            >
               Kontakt / upit
             </Link>
-            <Link href="/proizvodi" className="ghost-btn orbit-second-action">
+            <Link
+              href="/proizvodi"
+              className="inline-flex items-center gap-2 rounded-2xl border border-neutral-300/60 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-sm px-7 py-3.5 text-sm font-bold text-neutral-700 dark:text-neutral-300 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-md"
+            >
               Pogledaj proizvode
             </Link>
           </div>
         ) : null}
 
-        <div className="gallery-hero-metrics">
+        {/* Stat cards — floating at bottom */}
+        <div className="relative mt-12 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
           {isAdmin ? (
             <>
-              <article className="orbit-metric">
-                <strong>{rawMedia === undefined ? "..." : media.length}</strong>
-                <span>ukupno medija</span>
-              </article>
-              <article className="orbit-metric">
-                <strong>{rawMedia === undefined ? "..." : images.length}</strong>
-                <span>fotografija</span>
-              </article>
-              <article className="orbit-metric">
-                <strong>{rawMedia === undefined ? "..." : videos.length}</strong>
-                <span>snimaka</span>
-              </article>
+              <GalleryStatCard value={rawMedia === undefined ? "..." : String(media.length)} label="ukupno medija" />
+              <GalleryStatCard value={rawMedia === undefined ? "..." : String(images.length)} label="fotografija" />
+              <GalleryStatCard value={rawMedia === undefined ? "..." : String(videos.length)} label="snimaka" />
             </>
           ) : (
             <>
-              <article className="orbit-metric">
-                <strong>{rawMedia === undefined ? "..." : media.length}</strong>
-                <span>ukupno kadrova</span>
-              </article>
-              <article className="orbit-metric">
-                <strong>Uživo</strong>
-                <span>sveze transformacije</span>
-              </article>
-              <article className="orbit-metric">
-                <strong>Ceo ekran</strong>
-                <span>klik na kadar za uvećanje</span>
-              </article>
+              <GalleryStatCard value={rawMedia === undefined ? "..." : String(media.length)} label="ukupno kadrova" />
+              <GalleryStatCard value="Uživo" label="sveze transformacije" />
+              <GalleryStatCard value="Ceo ekran" label="klik na kadar za uvećanje" />
             </>
           )}
         </div>
@@ -799,6 +815,23 @@ function GalleryLookbookGrid({
         );
       })}
     </div>
+  );
+}
+
+function GalleryStatCard({ value, label }: { value: string; label: string }) {
+  return (
+    <article className="group relative overflow-hidden rounded-2xl border border-rose-200/40 dark:border-white/10 bg-white/40 dark:bg-white/[0.04] backdrop-blur-md px-5 py-5 shadow-xl shadow-rose-900/[0.06] dark:shadow-black/40 ring-1 ring-transparent dark:ring-white/[0.06] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl hover:border-rose-300/50 dark:hover:border-white/15">
+      {/* Subtle inner watermark */}
+      <span className="pointer-events-none absolute -bottom-2 -right-1 select-none font-serif text-[3.5rem] font-bold uppercase leading-none text-neutral-900/[0.03] dark:text-white/[0.03]" aria-hidden>
+        ✦
+      </span>
+      <strong className="relative block font-serif text-[clamp(1.2rem,2.2vw,1.65rem)] font-bold leading-none text-neutral-900 dark:text-neutral-100">
+        {value}
+      </strong>
+      <span className="relative mt-1.5 block text-[0.78rem] leading-snug text-neutral-500 dark:text-neutral-500">
+        {label}
+      </span>
+    </article>
   );
 }
 

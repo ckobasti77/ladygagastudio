@@ -3,10 +3,10 @@ export const LEGAL_LAST_UPDATED = "17. februar 2026.";
 export const LEGAL_ENTITY = {
   brandName: "Studio Lady Gaga",
   legalName: "Studio Lady Gaga",
-  address: "Bulevar Lepote 12, 11000 Beograd, Srbija",
-  email: "kontakt@studioladygaga.rs",
-  privacyEmail: "privacy@studioladygaga.rs",
-  phone: "+381 60 123 4567",
+  address: "Trg đačkog bataljona, Šabac, Srbija",
+  email: "hello@ladygagastudio.rs",
+  privacyEmail: "hello@ladygagastudio.rs",
+  phone: "+381643877555",
   country: "Srbija",
 } as const;
 

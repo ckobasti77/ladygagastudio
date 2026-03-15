@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   description: "Premium tretmani, koloracije, keratin i personalizovana nega za zdravu i glam kosu.",
   keywords: [
-    "frizerski salon Beograd",
+    "frizerski salon Šabac",
     "koloracija kose",
     "keratin tretman",
     "nega ostecene kose",
@@ -75,13 +75,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     url: siteUrl,
     image: `${siteUrl}/gaga.png`,
     logo: `${siteUrl}/logo.png`,
-    telephone: "+381601234567",
-    email: "kontakt@studioladygaga.rs",
+    telephone: "+381643877555",
+    email: "hello@ladygagastudio.rs",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Bulevar Lepote 12",
-      addressLocality: "Beograd",
-      postalCode: "11000",
+      streetAddress: "Trg đačkog bataljona",
+      addressLocality: "Šabac",
       addressCountry: "RS",
     },
     openingHoursSpecification: [

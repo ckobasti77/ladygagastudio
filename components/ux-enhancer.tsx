@@ -16,8 +16,7 @@ const OBSERVED_SELECTOR = [
   ".legal-doc-section",
   ".cart-item-card",
   ".checkout-summary-item",
-  ".cosmic-footer-card",
-  ".cosmic-footer-hero",
+  ".editorial-cta-card",
 ].join(",");
 
 export function UxEnhancer() {

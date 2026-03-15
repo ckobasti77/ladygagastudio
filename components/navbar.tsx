@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, Moon, ShoppingCart, Sun, X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useCart } from "@/contexts/cart-context";
@@ -17,10 +17,20 @@ export function Navbar() {
   const { session, logout } = useAuth();
   const { itemCount } = useCart();
   const [openForPath, setOpenForPath] = useState<string | null>(null);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+  const lastScrollYRef = useRef(0);
+  const tickingRef = useRef(false);
+  const isHeaderHiddenRef = useRef(false);
   const menuId = "primary-navigation";
   const open = openForPath === pathname;
   const themeToggleLabel = theme === "light" ? "Prebaci na tamnu temu" : "Prebaci na svetlu temu";
   const menuToggleLabel = open ? "Zatvori meni" : "Otvori meni";
+  const headerTransform = isHeaderHidden
+    ? "translateY(calc(-100% - var(--site-header-top-pad) - var(--site-header-bottom-pad)))"
+    : "translateY(0)";
+  const headerTransition = isHeaderHidden
+    ? "transform 350ms cubic-bezier(0.22, 1, 0.36, 1)"
+    : "transform 280ms cubic-bezier(0.22, 1, 0.36, 1)";
 
   const navItems = [
     { href: "/", label: t.nav.home },
@@ -30,19 +40,73 @@ export function Navbar() {
     { href: "/kontakt", label: t.nav.contact },
   ];
 
+  useEffect(() => {
+    isHeaderHiddenRef.current = isHeaderHidden;
+  }, [isHeaderHidden]);
+
+  useEffect(() => {
+    const threshold = 1;
+    lastScrollYRef.current = window.scrollY;
+
+    const handleScroll = () => {
+      if (tickingRef.current) {
+        return;
+      }
+
+      tickingRef.current = true;
+      window.requestAnimationFrame(() => {
+        const currentY = window.scrollY;
+        const delta = currentY - lastScrollYRef.current;
+        const scrollingDown = delta > threshold;
+        const scrollingUp = delta < -threshold;
+        let nextHidden = isHeaderHiddenRef.current;
+
+        if (open || currentY <= 4) {
+          nextHidden = false;
+        } else if (scrollingDown) {
+          nextHidden = true;
+        } else if (scrollingUp) {
+          nextHidden = false;
+        }
+
+        if (nextHidden !== isHeaderHiddenRef.current) {
+          setIsHeaderHidden(nextHidden);
+        }
+
+        lastScrollYRef.current = currentY;
+        tickingRef.current = false;
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [open]);
+
   return (
-    <header className="site-header">
+    <header
+      className={[
+        "site-header",
+        isHeaderHidden ? "site-header-hidden" : "site-header-visible",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      style={{
+        transform: headerTransform,
+        transition: headerTransition,
+        willChange: "transform",
+        pointerEvents: isHeaderHidden ? "none" : "auto",
+      }}
+    >
       <nav className="container nav-wrap" aria-label="Glavna navigacija">
         <Link href="/" className="brand">
           <span className="brand-logo-shell">
             <Image src="/logo.png" alt="Studio Lady Gaga" width={52} height={52} className="logo" />
-            <span className="brand-pulse" aria-hidden />
           </span>
           <span className="brand-copy">
-            <span className="brand-title">
-              <span className="brand-title-line">Studio</span>
-              <span className="brand-title-line">Lady Gaga</span>
-            </span>
+            <span className="brand-title">Studio Lady Gaga</span>
             <span className="brand-subtitle">Kosa + lepota</span>
           </span>
         </Link>
@@ -61,7 +125,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="switch-btn nav-chip theme-switch-btn"
+            className="theme-toggle-btn"
             aria-label={themeToggleLabel}
             title={themeToggleLabel}
           >
@@ -106,27 +170,7 @@ export function Navbar() {
             ) : null}
           </ul>
 
-          <Link
-            href="/korpa"
-            className={`hidden md:visible cart-nav-link ${pathname === "/korpa" ? "active" : ""}`}
-            onClick={() => setOpenForPath(null)}
-            aria-label={t.nav.cart}
-            title={t.nav.cart}
-          >
-            <ShoppingCart aria-hidden />
-            {itemCount > 0 ? <span className="nav-count-badge cart-nav-badge">{itemCount}</span> : null}
-          </Link>
-
-          <div className="switches">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="switch-btn nav-chip theme-switch-btn"
-              aria-label={themeToggleLabel}
-              title={themeToggleLabel}
-            >
-              {theme === "light" ? <Moon aria-hidden /> : <Sun aria-hidden />}
-            </button>
+          <div className="nav-actions">
             {session ? (
               <button
                 type="button"
@@ -134,15 +178,36 @@ export function Navbar() {
                   logout();
                   setOpenForPath(null);
                 }}
-                className="switch-btn nav-chip nav-chip-danger"
+                className="nav-auth-btn"
               >
                 {t.nav.logout}
               </button>
             ) : (
-              <Link href="/prijava" style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="switch-btn nav-chip nav-chip-primary" onClick={() => setOpenForPath(null)}>
+              <Link href="/prijava" className="nav-auth-btn" onClick={() => setOpenForPath(null)}>
                 {t.nav.login}
               </Link>
             )}
+
+            <Link
+              href="/korpa"
+              className={`cart-nav-link ${pathname === "/korpa" ? "active" : ""}`}
+              onClick={() => setOpenForPath(null)}
+              aria-label={t.nav.cart}
+              title={t.nav.cart}
+            >
+              <ShoppingCart aria-hidden />
+              {itemCount > 0 ? <span className="nav-count-badge cart-nav-badge">{itemCount}</span> : null}
+            </Link>
+
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="theme-toggle-btn"
+              aria-label={themeToggleLabel}
+              title={themeToggleLabel}
+            >
+              {theme === "light" ? <Moon aria-hidden /> : <Sun aria-hidden />}
+            </button>
           </div>
         </div>
       </nav>

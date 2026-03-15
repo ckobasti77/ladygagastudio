@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
-const ADMIN_EMAIL = "ladygagastudio@gmail.com";
+const ADMIN_EMAIL = "hello@ladygagastudio.rs";
 
 type OfferCampaignPayload = {
   subject: string;

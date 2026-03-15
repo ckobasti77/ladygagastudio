@@ -10,6 +10,7 @@ import { ProductCardImageSlider } from "@/components/product-card-image-slider";
 import { useAuth } from "@/contexts/auth-context";
 import { useCart } from "@/contexts/cart-context";
 import { useLanguage } from "@/contexts/language-context";
+import { Search, SlidersHorizontal, ShoppingBag, Star, Sparkles } from "lucide-react";
 
 type Category = { _id: string; name: string };
 type StorageImage = { storageId: string; url: string };
@@ -625,129 +626,171 @@ export default function ProductsPage() {
   };
 
   return (
-    <section className="page-grid products-page">
-      <section className="toolbar-card">
-        <div className="toolbar-main">
+    <section className="boutique-shop-page">
+      {/* Ambient background */}
+      <div className="boutique-bg" aria-hidden="true">
+        <div className="boutique-bg-orb boutique-bg-orb-1" />
+        <div className="boutique-bg-orb boutique-bg-orb-2" />
+        <div className="boutique-bg-orb boutique-bg-orb-3" />
+      </div>
+
+      {/* Hero header */}
+      <header className="boutique-header">
+        <p className="boutique-eyebrow">
+          <Sparkles size={14} aria-hidden="true" />
+          <span>Kolekcija proizvoda</span>
+        </p>
+        <h1 className="boutique-title">Naša Ponuda</h1>
+        <p className="boutique-subtitle">
+          Pažljivo odabrani proizvodi za profesionalnu negu i održavanje kose kod kuće.
+        </p>
+      </header>
+
+      {/* Search & Filter Glass Bar */}
+      <div className="boutique-filter-bar">
+        <div className="boutique-search-wrap">
+          <Search size={18} className="boutique-search-icon" aria-hidden="true" />
           <input
-            className="search-input"
+            className="boutique-search-input"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Pretraga po nazivu, opisu ili podnaslovu"
+            placeholder="Pretraga po nazivu, opisu ili podnaslovu..."
             aria-label="Pretraga proizvoda"
           />
-          <select value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="sort-select">
+        </div>
+
+        <div className="boutique-sort-wrap">
+          <SlidersHorizontal size={16} className="boutique-sort-icon" aria-hidden="true" />
+          <select
+            value={sortBy}
+            onChange={(event) => setSortBy(event.target.value as typeof sortBy)}
+            className="boutique-sort-select"
+          >
             <option value="featured">Preporučeno</option>
             <option value="priceAsc">Cena: niža ka višoj</option>
             <option value="priceDesc">Cena: viša ka nižoj</option>
             <option value="stockDesc">Najveće stanje</option>
           </select>
-          {session?.isAdmin ? (
-            <button type="button" className="primary-btn" onClick={openCreate}>
-              {t.products.createProduct}
-            </button>
-          ) : null}
-          {!session?.isAdmin ? (
-            <Link href="/korpa" className="ghost-btn">
-              Korpa ({itemCount})
-            </Link>
-          ) : null}
-        </div>
-
-        <div className="category-row">
-          <button
-            className={`category-pill-button ${activeCategory === "all" ? "active" : ""}`}
-            onClick={() => setActiveCategory("all")}
-            type="button"
-          >
-            <span className="category-pill-count">{products.length}</span>
-            <span className="category-pill-label">{t.products.all}</span>
-          </button>
-          {categories.map((category) => {
-            const isEditing = categoryEditId === category._id;
-            const isActive = activeCategory === category._id;
-            const categoryCount = categoryCounts.get(category._id) ?? 0;
-            return (
-              <div key={category._id} className={`category-pill-wrap ${isEditing ? "editing" : ""} ${!isEditing && isActive ? "active" : ""}`}>
-                {isEditing ? (
-                  <form className="category-pill-edit" onSubmit={(event) => onSubmitCategoryEdit(event, category._id)}>
-                    <input
-                      ref={categoryEditInputRef}
-                      value={categoryEditInput}
-                      onChange={(event) => setCategoryEditInput(event.target.value)}
-                      aria-label={`Izmeni kategoriju ${category.name}`}
-                    />
-                    <div className="category-pill-inline-actions">
-                      <button
-                        type="submit"
-                        className="icon-btn icon-btn-circle"
-                        aria-label={`Sačuvaj kategoriju ${category.name}`}
-                        disabled={isManagingCategory}
-                      >
-                        <IconCheck />
-                      </button>
-                      <button type="button" className="icon-btn icon-btn-circle" aria-label="Odustani od izmene" onClick={resetCategoryEditor}>
-                        <IconClose />
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <>
-                    <button className="category-pill-button" onClick={() => setActiveCategory(category._id)} type="button">
-                      <span className="category-pill-count">{categoryCount}</span>
-                      <span className="category-pill-label">{category.name}</span>
-                    </button>
-                    {session?.isAdmin ? (
-                      <div className="category-pill-corner-actions">
-                        <button
-                          type="button"
-                          className="icon-btn icon-btn-circle"
-                          onClick={() => startCategoryEdit(category)}
-                          aria-label={`Izmeni ${category.name}`}
-                          disabled={isManagingCategory}
-                        >
-                          <IconEdit />
-                        </button>
-                        <button
-                          type="button"
-                          className="icon-btn danger icon-btn-circle"
-                          onClick={() => setCategoryDeleteTarget(category)}
-                          aria-label={`Obriši ${category.name}`}
-                          disabled={isManagingCategory}
-                        >
-                          <IconTrash />
-                        </button>
-                      </div>
-                    ) : null}
-                  </>
-                )}
-              </div>
-            );
-          })}
         </div>
 
         {session?.isAdmin ? (
-          <form className="inline-form" onSubmit={onCreateCategory}>
-            <input value={newCategoryInput} onChange={(event) => setNewCategoryInput(event.target.value)} placeholder="Nova kategorija" />
-            <button type="submit" className="primary-btn" disabled={isManagingCategory}>
-              Dodaj kategoriju
-            </button>
-          </form>
+          <button type="button" className="primary-btn" onClick={openCreate}>
+            {t.products.createProduct}
+          </button>
         ) : null}
-      </section>
+
+        {!session?.isAdmin ? (
+          <Link href="/korpa" className="boutique-cart-link">
+            <ShoppingBag size={18} />
+            <span>Korpa ({itemCount})</span>
+          </Link>
+        ) : null}
+      </div>
+
+      {/* Category Pills */}
+      <div className="boutique-category-row">
+        <button
+          className={`boutique-category-pill ${activeCategory === "all" ? "is-active" : ""}`}
+          onClick={() => setActiveCategory("all")}
+          type="button"
+        >
+          <span className="boutique-pill-label">{t.products.all}</span>
+          <span className="boutique-pill-count">{products.length}</span>
+        </button>
+        {categories.map((category) => {
+          const isEditing = categoryEditId === category._id;
+          const isActive = activeCategory === category._id;
+          const categoryCount = categoryCounts.get(category._id) ?? 0;
+          return (
+            <div key={category._id} className={`boutique-pill-wrap ${isEditing ? "is-editing" : ""}`}>
+              {isEditing ? (
+                <form className="category-pill-edit" onSubmit={(event) => onSubmitCategoryEdit(event, category._id)}>
+                  <input
+                    ref={categoryEditInputRef}
+                    value={categoryEditInput}
+                    onChange={(event) => setCategoryEditInput(event.target.value)}
+                    aria-label={`Izmeni kategoriju ${category.name}`}
+                  />
+                  <div className="category-pill-inline-actions">
+                    <button
+                      type="submit"
+                      className="icon-btn icon-btn-circle"
+                      aria-label={`Sačuvaj kategoriju ${category.name}`}
+                      disabled={isManagingCategory}
+                    >
+                      <IconCheck />
+                    </button>
+                    <button type="button" className="icon-btn icon-btn-circle" aria-label="Odustani od izmene" onClick={resetCategoryEditor}>
+                      <IconClose />
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <button
+                    className={`boutique-category-pill ${isActive ? "is-active" : ""}`}
+                    onClick={() => setActiveCategory(category._id)}
+                    type="button"
+                  >
+                    <span className="boutique-pill-label">{category.name}</span>
+                    <span className="boutique-pill-count">{categoryCount}</span>
+                  </button>
+                  {session?.isAdmin ? (
+                    <div className="category-pill-corner-actions">
+                      <button
+                        type="button"
+                        className="icon-btn icon-btn-circle"
+                        onClick={() => startCategoryEdit(category)}
+                        aria-label={`Izmeni ${category.name}`}
+                        disabled={isManagingCategory}
+                      >
+                        <IconEdit />
+                      </button>
+                      <button
+                        type="button"
+                        className="icon-btn danger icon-btn-circle"
+                        onClick={() => setCategoryDeleteTarget(category)}
+                        aria-label={`Obriši ${category.name}`}
+                        disabled={isManagingCategory}
+                      >
+                        <IconTrash />
+                      </button>
+                    </div>
+                  ) : null}
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {session?.isAdmin ? (
+        <form className="inline-form" onSubmit={onCreateCategory}>
+          <input value={newCategoryInput} onChange={(event) => setNewCategoryInput(event.target.value)} placeholder="Nova kategorija" />
+          <button type="submit" className="primary-btn" disabled={isManagingCategory}>
+            Dodaj kategoriju
+          </button>
+        </form>
+      ) : null}
 
       {feedback ? (
         <p className={`status-msg ${feedback.type === "error" ? "admin-status-error" : "admin-status-success"}`}>{feedback.message}</p>
       ) : null}
 
+      {/* Product Grid */}
       {rawProducts === undefined || rawCategories === undefined ? (
-        <section className="loading-card">Učitavanje proizvoda...</section>
+        <section className="boutique-loading">
+          <div className="boutique-loading-shimmer" />
+          <p>Učitavanje kolekcije...</p>
+        </section>
       ) : filteredProducts.length === 0 ? (
-        <section className="empty-state">
+        <section className="boutique-empty">
+          <ShoppingBag size={48} strokeWidth={1} />
           <h3>{t.products.empty}</h3>
           <p>Probajte sa drugačijom pretragom ili kategorijom.</p>
         </section>
       ) : (
-        <div className="product-grid enhanced-grid">
+        <div className="boutique-grid">
           {filteredProducts.map((product) => {
             const discount = product.discount ?? 0;
             const finalPrice = getFinalPrice(product);
@@ -756,49 +799,68 @@ export default function ProductsPage() {
             return (
               <article
                 key={product._id}
-                className="product-card admin-hover-card cosmic-product-card clickable-product-card"
+                className="boutique-card"
                 role="link"
                 tabIndex={0}
                 onClick={() => openProductDetails(product._id)}
                 onKeyDown={(event) => onProductCardKeyDown(event, product._id)}
               >
-                <ProductCardImageSlider
-                  images={product.images}
-                  alt={product.title}
-                  width={420}
-                  height={420}
-                  sizes="(max-width: 768px) 100vw, 25vw"
-                >
-                  <span className={`product-stock-chip ${stockMeta.tone}`}>
-                    <span className="product-stock-dot" aria-hidden="true" />
-                    {stockMeta.badgeText}
-                  </span>
-                  {discount > 0 ? (
-                    <span className="discount-star-badge" aria-label={`Popust ${discount}%`}>
-                      <strong>-{discount}%</strong>
-                      <small>POPUST</small>
+                {/* Image Pedestal */}
+                <div className="boutique-card-pedestal">
+                  <ProductCardImageSlider
+                    images={product.images}
+                    alt={product.title}
+                    width={420}
+                    height={420}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  >
+                    {/* Stock Badge */}
+                    <span className={`boutique-stock-badge boutique-stock-${stockMeta.tone}`}>
+                      <span className="boutique-stock-dot" aria-hidden="true" />
+                      {stockMeta.badgeText}
                     </span>
-                  ) : null}
-                </ProductCardImageSlider>
-                <div className="card-body">
-                  <p className="category-tag">{categoryName}</p>
-                  {product.recommended ? <p className="product-recommended-tag">Preporučen proizvod</p> : null}
-                  <h3>{product.title}</h3>
-                  <p>{product.subtitle}</p>
-                  <p className="description-line">{product.description}</p>
 
-                  <div className="price-focus-card">
-                    <p className="price-caption">Cena</p>
-                    <div className="price-row">
-                      <strong>{formatRsd(finalPrice)}</strong>
-                      {discount > 0 ? <span className="old-price">{formatRsd(product.price)}</span> : null}
-                    </div>
-                    {discount > 0 ? <p className="price-saved">Ušteda {formatRsd(product.price - finalPrice)}</p> : null}
+                    {/* Discount Badge */}
+                    {discount > 0 ? (
+                      <span className="boutique-discount-badge" aria-label={`Popust ${discount}%`}>
+                        -{discount}%
+                      </span>
+                    ) : null}
+                  </ProductCardImageSlider>
+                </div>
+
+                {/* Card Body */}
+                <div className="boutique-card-body">
+                  <div className="boutique-card-meta">
+                    <span className="boutique-card-category">{categoryName}</span>
+                    {product.recommended ? (
+                      <span className="boutique-card-recommended">
+                        <Star size={10} fill="currentColor" />
+                        Preporučen proizvod
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <h3 className="boutique-card-title">{product.title}</h3>
+                  <p className="boutique-card-subtitle">{product.subtitle}</p>
+                  <p className="boutique-card-description">{product.description}</p>
+
+                  {/* Price */}
+                  <div className="boutique-card-price-block">
+                    <span className="boutique-card-price">{formatRsd(finalPrice)}</span>
+                    {discount > 0 ? (
+                      <span className="boutique-card-old-price">{formatRsd(product.price)}</span>
+                    ) : null}
+                    {discount > 0 ? (
+                      <span className="boutique-card-savings">Ušteda {formatRsd(product.price - finalPrice)}</span>
+                    ) : null}
                   </div>
                 </div>
-                <div className="card-actions">
+
+                {/* Actions */}
+                <div className="boutique-card-actions">
                   <button
-                    className="primary-btn add-cart-btn"
+                    className="boutique-add-btn"
                     onClick={(event) => {
                       event.stopPropagation();
                       onAddToCart(product);
@@ -806,10 +868,12 @@ export default function ProductsPage() {
                     type="button"
                     disabled={product.stock <= 0}
                   >
-                    {stockMeta.buttonLabel}
+                    <ShoppingBag size={16} />
+                    <span>{stockMeta.buttonLabel}</span>
                   </button>
+
                   {session?.isAdmin ? (
-                    <>
+                    <div className="boutique-admin-actions">
                       <label
                         className={`admin-check admin-check-recommended ${product.recommended ? "is-on" : ""}`}
                         onClick={(event) => event.stopPropagation()}
@@ -846,7 +910,7 @@ export default function ProductsPage() {
                       >
                         {t.products.delete}
                       </button>
-                    </>
+                    </div>
                   ) : null}
                 </div>
               </article>
@@ -855,6 +919,7 @@ export default function ProductsPage() {
         </div>
       )}
 
+      {/* Admin Modals — preserved exactly */}
       {showProductModal ? (
         <Modal onClose={requestCloseProductModal}>
           <h2>{editProductId ? "Izmena proizvoda" : "Novi proizvod"}</h2>

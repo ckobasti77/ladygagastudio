@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
@@ -154,14 +154,25 @@ export default function CheckoutPage() {
 
   if (items.length === 0 && status !== "success") {
     return (
-      <section className="page-grid checkout-page">
-        <article className="hero checkout-hero">
-          <p className="eyebrow">Placanje</p>
+      <section className="page-grid orbit-page checkout-orbit">
+        <article className="orbit-hero orbit-reveal">
+          <div className="orbit-hud" aria-hidden>
+            <span>Placanje</span>
+            <strong>Studio Lady Gaga | Narudzbina</strong>
+          </div>
+
+          <p className="orbit-eyebrow">Placanje</p>
           <h1>Nema artikala za narucivanje.</h1>
-          <p className="subtitle">Dodajte proizvode u korpu pa nastavite na placanje.</p>
-          <Link href="/proizvodi" className="primary-btn">
-            Idi na proizvode
-          </Link>
+          <p className="orbit-lead">Dodajte proizvode u korpu pa nastavite na placanje.</p>
+
+          <div className="orbit-actions">
+            <Link href="/proizvodi" className="primary-btn orbit-main-action">
+              Idi na proizvode
+            </Link>
+            <Link href="/korpa" className="ghost-btn orbit-second-action">
+              Nazad na korpu
+            </Link>
+          </div>
         </article>
       </section>
     );
@@ -169,19 +180,25 @@ export default function CheckoutPage() {
 
   if (status === "success") {
     return (
-      <section className="page-grid checkout-page">
-        <article className="hero checkout-hero">
-          <p className="eyebrow">Placanje</p>
+      <section className="page-grid orbit-page checkout-orbit">
+        <article className="orbit-hero orbit-reveal">
+          <div className="orbit-hud" aria-hidden>
+            <span>Potvrda</span>
+            <strong>Studio Lady Gaga | Narudzbina kreirana</strong>
+          </div>
+
+          <p className="orbit-eyebrow">Placanje</p>
           <h1>Narudzbina je uspesno kreirana.</h1>
-          <p className="subtitle">
+          <p className="orbit-lead">
             {statusMessage}
             {createdOrderNumber ? ` Broj narudzbine: ${createdOrderNumber}.` : ""}
           </p>
-          <div className="checkout-form-actions">
-            <Link href="/proizvodi" className="primary-btn">
+
+          <div className="orbit-actions">
+            <Link href="/proizvodi" className="primary-btn orbit-main-action">
               Nastavi kupovinu
             </Link>
-            <Link href="/kontakt" className="ghost-btn">
+            <Link href="/kontakt" className="ghost-btn orbit-second-action">
               Kontakt
             </Link>
           </div>
@@ -191,23 +208,44 @@ export default function CheckoutPage() {
   }
 
   return (
-    <section className="page-grid checkout-page">
-      <article className="hero checkout-hero">
-        <p className="eyebrow">Placanje</p>
+    <section className="page-grid orbit-page checkout-orbit">
+      <article className="orbit-hero orbit-reveal">
+        <div className="orbit-hud" aria-hidden>
+          <span>Placanje</span>
+          <strong>Studio Lady Gaga | Narudzbina</strong>
+        </div>
+
+        <p className="orbit-eyebrow">Placanje</p>
         <h1>Unesite podatke i potvrdite narudzbinu</h1>
-        <p className="subtitle">Placanje karticom nije ukljuceno. Narudzbina se salje direktno na email admina.</p>
+        <p className="orbit-lead">Placanje karticom nije ukljuceno. Narudzbina se salje direktno na email admina.</p>
+
+        <div className="orbit-metric-row">
+          <article className="orbit-metric">
+            <strong>{itemCount}</strong>
+            <span>komada</span>
+          </article>
+          <article className="orbit-metric">
+            <strong>{formatRsd(subtotal)}</strong>
+            <span>ukupan iznos</span>
+          </article>
+          <article className="orbit-metric">
+            <strong>{items.length}</strong>
+            <span>proizvoda</span>
+          </article>
+        </div>
       </article>
 
       {status !== "idle" ? (
-        <p className={`status-msg ${status === "error" ? "admin-status-error" : ""}`}>
+        <p className={`status-msg orbit-reveal ${status === "error" ? "admin-status-error" : ""}`}>
           {statusMessage}
           {createdOrderNumber ? ` (Broj narudzbine: ${createdOrderNumber})` : ""}
         </p>
       ) : null}
 
-      <section className="checkout-layout">
-        <form className="toolbar-card checkout-form-card" onSubmit={onSubmit}>
-          <h2>Podaci kupca</h2>
+      <section className="checkout-layout orbit-reveal">
+        <form className="orbit-panel checkout-form-panel" onSubmit={onSubmit}>
+          <p className="orbit-panel-tag">Podaci kupca</p>
+          <h2>Podaci za isporuku</h2>
           <div className="checkout-grid-2">
             <input
               required
@@ -307,7 +345,8 @@ export default function CheckoutPage() {
           </div>
         </form>
 
-        <aside className="toolbar-card checkout-summary-card">
+        <aside className="orbit-panel checkout-summary-panel">
+          <p className="orbit-panel-tag">Rezime</p>
           <h2>Rezime narudzbine</h2>
           <div className="checkout-summary-items">
             {items.map((item) => (

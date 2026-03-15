@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { OpenCookieSettingsButton } from "@/components/open-cookie-settings-button";
@@ -22,117 +22,133 @@ export function Footer() {
     { href: "/pravno", label: "Pravni centar" },
   ];
   return (
-    <footer className="site-footer cosmic-footer-shell">
-      <div className="container cosmic-footer-root">
-        <section className="cosmic-footer-hero" aria-labelledby="cosmic-footer-heading" data-cosmic-tilt>
-          <p className="cosmic-footer-eyebrow">Studio Lady Gaga // Neon care system</p>
-          <h2 id="cosmic-footer-heading">Vanzemaljski premium finish za kosu koja izgleda brutalno dobro.</h2>
-          <p className="cosmic-footer-lead">
+    <footer className="editorial-footer">
+      {/* ── Massive watermark ── */}
+      <div className="editorial-footer-watermark" aria-hidden="true">
+        LADY GAGA
+      </div>
+
+      <div className="container editorial-footer-inner">
+        {/* ═══════════════════════════════════════════════════
+            1. Glassmorphic CTA Card — floats above footer
+        ═══════════════════════════════════════════════════ */}
+        <section className="editorial-cta-card" aria-labelledby="editorial-footer-heading">
+          <p className="editorial-cta-eyebrow">Studio Lady Gaga</p>
+          <h2 id="editorial-footer-heading" className="editorial-cta-title">
+            Vanzemaljski premium finish za kosu koja izgleda brutalno dobro.
+          </h2>
+          <p className="editorial-cta-body">
             Specijalizovani tretmani za ostecenu i blajhanu kosu, zahtevne koloracije, keratin i glam frizure uz plan
             nege koji cuva rezultat i posle salona.
           </p>
-          <div className="cosmic-footer-chip-row" aria-label="Najtrazenije usluge">
+          <div className="editorial-cta-badges" aria-label="Najtrazenije usluge">
             {serviceHighlights.map((item) => (
-              <span className="cosmic-footer-chip" key={item}>
+              <span className="editorial-badge" key={item}>
                 {item}
               </span>
             ))}
           </div>
-          <div className="cosmic-footer-cta-row">
-            <Link href="/kontakt" className="cosmic-footer-btn cosmic-footer-btn-primary">
+          <div className="editorial-cta-actions">
+            <Link href="/kontakt" className="editorial-btn-primary">
               Zakazi termin
             </Link>
-            <Link href="/galerija" className="cosmic-footer-btn cosmic-footer-btn-ghost">
+            <Link href="/galerija" className="editorial-btn-secondary">
               Pogledaj galeriju
             </Link>
           </div>
         </section>
 
-        <div className="cosmic-footer-grid">
-          <section className="cosmic-footer-card" aria-labelledby="cosmic-footer-nav-heading" data-cosmic-tilt>
-            <h3 id="cosmic-footer-nav-heading">Brza navigacija</h3>
-            <nav className="cosmic-footer-nav" aria-label="Footer navigacija">
+        {/* ═══════════════════════════════════════════════════
+            2. Three-column editorial grid — no boxes
+        ═══════════════════════════════════════════════════ */}
+        <div className="editorial-columns">
+          <section aria-labelledby="editorial-nav-heading">
+            <h3 id="editorial-nav-heading" className="editorial-col-title">
+              Brza navigacija
+            </h3>
+            <nav className="editorial-nav" aria-label="Footer navigacija">
               {quickLinks.map((link) => (
-                <Link key={link.href} href={link.href}>
+                <Link key={link.href} href={link.href} className="editorial-nav-link">
                   {link.label}
                 </Link>
               ))}
             </nav>
           </section>
 
-          <section className="cosmic-footer-card" aria-labelledby="cosmic-footer-contact-heading" data-cosmic-tilt>
-            <h3 id="cosmic-footer-contact-heading">Kontakt i poseta</h3>
-            <ul className="cosmic-footer-contact-list">
+          <section aria-labelledby="editorial-contact-heading">
+            <h3 id="editorial-contact-heading" className="editorial-col-title">
+              Kontakt i poseta
+            </h3>
+            <ul className="editorial-contact-list">
               <li>
-                <a href="tel:+381601234567">+381 60 123 4567</a>
+                <a href="tel:+381643877555">+381643877555</a>
               </li>
               <li>
-                <a href="mailto:kontakt@studioladygaga.rs">kontakt@studioladygaga.rs</a>
+                <a href="mailto:hello@ladygagastudio.rs">hello@ladygagastudio.rs</a>
               </li>
               <li>
                 <a
-                  href="https://maps.google.com/?q=Bulevar%20Lepote%2012%2C%20Beograd"
+                  href="https://maps.google.com/?q=Trg%20%C4%91a%C4%8Dkog%20bataljona%2C%20%C5%A0abac"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Bulevar Lepote 12, Beograd
+                  Trg đačkog bataljona, Šabac
                 </a>
               </li>
             </ul>
-            <p className="cosmic-footer-meta-line">Pon - Sub: 09:00 - 20:00</p>
-            <p className="cosmic-footer-meta-line">Nedelja: po dogovoru</p>
+            <p className="editorial-meta">Pon - Sub: 09:00 - 20:00</p>
+            <p className="editorial-meta">Nedelja: po dogovoru</p>
           </section>
 
-          <section className="cosmic-footer-card cosmic-footer-card-signal" aria-labelledby="cosmic-footer-signal-heading" data-cosmic-tilt>
-            <h3 id="cosmic-footer-signal-heading">Signal status</h3>
-            <p className="cosmic-footer-signal-line">
-              <span aria-hidden />
-              Brzi odgovor na upite i rezervacije
-            </p>
-            <p className="cosmic-footer-signal-line">
-              <span aria-hidden />
-              Konsultacije pre svakog tretmana
-            </p>
-            <p className="cosmic-footer-signal-line">
-              <span aria-hidden />
-              Jasna preporuka za kucnu negu
-            </p>
+          <section aria-labelledby="editorial-signal-heading">
+            <h3 id="editorial-signal-heading" className="editorial-col-title">
+              Signal status
+            </h3>
+            <div className="editorial-signal-list">
+              <p className="editorial-signal-item">
+                <span className="editorial-signal-dot" aria-hidden="true" />
+                Brzi odgovor na upite i rezervacije
+              </p>
+              <p className="editorial-signal-item">
+                <span className="editorial-signal-dot" aria-hidden="true" />
+                Konsultacije pre svakog tretmana
+              </p>
+              <p className="editorial-signal-item">
+                <span className="editorial-signal-dot" aria-hidden="true" />
+                Jasna preporuka za kucnu negu
+              </p>
+            </div>
           </section>
         </div>
 
-        <div className="cosmic-footer-legal-wrap">
-          <div className="cosmic-footer-legal-head">
-            <p className="cosmic-footer-legal-eyebrow">Pravni centar</p>
-            <p className="cosmic-footer-legal-sub">Privatnost, uslovi i upravljanje cookie izborom</p>
+        {/* ═══════════════════════════════════════════════════
+            3. Legal / Bottom bar — editorial footnotes
+        ═══════════════════════════════════════════════════ */}
+        <div className="editorial-legal">
+          <div className="editorial-legal-top">
+            <span className="editorial-legal-label">Pravni centar</span>
+            <span className="editorial-legal-sub">Privatnost, uslovi i upravljanje cookie izborom</span>
           </div>
 
-          <div className="cosmic-footer-legal-nav" aria-label="Pravne strane">
-            <Link className="cosmic-footer-legal-link" href="/pravila-koriscenja">
-              Pravila koriscenja
-            </Link>
-            <Link className="cosmic-footer-legal-link" href="/politika-privatnosti">
-              Politika privatnosti
-            </Link>
-            <Link className="cosmic-footer-legal-link" href="/politika-kolacica">
-              Politika kolacica
-            </Link>
-            <OpenCookieSettingsButton className="cosmic-footer-cookie-btn cosmic-footer-cookie-btn-strong">
+          <nav className="editorial-legal-links" aria-label="Pravne strane">
+            <Link href="/pravila-koriscenja">Pravila koriscenja</Link>
+            <Link href="/politika-privatnosti">Politika privatnosti</Link>
+            <Link href="/politika-kolacica">Politika kolacica</Link>
+            <OpenCookieSettingsButton className="editorial-legal-cookie-btn">
               Podesavanja kolacica
             </OpenCookieSettingsButton>
-          </div>
+          </nav>
 
-          <div className="cosmic-footer-legal-divider" aria-hidden />
-
-          <p className="cosmic-footer-legal-note">
+          <p className="editorial-legal-note">
             Koriscenjem sajta prihvatate pravila koriscenja i politiku privatnosti. Cookie preference mozete menjati
             u bilo kom trenutku.
           </p>
 
-          <div className="cosmic-footer-copy-row">
-            <p className="cosmic-footer-copy">
+          <div className="editorial-legal-bottom">
+            <p className="editorial-copyright">
               &copy; {year} Studio Lady Gaga. {t.footer.rights}
             </p>
-            <Link className="cosmic-footer-legal-hub-link" href="/pravno">
+            <Link href="/pravno" className="editorial-legal-hub">
               Otvori pravni centar
             </Link>
           </div>
