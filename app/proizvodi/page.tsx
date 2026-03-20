@@ -1155,10 +1155,11 @@ function getStockMeta(stock: number): {
   };
 }
 
-const rsdFormatter = new Intl.NumberFormat("sr-Latn-RS");
 
 function formatRsd(value: number) {
-  return `${rsdFormatter.format(Math.max(0, Math.round(value)))} RSD`;
+  const safeValue = Math.max(0, Math.round(value));
+  const groupedValue = safeValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `${groupedValue} rsd`;
 }
 
 function IconEdit() {
@@ -1211,3 +1212,4 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
     </div>
   );
 }
+
