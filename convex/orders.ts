@@ -23,6 +23,7 @@ type OrderItemInput = {
 type PreparedOrderItem = {
   productId: Id<"products">;
   title: string;
+  imageUrl: string | null;
   quantity: number;
   unitPrice: number;
   discount: number;
@@ -151,6 +152,25 @@ function resolveFinalUnitPrice(price: number, discount: number | undefined) {
   const discountValue = normalizeDiscount(discount);
   if (discountValue <= 0) return safePrice;
   return Math.max(0, Math.round(safePrice * (1 - discountValue / 100)));
+}
+
+async function resolvePrimaryProductImage(
+  ctx: Pick<MutationCtx, "storage">,
+  product: Doc<"products">,
+): Promise<string | null> {
+  if (product.primaryImageStorageId) {
+    const storageUrl = await ctx.storage.getUrl(product.primaryImageStorageId);
+    if (storageUrl) return storageUrl;
+  }
+  if (product.primaryImageUrl && product.images.includes(product.primaryImageUrl)) {
+    return product.primaryImageUrl;
+  }
+  const fallbackStorageId = product.storageImageIds?.[0];
+  if (fallbackStorageId) {
+    const storageUrl = await ctx.storage.getUrl(fallbackStorageId);
+    if (storageUrl) return storageUrl;
+  }
+  return product.images[0] ?? null;
 }
 
 function createOrderNumber(createdAt: number) {
@@ -284,9 +304,11 @@ async function prepareOrderItems(ctx: MutationCtx, items: OrderItemInput[]) {
     const unitPrice = normalizeUnitPrice(product.price);
     const discount = normalizeDiscount(product.discount);
     const finalUnitPrice = resolveFinalUnitPrice(unitPrice, discount);
+    const imageUrl = await resolvePrimaryProductImage(ctx, product);
     prepared.push({
       productId: product._id,
       title: product.title,
+      imageUrl,
       quantity: item.quantity,
       unitPrice,
       discount,
@@ -344,6 +366,7 @@ async function createOrderRecord(
     items: preparedItems.map((item) => ({
       productId: item.productId,
       title: item.title,
+      imageUrl: item.imageUrl,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       discount: item.discount,
@@ -383,6 +406,34 @@ function extractItemsForSales(order: Doc<"orders">, productById: Map<string, Doc
   }
 
   return items;
+}
+
+function extractItemsForRestock(order: Doc<"orders">) {
+  const items = new Map<string, { productId: Id<"products">; quantity: number }>();
+
+  const addItem = (productId: Id<"products">, quantity: number) => {
+    const safeQuantity = Math.max(1, Math.floor(quantity));
+    const key = productId as string;
+    const existing = items.get(key);
+    if (existing) {
+      existing.quantity += safeQuantity;
+      return;
+    }
+    items.set(key, { productId, quantity: safeQuantity });
+  };
+
+  if (order.items && order.items.length > 0) {
+    for (const item of order.items) {
+      addItem(item.productId, item.quantity);
+    }
+    return [...items.values()];
+  }
+
+  if (order.productId) {
+    addItem(order.productId, 1);
+  }
+
+  return [...items.values()];
 }
 
 export const placeOrder = mutation({
@@ -546,6 +597,43 @@ export const setOrderStatus = mutation({
       throw new Error("Porudžbina nije pronađena.");
     }
     await ctx.db.patch(args.orderId, { status: args.status });
+  },
+});
+
+export const deleteOrder = mutation({
+  args: {
+    orderId: v.id("orders"),
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db.get(args.orderId);
+    if (!order) {
+      throw new Error("Porudzbina nije pronadjena.");
+    }
+
+    const itemsToRestock = extractItemsForRestock(order);
+    let restockedQuantity = 0;
+    let missingProductsCount = 0;
+
+    for (const item of itemsToRestock) {
+      const product = await ctx.db.get(item.productId);
+      if (!product) {
+        missingProductsCount += 1;
+        continue;
+      }
+
+      const currentStock = Math.max(0, Math.floor(product.stock));
+      await ctx.db.patch(item.productId, {
+        stock: currentStock + item.quantity,
+      });
+      restockedQuantity += item.quantity;
+    }
+
+    await ctx.db.delete(args.orderId);
+
+    return {
+      restockedQuantity,
+      missingProductsCount,
+    };
   },
 });
 

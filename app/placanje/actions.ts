@@ -185,14 +185,37 @@ function buildHtmlPayload(payload: CheckoutEmailPayload) {
   const customerFullName = `${payload.customer.firstName} ${payload.customer.lastName}`.trim();
   const rows = payload.items
     .map(
-      (item) => `
-        <tr>
-          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;">${escapeHtml(item.title)}</td>
-          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:center;">${item.quantity}</td>
-          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">${escapeHtml(formatRsd(item.finalUnitPrice))}</td>
-          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">${escapeHtml(formatRsd(item.lineTotal))}</td>
-        </tr>
-      `,
+      (item) => {
+        return `
+        <div style="margin:0 0 10px;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#ffffff;">
+          <table role="presentation" style="width:100%;border-collapse:collapse;">
+            <tr>
+              <td style="vertical-align:top;">
+                <p style="margin:0 0 10px;font-size:16px;line-height:1.35;font-weight:700;word-break:break-word;overflow-wrap:anywhere;">
+                  ${escapeHtml(item.title)}
+                </p>
+                <table role="presentation" style="width:100%;border-collapse:collapse;font-size:14px;">
+                  <tr>
+                    <td style="padding:4px 0;color:#4b5563;">Kolicina</td>
+                    <td style="padding:4px 0;text-align:right;font-weight:600;color:#111827;">${item.quantity}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:4px 0;color:#4b5563;">Cena</td>
+                    <td style="padding:4px 0;text-align:right;color:#111827;">${escapeHtml(formatRsd(item.finalUnitPrice))}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0 0;border-top:1px solid #e5e7eb;font-weight:700;color:#111827;">Ukupno</td>
+                    <td style="padding:8px 0 0;border-top:1px solid #e5e7eb;text-align:right;font-weight:700;color:#111827;">
+                      ${escapeHtml(formatRsd(item.lineTotal))}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      `;
+      },
     )
     .join("");
 
@@ -225,17 +248,9 @@ function buildHtmlPayload(payload: CheckoutEmailPayload) {
           }
 
           <h2 style="margin:24px 0 12px;font-size:18px;">Stavke porudžbine</h2>
-          <table style="width:100%;border-collapse:collapse;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
-            <thead>
-              <tr style="background:#f9fafb;">
-                <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Proizvod</th>
-                <th style="text-align:center;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Kolicina</th>
-                <th style="text-align:right;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Cena</th>
-                <th style="text-align:right;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Ukupno</th>
-              </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>
+          <div style="padding:10px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;">
+            ${rows}
+          </div>
 
           <div style="margin-top:16px;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb;">
             <p style="margin:0 0 6px;"><strong>Ukupno komada:</strong> ${payload.totals.totalItems}</p>

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useAuth } from "@/contexts/auth-context";
 import { useCart } from "@/contexts/cart-context";
 import { sendCheckoutOrderEmail } from "./actions";
 
@@ -85,6 +86,7 @@ function resolveErrorMessage(error: unknown) {
 }
 
 export default function CheckoutPage() {
+  const { session } = useAuth();
   const { items, itemCount, subtotal, clearCart } = useCart();
   const placeOrder = useMutation(api.orders.placeOrder) as unknown as (args: {
     items: Array<{ productId: string; quantity: number }>;
@@ -98,6 +100,45 @@ export default function CheckoutPage() {
   const [createdOrderNumber, setCreatedOrderNumber] = useState<string | null>(null);
   const [legalAccepted, setLegalAccepted] = useState(false);
   const [marketingAccepted, setMarketingAccepted] = useState(false);
+
+  useEffect(() => {
+    if (status !== "success") return;
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [status]);
+
+  useEffect(() => {
+    if (!session) return;
+
+    const profileFirstName = session.firstName?.trim() ?? "";
+    const profileLastName = session.lastName?.trim() ?? "";
+    const profileEmail = session.email?.trim() ?? "";
+
+    if (!profileFirstName && !profileLastName && !profileEmail) {
+      return;
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate checkout fields from session only when they are still empty
+    setForm((current) => {
+      const shouldFillFirstName = !current.firstName.trim() && profileFirstName.length > 0;
+      const shouldFillLastName = !current.lastName.trim() && profileLastName.length > 0;
+      const shouldFillEmail = !current.email.trim() && profileEmail.length > 0;
+
+      if (!shouldFillFirstName && !shouldFillLastName && !shouldFillEmail) {
+        return current;
+      }
+
+      return {
+        ...current,
+        firstName: shouldFillFirstName ? profileFirstName : current.firstName,
+        lastName: shouldFillLastName ? profileLastName : current.lastName,
+        email: shouldFillEmail ? profileEmail : current.email,
+      };
+    });
+  }, [session]);
 
   const checkoutItems = useMemo(
     () =>
@@ -172,8 +213,8 @@ export default function CheckoutPage() {
       setStatus("success");
       setStatusMessage(
         emailResult.ok
-          ? "Narudžbina je uspesno sacuvana i poslata na email admina."
-          : `Narudžbina je sacuvana, ali email nije poslat: ${emailResult.error}`,
+          ? "Narudžbina je uspešno poslata."
+          : "Narudžbina je uspešno poslata.",
       );
     } catch (error: unknown) {
       setStatus("error");
@@ -348,7 +389,7 @@ export default function CheckoutPage() {
                 onChange={(event) => setLegalAccepted(event.target.checked)}
               />
               <span>
-                Potvrđujem da sam procitala i prihvatam <Link href="/pravila-korišćenja">Pravila korišćenja</Link> i{" "}
+                    Potvrđujem da sam procitala i prihvatam <Link href="/pravila-koriscenja">Pravila korišćenja</Link> i{" "}
                 <Link href="/politika-privatnosti">Politiku privatnosti</Link>.
               </span>
             </label>

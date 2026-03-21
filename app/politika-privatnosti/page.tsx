@@ -133,8 +133,8 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section className="legal-link-strip" aria-label="Povezani dokumenti">
-        <Link href="/pravila-korišćenja">Pravila korišćenja</Link>
-        <Link href="/politika-kolačića">Politika kolačića</Link>
+                <Link href="/pravila-koriscenja">Pravila korišćenja</Link>
+                <Link href="/politika-kolacica">Politika kolačića</Link>
         <Link href="/pravno">Pravni centar</Link>
       </section>
     </LegalShell>

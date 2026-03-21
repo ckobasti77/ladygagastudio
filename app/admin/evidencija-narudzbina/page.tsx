@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, type ReactNode, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/contexts/auth-context";
@@ -83,6 +83,9 @@ export default function AdminOrdersLedgerPage() {
     orderId: string;
     status: OrderStatus;
   }) => Promise<unknown>;
+  const deleteOrder = useMutation(api.orders.deleteOrder) as unknown as (args: {
+    orderId: string;
+  }) => Promise<{ restockedQuantity: number; missingProductsCount: number }>;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatusFilter>("all");
@@ -97,6 +100,8 @@ export default function AdminOrdersLedgerPage() {
   const [page, setPage] = useState(1);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [busyOrderId, setBusyOrderId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminOrder | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   useEffect(() => {
@@ -287,6 +292,43 @@ export default function AdminOrdersLedgerPage() {
       const message = error instanceof Error && error.message ? error.message : "Promena statusa nije uspela.";
       setFeedback({ type: "error", message });
     } finally {
+      setBusyOrderId((current) => (current === order._id ? null : current));
+    }
+  };
+
+  const closeDeleteModal = () => {
+    if (isDeleting) return;
+    setDeleteTarget(null);
+  };
+
+  const onDeleteOrder = async () => {
+    if (!deleteTarget) return;
+    const order = deleteTarget;
+    setIsDeleting(true);
+    setBusyOrderId(order._id);
+
+    try {
+      const result = await deleteOrder({ orderId: order._id });
+      setExpandedRows((current) => {
+        const next = new Set(current);
+        next.delete(order._id);
+        return next;
+      });
+      setDeleteTarget(null);
+      setFeedback({
+        type: "success",
+        message:
+          result.missingProductsCount > 0
+            ? `Narudzbina ${order.orderNumber} je obrisana. Neki proizvodi vise ne postoje, pa stanje nije potpuno vraceno.`
+            : result.restockedQuantity > 0
+              ? `Narudzbina ${order.orderNumber} je obrisana i vraceno je ${result.restockedQuantity} komada na stanje.`
+              : `Narudzbina ${order.orderNumber} je obrisana.`,
+      });
+    } catch (error: unknown) {
+      const message = error instanceof Error && error.message ? error.message : "Brisanje porudzbine nije uspelo.";
+      setFeedback({ type: "error", message });
+    } finally {
+      setIsDeleting(false);
       setBusyOrderId((current) => (current === order._id ? null : current));
     }
   };
@@ -615,14 +657,26 @@ export default function AdminOrdersLedgerPage() {
                             </select>
                           </div>
                         </td>
-                        <td>
-                          <button
-                            type="button"
-                            className={`ghost-btn ${styles.detailButton} ${isExpanded ? styles.detailButtonActive : ""}`}
-                            onClick={() => toggleRow(order._id)}
-                          >
-                            {isExpanded ? "Sakrij detalje" : "Pogledaj detalje"}
-                          </button>
+                        <td className={styles.actionsCell}>
+                          <div className={styles.rowActions}>
+                            <button
+                              type="button"
+                              className={`ghost-btn ${styles.detailButton} ${isExpanded ? styles.detailButtonActive : ""}`}
+                              onClick={() => toggleRow(order._id)}
+                              disabled={isBusy}
+                            >
+                              {isExpanded ? "Sakrij detalje" : "Pogledaj detalje"}
+                            </button>
+                            <button
+                              type="button"
+                              className={`ghost-btn danger ${styles.deleteButton}`}
+                              onClick={() => setDeleteTarget(order)}
+                              disabled={isBusy}
+                              aria-label={`Obrisi narudzbinu ${order.orderNumber}`}
+                            >
+                              Obrisi
+                            </button>
+                          </div>
                         </td>
                       </tr>
                       {isExpanded ? (
@@ -701,6 +755,34 @@ export default function AdminOrdersLedgerPage() {
           </div>
         </section>
       )}
+
+      {deleteTarget ? (
+        <Modal onClose={closeDeleteModal}>
+          <h3>Da li ste sigurni da zelite da obrisete narudzbinu {deleteTarget.orderNumber}?</h3>
+          <p>Brisanjem ce porudzbina biti uklonjena iz evidencije, a stanje proizvoda ce biti vraceno gde je to moguce.</p>
+          <div className="modal-actions">
+            <button type="button" className="ghost-btn" onClick={closeDeleteModal} disabled={isDeleting}>
+              Odustani
+            </button>
+            <button type="button" className="primary-btn danger" onClick={onDeleteOrder} disabled={isDeleting}>
+              {isDeleting ? "Brisanje..." : "Potvrdi brisanje"}
+            </button>
+          </div>
+        </Modal>
+      ) : null}
     </section>
+  );
+}
+
+function Modal({ children, onClose }: { children: ReactNode; onClose: () => void }) {
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card admin-modal-card" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true">
+        <button type="button" className="modal-close" onClick={onClose} aria-label="Zatvori">
+          x
+        </button>
+        {children}
+      </div>
+    </div>
   );
 }

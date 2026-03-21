@@ -20,7 +20,7 @@ export default function CookiePolicyPage() {
       title="Kolacici, localStorage i consent preference"
       lead="Ova politika opisuje koje tehnologije koristimo, zasto ih koristimo i kako ih možete kontrolisati."
       lastUpdated={LEGAL_LAST_UPDATED}
-      activePath="/politika-kolačića"
+      activePath="/politika-kolacica"
     >
       <section className="legal-doc-section">
         <h2>1. Šta su kolacici</h2>
@@ -128,7 +128,7 @@ export default function CookiePolicyPage() {
 
       <section className="legal-link-strip" aria-label="Povezani dokumenti">
         <Link href="/politika-privatnosti">Politika privatnosti</Link>
-        <Link href="/pravila-korišćenja">Pravila korišćenja</Link>
+                <Link href="/pravila-koriscenja">Pravila korišćenja</Link>
         <Link href="/pravno">Pravni centar</Link>
       </section>
     </LegalShell>

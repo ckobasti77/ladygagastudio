@@ -118,6 +118,15 @@ export const featured = query({
   },
 });
 
+export const getPrimaryImageUrlForEmail = query({
+  args: { productId: v.id("products") },
+  handler: async (ctx, args) => {
+    const product = await ctx.db.get(args.productId);
+    if (!product) return null;
+    return await resolvePrimaryImage(ctx, product);
+  },
+});
+
 export const listCategories = query({
   args: {},
   handler: async (ctx) => await ctx.db.query("categories").collect(),

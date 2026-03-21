@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 const LEGAL_CARDS = [
   {
-    href: "/pravila-korišćenja",
+    href: "/pravila-koriscenja",
     title: "Pravila korišćenja",
     text: "Uslovi korišćenja sajta, online kupovine, odgovornosti i intelektualna prava.",
     Icon: FileCheck2,
@@ -23,7 +23,7 @@ const LEGAL_CARDS = [
     Icon: Shield,
   },
   {
-    href: "/politika-kolačića",
+    href: "/politika-kolacica",
     title: "Politika kolačića",
     text: "Kategorije kolačića i localStorage zapisa sa opcijom trenutne izmene consenta.",
     Icon: Cookie,

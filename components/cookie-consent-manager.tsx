@@ -200,9 +200,9 @@ export function CookieConsentManager() {
               <strong>{consentModeLabel}</strong>
             </p>
             <div className="cookie-starport-links">
-              <Link href="/politika-kolačića">Politika kolačića</Link>
+            <Link href="/politika-kolacica">Politika kolačića</Link>
               <Link href="/politika-privatnosti">Politika privatnosti</Link>
-              <Link href="/pravila-korišćenja">Pravila korišćenja</Link>
+            <Link href="/pravila-koriscenja">Pravila korišćenja</Link>
             </div>
 
             <div className="cookie-preset-grid" aria-label="Brzi consent modovi">

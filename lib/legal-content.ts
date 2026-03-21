@@ -17,7 +17,7 @@ export const LEGAL_NAV_LINKS = [
     description: "Pregled svih pravnih dokumenata i opcija privatnosti.",
   },
   {
-    href: "/pravila-korišćenja",
+    href: "/pravila-koriscenja",
     label: "Pravila korišćenja",
     description: "Uslovi upotrebe sajta, kupovine i korisnickih obaveza.",
   },
@@ -27,7 +27,7 @@ export const LEGAL_NAV_LINKS = [
     description: "Koje podatke obrađujemo, zasto i koliko dugo.",
   },
   {
-    href: "/politika-kolačića",
+    href: "/politika-kolacica",
     label: "Politika kolačića",
     description: "Kategorije kolačića, localStorage i upravljanje preferencama.",
   },

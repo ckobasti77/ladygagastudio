@@ -535,9 +535,28 @@
   font-size: 0.84rem;
 }
 
+.actionsCell {
+  width: 220px;
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rowActions button {
+  flex: 1 1 calc(50% - 0.25rem);
+}
+
 .detailButtonActive {
   border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
   background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.deleteButton {
+  border-color: color-mix(in srgb, #ff6f66 48%, var(--border));
 }
 
 /* ── Detail Expansion ── */
@@ -776,8 +795,11 @@
     background: color-mix(in srgb, var(--surface-soft) 50%, transparent);
   }
 
-  .orderRow td:nth-child(7) .detailButton {
+  .orderRow td:nth-child(7) .rowActions {
     width: 100%;
+  }
+
+  .orderRow td:nth-child(7) .rowActions button {
     justify-content: center;
     text-align: center;
   }
@@ -857,6 +879,10 @@
 
   .orderRow td:nth-child(7) {
     grid-column: 1 !important;
+  }
+
+  .rowActions button {
+    flex-basis: 100%;
   }
 }
 

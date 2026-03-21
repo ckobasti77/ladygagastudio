@@ -15,7 +15,7 @@ export default function TermsPage() {
       title="Uslovi upotrebe sajta i online kupovine"
       lead="Pristupom sajtu i narucivanjem proizvoda prihvatate pravila u nastavku."
       lastUpdated={LEGAL_LAST_UPDATED}
-      activePath="/pravila-korišćenja"
+      activePath="/pravila-koriscenja"
     >
       <section className="legal-doc-section">
         <h2>1. Opseg i prihvatanje</h2>
@@ -110,7 +110,7 @@ export default function TermsPage() {
 
       <section className="legal-link-strip" aria-label="Povezani dokumenti">
         <Link href="/politika-privatnosti">Politika privatnosti</Link>
-        <Link href="/politika-kolačića">Politika kolačića</Link>
+                <Link href="/politika-kolacica">Politika kolačića</Link>
         <Link href="/pravno">Pravni centar</Link>
       </section>
     </LegalShell>

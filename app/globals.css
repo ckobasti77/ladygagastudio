@@ -720,6 +720,12 @@ a {
   animation: homeRevealIn 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
+body.ux-enhanced .home-reveal {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
 .home-page > .home-reveal:nth-child(2) {
   animation-delay: 0.06s;
 }
@@ -4026,6 +4032,12 @@ iframe {
   opacity: 0;
   transform: translateY(20px);
   animation: orbitReveal 0.74s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+body.ux-enhanced .orbit-reveal {
+  opacity: 1;
+  transform: none;
+  animation: none;
 }
 
 .orbit-page > .orbit-reveal:nth-child(2) {
@@ -10728,6 +10740,12 @@ iframe {
   opacity: 0;
   transform: translateY(14px);
   animation: legalRevealIn 0.62s ease forwards;
+}
+
+body.ux-enhanced .legal-reveal {
+  opacity: 1;
+  transform: none;
+  animation: none;
 }
 
 @keyframes legalRevealIn {

@@ -304,7 +304,7 @@ export default function ContactPage() {
                 Potvrđujem da sam procitala i prihvatam{" "}
                 <Link href="/politika-privatnosti">Politiku privatnosti</Link>{" "}
                 i{" "}
-                <Link href="/pravila-korišćenja">Pravila korišćenja</Link>.
+                  <Link href="/pravila-koriscenja">Pravila korišćenja</Link>.
               </span>
             </label>
 
