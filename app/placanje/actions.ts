@@ -1,6 +1,9 @@
 "use server";
 
+import nodemailer from "nodemailer";
+
 const DEFAULT_RECIPIENT_EMAIL = "hello@ladygagastudio.rs";
+const DEFAULT_FROM_EMAIL = "Studio Lady Gaga <hello@ladygagastudio.rs>";
 
 type CheckoutEmailCustomer = {
   firstName: string;
@@ -38,6 +41,9 @@ type SendOrderEmailResult =
   | { ok: true }
   | { ok: false; error: string };
 
+let cachedTransporter: nodemailer.Transporter | null = null;
+let cachedTransporterKey = "";
+
 function formatRsd(value: number) {
   return `${Math.max(0, Math.round(value)).toLocaleString("sr-Latn-RS")} RSD`;
 }
@@ -49,6 +55,105 @@ function escapeHtml(value: string) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function normalizeText(value: string) {
+  return value.trim();
+}
+
+function normalizeOptionalText(value: string | undefined) {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : undefined;
+}
+
+function normalizeNonNegativeInt(value: number) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.round(value));
+}
+
+function normalizeQuantity(value: number) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.floor(value));
+}
+
+function normalizeDiscount(value: number) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function resolveFinalUnitPrice(unitPrice: number, discount: number) {
+  if (discount <= 0) return unitPrice;
+  return Math.max(0, Math.round(unitPrice * (1 - discount / 100)));
+}
+
+function normalizeRecipients(rawRecipients: string | undefined) {
+  const recipients = rawRecipients
+    ?.split(",")
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0);
+
+  if (!recipients || recipients.length === 0) {
+    return [DEFAULT_RECIPIENT_EMAIL];
+  }
+
+  return recipients;
+}
+
+function normalizePayload(payload: CheckoutEmailPayload): CheckoutEmailPayload {
+  const customer: CheckoutEmailCustomer = {
+    firstName: normalizeText(payload.customer.firstName),
+    lastName: normalizeText(payload.customer.lastName),
+    email: normalizeOptionalText(payload.customer.email),
+    street: normalizeText(payload.customer.street),
+    number: normalizeText(payload.customer.number),
+    postalCode: normalizeText(payload.customer.postalCode),
+    city: normalizeText(payload.customer.city),
+    phone: normalizeText(payload.customer.phone),
+    note: normalizeOptionalText(payload.customer.note),
+  };
+
+  const items = payload.items
+    .map((item) => {
+      const quantity = normalizeQuantity(item.quantity);
+      const unitPrice = normalizeNonNegativeInt(item.unitPrice);
+      const discount = normalizeDiscount(item.discount);
+      const safeFinalUnitPrice = resolveFinalUnitPrice(unitPrice, discount);
+      const finalUnitPrice =
+        Number.isFinite(item.finalUnitPrice) && item.finalUnitPrice >= 0
+          ? normalizeNonNegativeInt(item.finalUnitPrice)
+          : safeFinalUnitPrice;
+      const lineTotal =
+        Number.isFinite(item.lineTotal) && item.lineTotal >= 0
+          ? normalizeNonNegativeInt(item.lineTotal)
+          : finalUnitPrice * quantity;
+
+      return {
+        title: normalizeText(item.title) || "Nepoznat proizvod",
+        quantity,
+        unitPrice,
+        discount,
+        finalUnitPrice,
+        lineTotal,
+      } satisfies CheckoutEmailItem;
+    })
+    .filter((item) => item.quantity > 0);
+
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalAmount = items.reduce((sum, item) => sum + item.lineTotal, 0);
+
+  return {
+    orderNumber: normalizeText(payload.orderNumber) || "SLG-NEPOZNATO",
+    createdAt:
+      Number.isFinite(payload.createdAt) && payload.createdAt > 0
+        ? payload.createdAt
+        : Date.now(),
+    customer,
+    items,
+    totals: {
+      totalItems,
+      totalAmount,
+    },
+  };
 }
 
 function buildTextPayload(payload: CheckoutEmailPayload) {
@@ -124,7 +229,7 @@ function buildHtmlPayload(payload: CheckoutEmailPayload) {
             <thead>
               <tr style="background:#f9fafb;">
                 <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Proizvod</th>
-                <th style="text-align:center;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Količina</th>
+                <th style="text-align:center;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Kolicina</th>
                 <th style="text-align:right;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Cena</th>
                 <th style="text-align:right;padding:10px 12px;border-bottom:1px solid #e5e7eb;">Ukupno</th>
               </tr>
@@ -142,52 +247,114 @@ function buildHtmlPayload(payload: CheckoutEmailPayload) {
   `;
 }
 
-export async function sendCheckoutOrderEmail(payload: CheckoutEmailPayload): Promise<SendOrderEmailResult> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.ORDER_FROM_EMAIL ?? "Studio Lady Gaga <onboarding@resend.dev>";
-  const recipient = process.env.ORDER_NOTIFICATION_EMAIL ?? DEFAULT_RECIPIENT_EMAIL;
+function resolveErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  return "Nepoznata greska";
+}
 
-  if (!apiKey) {
+function readSmtpConfig() {
+  const host = process.env.SMTP_HOST?.trim();
+  const portRaw = process.env.SMTP_PORT?.trim() || "587";
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.replace(/\s+/g, "");
+  const secure = process.env.SMTP_SECURE === "true" || portRaw === "465";
+  const port = Number(portRaw);
+  const from = process.env.ORDER_FROM_EMAIL?.trim() || user || DEFAULT_FROM_EMAIL;
+
+  if (!host || !user || !pass) {
     return {
-      ok: false,
-      error: "RESEND_API_KEY nije postavljen. Narudžbina je sačuvana, ali email nije poslat.",
+      ok: false as const,
+      error: "Nedostaju SMTP varijable: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS.",
     };
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [recipient],
-      subject: `Nova narudžbina ${payload.orderNumber}`,
-      html: buildHtmlPayload(payload),
-      text: buildTextPayload(payload),
-      reply_to: payload.customer.email,
-    }),
-  });
-
-  if (response.ok) {
-    return { ok: true };
-  }
-
-  let details = `HTTP ${response.status}`;
-  try {
-    const data = (await response.json()) as { message?: string; error?: string };
-    if (data.message) details = data.message;
-    if (data.error) details = data.error;
-  } catch {
-    const fallbackText = await response.text();
-    if (fallbackText) {
-      details = fallbackText;
-    }
+  if (!Number.isFinite(port) || port <= 0) {
+    return { ok: false as const, error: "SMTP_PORT nije validan broj." };
   }
 
   return {
-    ok: false,
-    error: `Slanje emaila nije uspelo (${details}).`,
+    ok: true as const,
+    value: {
+      host,
+      port,
+      user,
+      pass,
+      from,
+      secure,
+    },
   };
+}
+
+function getTransporter(config: {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  secure: boolean;
+}) {
+  const cacheKey = `${config.host}:${config.port}:${config.user}:${config.secure}`;
+  if (cachedTransporter && cachedTransporterKey === cacheKey) {
+    return cachedTransporter;
+  }
+
+  cachedTransporter = nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
+    pool: true,
+    maxConnections: 3,
+    maxMessages: 100,
+    connectionTimeout: 120000,
+    greetingTimeout: 30000,
+    socketTimeout: 600000,
+    auth: {
+      user: config.user,
+      pass: config.pass,
+    },
+  });
+  cachedTransporterKey = cacheKey;
+  return cachedTransporter;
+}
+
+export async function sendCheckoutOrderEmail(payload: CheckoutEmailPayload): Promise<SendOrderEmailResult> {
+  const normalizedPayload = normalizePayload(payload);
+  if (normalizedPayload.items.length === 0) {
+    return {
+      ok: false,
+      error: "Email nije poslat jer narudžbina nema validne stavke.",
+    };
+  }
+
+  const smtpConfig = readSmtpConfig();
+  if (!smtpConfig.ok) {
+    return { ok: false, error: smtpConfig.error };
+  }
+
+  const recipients = normalizeRecipients(process.env.ORDER_NOTIFICATION_EMAIL);
+  const transporter = getTransporter({
+    host: smtpConfig.value.host,
+    port: smtpConfig.value.port,
+    secure: smtpConfig.value.secure,
+    user: smtpConfig.value.user,
+    pass: smtpConfig.value.pass,
+  });
+
+  try {
+    await transporter.sendMail({
+      from: smtpConfig.value.from,
+      to: recipients,
+      subject: `Nova narudžbina ${normalizedPayload.orderNumber}`,
+      text: buildTextPayload(normalizedPayload),
+      html: buildHtmlPayload(normalizedPayload),
+      replyTo: normalizedPayload.customer.email,
+    });
+    return { ok: true };
+  } catch (error: unknown) {
+    return {
+      ok: false,
+      error: `Slanje emaila nije uspelo (${resolveErrorMessage(error)}).`,
+    };
+  }
 }

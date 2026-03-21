@@ -332,22 +332,48 @@ export const loginCustomer = mutation({
   },
 });
 
+export const subscribeToMarketing = mutation({
+  args: {
+    email: v.string(),
+    firstName: v.string(),
+    lastName: v.string(),
+    source: v.union(v.literal("registration"), v.literal("checkout")),
+  },
+  handler: async (ctx, args) => {
+    const email = normalizeEmail(args.email);
+    if (!isValidEmail(email)) return;
+
+    const existing = await ctx.db
+      .query("marketingSubscribers")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .unique();
+
+    if (existing) return;
+
+    await ctx.db.insert("marketingSubscribers", {
+      email,
+      firstName: args.firstName.trim(),
+      lastName: args.lastName.trim(),
+      source: args.source,
+      createdAt: Date.now(),
+    });
+  },
+});
+
 export const listOfferRecipients = query({
   args: {},
   handler: async (ctx) => {
-    const users = await ctx.db.query("users").collect();
+    const subscribers = await ctx.db.query("marketingSubscribers").collect();
     const uniqueByEmail = new Map<string, { email: string; firstName: string; lastName: string }>();
 
-    for (const user of users) {
-      if (typeof user.email !== "string" || !isValidEmail(user.email)) continue;
-      if (typeof user.firstName !== "string" || typeof user.lastName !== "string") continue;
-      if (user.isAdmin) continue;
-      const email = normalizeEmail(user.email);
+    for (const sub of subscribers) {
+      const email = normalizeEmail(sub.email);
+      if (!isValidEmail(email)) continue;
       if (!uniqueByEmail.has(email)) {
         uniqueByEmail.set(email, {
           email,
-          firstName: user.firstName,
-          lastName: user.lastName,
+          firstName: sub.firstName,
+          lastName: sub.lastName,
         });
       }
     }

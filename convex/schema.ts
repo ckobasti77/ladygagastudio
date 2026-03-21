@@ -86,4 +86,12 @@ export default defineSchema({
     size: v.optional(v.number()),
     createdAt: v.number(),
   }).index("by_created_at", ["createdAt"]),
+
+  marketingSubscribers: defineTable({
+    email: v.string(),
+    firstName: v.string(),
+    lastName: v.string(),
+    source: v.union(v.literal("registration"), v.literal("checkout")),
+    createdAt: v.number(),
+  }).index("by_email", ["email"]),
 });

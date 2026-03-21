@@ -1,14 +1,13 @@
 export const founderStory = [
   "Moje ime je Dragana i iza studija Lady Gaga stoji dugogodišnja posvećenost lepoti, detaljima i profesionalnoj nezi kose.",
   "Specijalizovana sam za tretmane oštećene i blajhane kose, zahtevne koloracije i glam stil frizura.",
-  "Verujem da svaka žena može da zablista uz pravi pristup, kvalitetne proizvode i stručno vođenu negu.",
-  "U svom radu spajam iskustvo, preciznost i osećaj za estetiku, sa ciljem da svaka klijentkinja dobije rezultat koji je ne samo lep, već i zdrav i dugotrajan.",
-  "Za mene je lepota više od izgleda. To je samopouzdanje koje žena ponese sa sobom kada zna da izgleda najbolje.",
+  "Verujemo u snagu personalizovanog pristupa: vrhunski proizvodi, stručna nega i preciznost u svakom detalju omogućavaju da svaki klijent zablista u svom jedinstvenom stilu. ",
+  "Za nas, lepota je više od izgleda - to je samopouzdanje koje traje , osećaj sofisticiranosti i luksuza koji klijent nosi sa sobom svaki dan.",
 ];
 
 export const milkShakeTreatments = [
   {
-    name: "Milk Shake profesionalni tretmani",
+    name: "Milk Shake tretmani",
     description:
       "Kompletna linija tretmana za hidrataciju, obnovu i zaštitu kose, prilagođena stvarnom stanju vlasi.",
     benefit: "Hidratacija + obnova + zaštita",
@@ -37,16 +36,16 @@ export const studioServices = [
 
 export const qualityPillars = [
   {
-    title: "Precizna dijagnostika",
-    text: "Svaki tretman biramo prema tipu i stanju kose, ne prema univerzalnoj formuli.",
+    title: "Stručna analiza kose",
+    text: "Svaki tretman određuje se prema tipu i trenutnom stanju kose, brz primene univerzalnih rešenja.",
   },
   {
-    title: "Kvalitet i sigurnost",
-    text: "Koristimo proverene protokole i profesionalne proizvode za zdrav i luksuzan rezultat.",
+    title: "Savremene tehnike",
+    text: "U radu koristimo pažljivo odabrane preparate i provedene metode koje čuvaju kvalitet, strukturu i lepotu kose. ",
   },
   {
-    title: "Transformacija koja traje",
-    text: "Cilj je rezultat koji izgleda odlično odmah, ali ostaje stabilan i narednih nedelja.",
+    title: "Individualni plan negovanja",
+    text: "Svaki klijentkinja dobija preporuku tretmana i profesionalne nege prilagođene potrebama njene kose.",
   },
 ] as const;
 

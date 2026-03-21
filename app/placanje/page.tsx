@@ -7,6 +7,13 @@ import { api } from "@/convex/_generated/api";
 import { useCart } from "@/contexts/cart-context";
 import { sendCheckoutOrderEmail } from "./actions";
 
+type SubscribeToMarketingArgs = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  source: "registration" | "checkout";
+};
+
 type CheckoutForm = {
   firstName: string;
   lastName: string;
@@ -83,6 +90,7 @@ export default function CheckoutPage() {
     items: Array<{ productId: string; quantity: number }>;
     customer: CheckoutForm;
   }) => Promise<PlaceOrderResult>;
+  const subscribeToMarketing = useMutation(api.users.subscribeToMarketing) as unknown as (args: SubscribeToMarketingArgs) => Promise<void>;
 
   const [form, setForm] = useState<CheckoutForm>(emptyForm);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -105,7 +113,7 @@ export default function CheckoutPage() {
 
     if (!legalAccepted) {
       setStatus("error");
-      setStatusMessage("Potrebno je da prihvatite pravila koriscenja i politiku privatnosti.");
+      setStatusMessage("Potrebno je da prihvatite pravila korišćenja i politiku privatnosti.");
       return;
     }
 
@@ -127,13 +135,34 @@ export default function CheckoutPage() {
         },
       });
 
-      const emailResult = (await sendCheckoutOrderEmail({
-        orderNumber: order.orderNumber,
-        createdAt: order.createdAt,
-        customer: order.customer,
-        items: order.items,
-        totals: order.totals,
-      })) as SendOrderConfirmationResult;
+      let emailResult: SendOrderConfirmationResult;
+      try {
+        emailResult = (await sendCheckoutOrderEmail({
+          orderNumber: order.orderNumber,
+          createdAt: order.createdAt,
+          customer: order.customer,
+          items: order.items,
+          totals: order.totals,
+        })) as SendOrderConfirmationResult;
+      } catch (emailError: unknown) {
+        emailResult = {
+          ok: false,
+          error: resolveErrorMessage(emailError),
+        };
+      }
+
+      if (marketingAccepted && form.email.trim()) {
+        try {
+          await subscribeToMarketing({
+            email: form.email.trim(),
+            firstName: form.firstName.trim(),
+            lastName: form.lastName.trim(),
+            source: "checkout",
+          });
+        } catch {
+          // Marketing subscription failure should not block the order
+        }
+      }
 
       clearCart();
       setCreatedOrderNumber(order.orderNumber);
@@ -143,8 +172,8 @@ export default function CheckoutPage() {
       setStatus("success");
       setStatusMessage(
         emailResult.ok
-          ? "Narudzbina je uspesno sacuvana i poslata na email admina."
-          : `Narudzbina je sacuvana, ali email nije poslat: ${emailResult.error}`,
+          ? "Narudžbina je uspesno sacuvana i poslata na email admina."
+          : `Narudžbina je sacuvana, ali email nije poslat: ${emailResult.error}`,
       );
     } catch (error: unknown) {
       setStatus("error");
@@ -158,7 +187,7 @@ export default function CheckoutPage() {
         <article className="orbit-hero orbit-reveal">
           <div className="orbit-hud" aria-hidden>
             <span>Placanje</span>
-            <strong>Studio Lady Gaga | Narudzbina</strong>
+            <strong>Studio Lady Gaga | Narudžbina</strong>
           </div>
 
           <p className="orbit-eyebrow">Placanje</p>
@@ -184,14 +213,14 @@ export default function CheckoutPage() {
         <article className="orbit-hero orbit-reveal">
           <div className="orbit-hud" aria-hidden>
             <span>Potvrda</span>
-            <strong>Studio Lady Gaga | Narudzbina kreirana</strong>
+            <strong>Studio Lady Gaga | Narudžbina kreirana</strong>
           </div>
 
           <p className="orbit-eyebrow">Placanje</p>
-          <h1>Narudzbina je uspesno kreirana.</h1>
+          <h1>Narudžbina je uspesno kreirana.</h1>
           <p className="orbit-lead">
             {statusMessage}
-            {createdOrderNumber ? ` Broj narudzbine: ${createdOrderNumber}.` : ""}
+            {createdOrderNumber ? ` Broj narudžbine: ${createdOrderNumber}.` : ""}
           </p>
 
           <div className="orbit-actions">
@@ -212,12 +241,12 @@ export default function CheckoutPage() {
       <article className="orbit-hero orbit-reveal">
         <div className="orbit-hud" aria-hidden>
           <span>Placanje</span>
-          <strong>Studio Lady Gaga | Narudzbina</strong>
+          <strong>Studio Lady Gaga | Narudžbina</strong>
         </div>
 
         <p className="orbit-eyebrow">Placanje</p>
-        <h1>Unesite podatke i potvrdite narudzbinu</h1>
-        <p className="orbit-lead">Placanje karticom nije ukljuceno. Narudzbina se salje direktno na email admina.</p>
+        <h1>Unesite podatke i potvrdite narudžbinu</h1>
+        <p className="orbit-lead">Placanje karticom nije ukljuceno. Narudžbina se salje direktno na email admina.</p>
 
         <div className="orbit-metric-row">
           <article className="orbit-metric">
@@ -238,7 +267,7 @@ export default function CheckoutPage() {
       {status !== "idle" ? (
         <p className={`status-msg orbit-reveal ${status === "error" ? "admin-status-error" : ""}`}>
           {statusMessage}
-          {createdOrderNumber ? ` (Broj narudzbine: ${createdOrderNumber})` : ""}
+          {createdOrderNumber ? ` (Broj narudžbine: ${createdOrderNumber})` : ""}
         </p>
       ) : null}
 
@@ -319,7 +348,7 @@ export default function CheckoutPage() {
                 onChange={(event) => setLegalAccepted(event.target.checked)}
               />
               <span>
-                Potvrdjujem da sam procitala i prihvatam <Link href="/pravila-koriscenja">Pravila koriscenja</Link> i{" "}
+                Potvrđujem da sam procitala i prihvatam <Link href="/pravila-korišćenja">Pravila korišćenja</Link> i{" "}
                 <Link href="/politika-privatnosti">Politiku privatnosti</Link>.
               </span>
             </label>
@@ -337,7 +366,7 @@ export default function CheckoutPage() {
 
           <div className="checkout-form-actions">
             <button type="submit" className="primary-btn" disabled={status === "submitting" || !legalAccepted}>
-              {status === "submitting" ? "Obrada narudzbine..." : "Potvrdi narudzbinu"}
+              {status === "submitting" ? "Obrada narudžbine..." : "Potvrdi narudžbinu"}
             </button>
             <Link href="/korpa" className="ghost-btn">
               Nazad na korpu
@@ -347,7 +376,7 @@ export default function CheckoutPage() {
 
         <aside className="orbit-panel checkout-summary-panel">
           <p className="orbit-panel-tag">Rezime</p>
-          <h2>Rezime narudzbine</h2>
+          <h2>Rezime narudžbine</h2>
           <div className="checkout-summary-items">
             {items.map((item) => (
               <article key={item.productId} className="checkout-summary-item">

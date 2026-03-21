@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Check } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/contexts/auth-context";
@@ -63,6 +64,8 @@ export default function ProductDetailsPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const addedTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const [isSettingPrimary, setIsSettingPrimary] = useState(false);
   const [isUpdatingRecommended, setIsUpdatingRecommended] = useState(false);
 
@@ -70,7 +73,12 @@ export default function ProductDetailsPage() {
     setActiveImageIndex(0);
     setQuantity(1);
     setFeedback(null);
+    setAddedToCart(false);
   }, [product?._id]);
+
+  useEffect(() => {
+    return () => { if (addedTimerRef.current) clearTimeout(addedTimerRef.current); };
+  }, []);
 
   useEffect(() => {
     if (!feedback) return;
@@ -99,7 +107,7 @@ export default function ProductDetailsPage() {
           </div>
 
           <p className="orbit-eyebrow">Proizvod</p>
-          <h1>Proizvod nije pronadjen.</h1>
+          <h1>Proizvod nije pronađen.</h1>
           <p className="orbit-lead">Proverite da li je proizvod obrisan ili izaberite drugi iz kataloga.</p>
 
           <div className="orbit-actions">
@@ -156,6 +164,10 @@ export default function ProductDetailsPage() {
     );
 
     setFeedback({ type: "success", message: `${product.title} je dodat u korpu.` });
+
+    if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+    setAddedToCart(true);
+    addedTimerRef.current = setTimeout(() => setAddedToCart(false), 2000);
   };
 
   const onSetPrimaryImage = async () => {
@@ -306,8 +318,8 @@ export default function ProductDetailsPage() {
               </button>
             </div>
 
-            <button type="button" className="primary-btn" onClick={onAddToCart} disabled={product.stock <= 0}>
-              {product.stock > 0 ? "Dodaj u korpu" : "Rasprodato"}
+            <button type="button" className={`primary-btn${addedToCart ? " added" : ""}`} onClick={onAddToCart} disabled={product.stock <= 0 || addedToCart}>
+              {addedToCart ? (<><Check size={18} /> Dodato u korpu</>) : product.stock > 0 ? "Dodaj u korpu" : "Rasprodato"}
             </button>
 
             <Link href="/korpa" className="ghost-btn">

@@ -98,17 +98,17 @@ const HERO_FEATURE_CARDS = [
     alt: "Rad u frizerskom salonu Studio Lady Gaga",
     variant: "salon",
     title: "Oštecena i blajhana kosa",
-    text: "Intenzivna obnova uz pažljivo ocuvanje kvaliteta vlasi.",
+    text: "Intenzivna obnova uz pažljivo očuvanje kvaliteta vlasi.",
   },
   {
-    label: "Shop proizvodi",
-    heroTitle: ["Proizvodi", "za negu", "i održavanje"],
+    label: "Ponuda proizvoda",
+    heroTitle: ["Proizvodi", "za negu i", "održavanje"],
     description:
       "Šamponi, maske, tretmani i profesionalna nega za kućnu upotrebu i dugotrajan rezultat.",
     cta: "Pogledaj proizvode",
     href: "/proizvodi",
     image: "/slike/gaga/2.avif",
-    alt: "Premium proizvodi za negu i odrzavanje kose",
+    alt: "Premium proizvodi za negu i održavanje kose",
     variant: "shop",
     title: "Koloracije i korekcije boje",
     text: "Precizno birane nijanse bez neželjenih tonova.",
@@ -116,7 +116,7 @@ const HERO_FEATURE_CARDS = [
   {
     Icon: Sparkles,
     title: "Keratin tretmani",
-    text: "Glatkoca, sjaj i lakše održavanje tokom svakog dana.",
+    text: "Glatkoća, sjaj i lakše održavanje tokom svakog dana.",
   },
   {
     Icon: Droplets,
@@ -125,7 +125,7 @@ const HERO_FEATURE_CARDS = [
   },
   {
     Icon: Scissors,
-    title: "Svecane i dnevne frizure",
+    title: "Svečane i dnevne frizure",
     text: "Glam završnica i postojan oblik za svaku priliku.",
   },
   {
@@ -139,7 +139,7 @@ const HERO_SERVICE_CARDS = [
   {
     Icon: ShieldCheck,
     title: "Oštecena i blajhana kosa",
-    text: "Intenzivna obnova uz pažljivo ocuvanje kvaliteta vlasi.",
+    text: "Intenzivna obnova uz pažljivo očuvanje kvaliteta vlasi.",
   },
   {
     Icon: Palette,
@@ -149,7 +149,7 @@ const HERO_SERVICE_CARDS = [
   {
     Icon: Sparkles,
     title: "Keratin tretmani",
-    text: "Glatkoca, sjaj i lakše održavanje tokom svakog dana.",
+    text: "Glatkoća, sjaj i lakše održavanje tokom svakog dana.",
   },
   {
     Icon: Droplets,
@@ -158,7 +158,7 @@ const HERO_SERVICE_CARDS = [
   },
   {
     Icon: Scissors,
-    title: "Svecane i dnevne frizure",
+    title: "Svečane i dnevne frizure",
     text: "Glam završnica i postojan oblik za svaku priliku.",
   },
   {
@@ -173,7 +173,7 @@ export default function HomePage() {
   const rawGalleryMedia = useQuery(api.gallery.list, {}) as GalleryMedia[] | undefined;
   const galleryMedia = rawGalleryMedia ?? EMPTY_MEDIA;
 
-  const { topCategories, featuredProducts, featuredCategorySliders, sidebarProducts } = snapshot;
+  const { featuredProducts, featuredCategorySliders, sidebarProducts } = snapshot;
 
   const galleryImages = useMemo(() => galleryMedia.filter((item) => item.kind === "image"), [galleryMedia]);
   const galleryVideos = useMemo(() => galleryMedia.filter((item) => item.kind === "video"), [galleryMedia]);
@@ -184,7 +184,7 @@ export default function HomePage() {
   const sliderSections = featuredCategorySliders.length > 0
     ? featuredCategorySliders
     : featuredProducts.length > 0
-      ? [{ categoryId: "featured-fallback", categoryName: "Preporuceni proizvodi", products: featuredProducts }]
+      ? [{ categoryId: "featured-fallback", categoryName: "Preporučeni proizvodi", products: featuredProducts }]
       : [];
   const heroFeatureCards = HERO_FEATURE_CARDS.slice(0, 2) as unknown as HeroFeatureCard[];
 
@@ -293,15 +293,16 @@ export default function HomePage() {
           </figure>
 
           <h1 id="home-hero-heading">
-            Lepota, zdravlje i transformacija kose na jednom mestu.
+            Lepota i potpuna transformacija kose na jednom mestu.
           </h1>
           <p className="xeno-hero-subtitle">
-            Iza studija Lady Gaga stoji dugogodišnja posvećenost lepoti, detaljima i
-            profesionalnoj nezi kose.
+            Iza studija stoji dugogodišnja posvećenost vrhunskoj nezi kose, preciznost u radu i pažnja prema svakom detalju. 
           </p>
           <p className="xeno-hero-subtitle xeno-hero-subtitle-secondary">
-            Specijalizovana sam za tretmane oštećene i blajhane kose, zahtevne
-            koloracije i glam stil frizura.
+            Specijalizovana sam za regeneraciju oštećene kose, zahtevne koloracije, kao i glamurozne  frizure koje ističu prirodnu lepotu i stil svake žene. 
+          </p>
+          <p className="xeno-hero-subtitle xeno-hero-subtitle-secondary">
+            U studiju Lady Gaga no.1 svaki klijent dobija  individualni pristup, profesionalne tretmane i rezultat koji spaja zdravu kosu i savršenu estetiku.
           </p>
         </div>
 
@@ -376,32 +377,20 @@ export default function HomePage() {
             <div className="xeno-story-copy">
               <div className="home-section-head">
                 <p className="home-kicker home-kicker-row">
-                  <Sparkles className="home-kicker-glyph" aria-hidden="true" />
-                  <span>Vizija studija</span>
+                  <Sparkles className="home-kicker-glyph" style={{ color: '#ca4d2a' }} aria-hidden="true" />
+                  <span style={{ color: '#ca4d2a' }}>Vizija studija</span>
                 </p>
-                <h2>Svaki detalj tretmana je planiran da rezultat izgleda luksuzno odmah i ostane zdrav dugorocno.</h2>
+                <h2>U Lady Gaga no 1 svaki tretman je pažljivo osmišljen da kosa odmah izgleda luksuzno,a njena lepota i zdravlje traje.</h2>
               </div>
 
               {founderStory.slice(2).map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>
               ))}
-
-              <div className="xeno-chip-row">
-                {topCategories.length > 0 ? (
-                  topCategories.map((category) => (
-                    <span key={category.categoryId} className="home-chip">
-                      {category.name} ({category.count})
-                    </span>
-                  ))
-                ) : (
-                  <span className="home-chip">Uskoro stize nova selekcija proizvoda.</span>
-                )}
-              </div>
             </div>
 
             <div className="xeno-story-media">
               <Image
-                src={galleryImages[1]?.url ?? studioGallery[1].src}
+                src="/slike/gaga/3.avif"
                 alt={galleryImages[1]?.originalName || studioGallery[1].alt}
                 width={900}
                 height={900}
@@ -422,9 +411,9 @@ export default function HomePage() {
 
             <div className="xeno-pillar-grid">
               {qualityPillars.map((pillar) => (
-                <article key={pillar.title} className="xeno-pillar-card" data-cosmic-tilt>
-                  <h3>{pillar.title}</h3>
-                  <p>{pillar.text}</p>
+                <article key={pillar.title} className="xeno-pillar-card" data-cosmic-tilt style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <h3 style={{ color: '#ca4d2a', minHeight: '25%', display: 'flex', alignItems: 'start' }}>{pillar.title}</h3>
+                  <p style={{ height: '75%', display: 'flex', justifyContent: 'start' }}>{pillar.text}</p>
                 </article>
               ))}
             </div>
@@ -449,7 +438,7 @@ export default function HomePage() {
             ) : featuredImages.length === 0 ? (
               <div className="empty-state xeno-empty">
                 <h3>Trenutno nema slika u galeriji.</h3>
-                <p>Nova inspiracija i sveze transformacije uskoro stizu.</p>
+                <p>Nova inspiracija i sveže transformacije uskoro stizu.</p>
               </div>
             ) : (
               <div className="xeno-gallery-grid">
@@ -536,9 +525,6 @@ export default function HomePage() {
             </div>
             <div className="xeno-treatment-grid xeno-treatment-grid-brutal">
               {milkShakeTreatments.map((treatment, i) => {
-                const compactDescription =
-                  treatment.description.length > 84 ? `${treatment.description.slice(0, 81).trim()}...` : treatment.description;
-
                 return (
                   <article
                     key={treatment.name}
@@ -552,7 +538,7 @@ export default function HomePage() {
                         </span>
                         <h3>{treatment.name}</h3>
                       </div>
-                      <p className="xeno-treatment-copy">{compactDescription}</p>
+                      <p className="xeno-treatment-copy">{treatment.description}</p>
                       <p className="xeno-treatment-badge xeno-treatment-badge-clean">
                         <Sparkles size={12} aria-hidden="true" />
                         <span>{treatment.benefit}</span>
@@ -572,7 +558,7 @@ export default function HomePage() {
                   <ShoppingBag className="home-kicker-glyph" aria-hidden="true" />
                   <span>Istaknute kategorije</span>
                 </p>
-                <h2>Istaknute kategorije koje klijentkinje najvise biraju za kucnu negu.</h2>
+                <h2>Istaknute kategorije koje klijentkinje najviše biraju za kućnu negu.</h2>
               </div>
               <Link href="/proizvodi" className="ghost-btn home-second-action">
                 Kompletna ponuda
@@ -598,7 +584,7 @@ export default function HomePage() {
               </p>
               <h2>Pošaljite inspiraciju, a mi vracamo jasan plan tretmana i preporuku proizvoda.</h2>
               <p>
-                Cilj je rezultat koji izgleda odlicno odmah, ali i ostaje stabilan tokom narednih nedelja.
+                Cilj je rezultat koji izgleda odlično odmah, ali i ostaje stabilan tokom narednih nedelja.
               </p>
             </div>
 
@@ -624,7 +610,7 @@ export default function HomePage() {
             </p>
 
             {sidebarDisplayProducts.length === 0 ? (
-              <p className="home-empty">Trenutno nema preporucenih proizvoda.</p>
+              <p className="home-empty">Trenutno nema preporučenih proizvoda.</p>
             ) : (
               <div className="xeno-sidebar-products-scroll">
                 {sidebarDisplayProducts.map((product) => (

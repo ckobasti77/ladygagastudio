@@ -79,7 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     email: "hello@ladygagastudio.rs",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Trg đačkog bataljona",
+      streetAddress: "Trg đačkog bataljona bb",
       addressLocality: "Šabac",
       addressCountry: "RS",
     },
@@ -95,7 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <html lang="sr-Latn">
+    <html lang="sr-Latn" data-theme="light">
       <body>
         <Providers>
           <div className="app-shell">

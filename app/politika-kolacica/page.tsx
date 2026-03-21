@@ -9,24 +9,24 @@ import {
 import { LEGAL_LAST_UPDATED } from "@/lib/legal-content";
 
 export const metadata: Metadata = {
-  title: "Politika kolacica | Studio Lady Gaga",
+  title: "Politika kolačića | Studio Lady Gaga",
   description: "Detalji o kolacicima i localStorage tehnologijama na sajtu Studio Lady Gaga.",
 };
 
 export default function CookiePolicyPage() {
   return (
     <LegalShell
-      eyebrow="Politika kolacica"
+      eyebrow="Politika kolačića"
       title="Kolacici, localStorage i consent preference"
-      lead="Ova politika opisuje koje tehnologije koristimo, zasto ih koristimo i kako ih mozete kontrolisati."
+      lead="Ova politika opisuje koje tehnologije koristimo, zasto ih koristimo i kako ih možete kontrolisati."
       lastUpdated={LEGAL_LAST_UPDATED}
-      activePath="/politika-kolacica"
+      activePath="/politika-kolačića"
     >
       <section className="legal-doc-section">
-        <h2>1. Sta su kolacici</h2>
+        <h2>1. Šta su kolacici</h2>
         <p>
           Kolacici su mali tekstualni zapisi koje browser cuva radi pravilnog rada sajta, pamcenja preferenci i
-          eventualne analitike. Pored klasicnih kolacica, koristimo i localStorage za funkcije koje zahtevaju brzu
+          eventualne analitike. Pored klasicnih kolačića, koristimo i localStorage za funkcije koje zahtevaju brzu
           lokalnu memoriju.
         </p>
       </section>
@@ -38,7 +38,7 @@ export default function CookiePolicyPage() {
             <tr>
               <th>Kategorija</th>
               <th>Svrha</th>
-              <th>Moze se iskljuciti</th>
+              <th>Može se iskljuciti</th>
             </tr>
           </thead>
           <tbody>
@@ -101,7 +101,7 @@ export default function CookiePolicyPage() {
               <td>studio_lady_gaga_cart_v1</td>
               <td>localStorage</td>
               <td>Do praznjenja ili brisanja</td>
-              <td>Pamti proizvode u korpi izmedju poseta.</td>
+              <td>Pamti proizvode u korpi između poseta.</td>
             </tr>
           </tbody>
         </table>
@@ -110,25 +110,25 @@ export default function CookiePolicyPage() {
       <section className="legal-doc-section">
         <h2>4. Upravljanje preferencama</h2>
         <p>
-          U bilo kom trenutku mozete promeniti odluku za opcione kategorije. Izbor se primenjuje odmah na naredne
+          U bilo kom trenutku možete promeniti odluku za opcione kategorije. Izbor se primenjuje odmah na naredne
           interakcije na sajtu.
         </p>
         <div className="legal-inline-actions">
-          <OpenCookieSettingsButton className="primary-btn">Otvori podesavanja kolacica</OpenCookieSettingsButton>
+          <OpenCookieSettingsButton className="primary-btn">Otvori podešavanja kolačića</OpenCookieSettingsButton>
         </div>
       </section>
 
       <section className="legal-doc-section">
-        <h2>5. Brisanje kolacica u browseru</h2>
+        <h2>5. Brisanje kolačića u browseru</h2>
         <p>
-          Mozete rucno obrisati kolacice i localStorage kroz podesavanja browsera. Nakon brisanja, consent banner ce
+          Možete rucno obrisati kolacice i localStorage kroz podešavanja browsera. Nakon brisanja, consent banner ce
           biti ponovo prikazan pri sledecoj poseti.
         </p>
       </section>
 
       <section className="legal-link-strip" aria-label="Povezani dokumenti">
         <Link href="/politika-privatnosti">Politika privatnosti</Link>
-        <Link href="/pravila-koriscenja">Pravila koriscenja</Link>
+        <Link href="/pravila-korišćenja">Pravila korišćenja</Link>
         <Link href="/pravno">Pravni centar</Link>
       </section>
     </LegalShell>

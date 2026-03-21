@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
@@ -11,21 +11,32 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const initialTheme: Theme =
-  typeof window !== "undefined" && localStorage.getItem("theme") === "dark" ? "dark" : "light";
+const THEME_STORAGE_KEY = "theme";
 
-if (typeof document !== "undefined") {
-  document.documentElement.dataset.theme = initialTheme;
+function applyThemeToDocument(theme: Theme) {
+  document.documentElement.dataset.theme = theme;
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(initialTheme);
+  const [theme, setTheme] = useState<Theme>("light");
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate persisted theme after mount
+    setTheme(storedTheme);
+    applyThemeToDocument(storedTheme);
+  }, []);
+
+  useEffect(() => {
+    applyThemeToDocument(theme);
+  }, [theme]);
 
   const toggleTheme = () => {
-    const nextTheme = theme === "light" ? "dark" : "light";
-    setTheme(nextTheme);
-    localStorage.setItem("theme", nextTheme);
-    document.documentElement.dataset.theme = nextTheme;
+    setTheme((currentTheme) => {
+      const nextTheme = currentTheme === "light" ? "dark" : "light";
+      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      return nextTheme;
+    });
   };
 
   const value = { theme, toggleTheme };

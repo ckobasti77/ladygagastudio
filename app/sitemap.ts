@@ -16,8 +16,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteUrl}/placanje`, lastModified: now, changeFrequency: "daily", priority: 0.5 },
     { url: `${siteUrl}/prijava`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
     { url: `${siteUrl}/pravno`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${siteUrl}/pravila-koriscenja`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${siteUrl}/pravila-korišćenja`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: `${siteUrl}/politika-privatnosti`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
-    { url: `${siteUrl}/politika-kolacica`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${siteUrl}/politika-kolačića`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 }

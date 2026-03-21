@@ -3,6 +3,8 @@
 import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Eye, EyeOff, KeyRound, ShieldAlert, Sparkles } from "lucide-react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/contexts/auth-context";
 import { requestPasswordResetEmail, resetPassword } from "./actions";
 
@@ -17,6 +19,7 @@ function resolveErrorMessage(error: unknown) {
 
 function AuthPageContent() {
   const { loginUser, registerUser } = useAuth();
+  const subscribeToMarketing = useMutation(api.users.subscribeToMarketing);
   const router = useRouter();
   const searchParams = useSearchParams();
   const resetToken = searchParams.get("reset")?.trim() ?? "";
@@ -30,6 +33,7 @@ function AuthPageContent() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [marketingAccepted, setMarketingAccepted] = useState(false);
   const [authStatus, setAuthStatus] = useState<{ type: "idle" | "error" | "success"; message: string }>({
     type: "idle",
     message: "",
@@ -84,6 +88,9 @@ function AuthPageContent() {
       }
 
       await registerUser(firstName, lastName, email, password);
+      if (marketingAccepted) {
+        await subscribeToMarketing({ email, firstName, lastName, source: "registration" });
+      }
       setAuthStatus({ type: "success", message: "Registracija uspesna. Prijavljeni ste." });
       router.push("/");
     } catch (error: unknown) {
@@ -227,6 +234,18 @@ function AuthPageContent() {
                   />
                 </div>
 
+                {mode === "signup" ? (
+                  <label className="legal-consent-checkbox" htmlFor="register-marketing-consent">
+                    <input
+                      id="register-marketing-consent"
+                      type="checkbox"
+                      checked={marketingAccepted}
+                      onChange={(event) => setMarketingAccepted(event.target.checked)}
+                    />
+                    <span>Želim da primam promo ponude i novosti studija email-om.</span>
+                  </label>
+                ) : null}
+
                 {authStatus.type !== "idle" ? (
                   <p className={authStatus.type === "error" ? "error-text" : "success-text"}>{authStatus.message}</p>
                 ) : null}
@@ -267,7 +286,7 @@ function AuthPageContent() {
                   ) : null}
                   <button type="submit" className="auth-luxe-submit" disabled={forgotBusy}>
                     <span className="auth-luxe-submit-shine" aria-hidden="true" />
-                    {forgotBusy ? "Slanje..." : "Posalji link za reset"}
+                    {forgotBusy ? "Slanje..." : "Pošalji link za reset"}
                   </button>
                 </form>
               ) : null}

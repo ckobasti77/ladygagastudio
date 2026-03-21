@@ -12,7 +12,7 @@ import {
 } from "@/lib/studio-content";
 
 const studioHighlights = [
-  { label: "Godina iskustva", value: "12+" },
+  { label: "Zadovoljnih klijentkinja", value: "500+" },
   { label: "Specijalizacija", value: "Blajhana i oštećena kosa" },
   { label: "Rezultat", value: "Lep + zdrav + dugotrajan" },
 ] as const;
@@ -43,8 +43,8 @@ export default function AboutPage() {
           <div className="about-highlights">
             {studioHighlights.map((item) => (
               <div key={item.label} className="about-highlight-card">
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
+                <span className="about-highlight-label">{item.label}</span>
+                <strong className="about-highlight-value">{item.value}</strong>
               </div>
             ))}
           </div>

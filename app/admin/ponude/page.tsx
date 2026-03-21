@@ -21,14 +21,14 @@ const OFFER_TEMPLATES: OfferTemplate[] = [
     name: "Blonde Refresh",
     subject: "Blonde refresh termin + mini plan nege",
     message:
-      "Rezervisite svoj blonde refresh termin i dobijte mini plan nege za kucno odrzavanje sjaja i zdravlja vlasi. Broj mesta je ogranicen, odgovorite na ovaj email za prioritetan termin.",
+      "Rezervisite svoj blonde refresh termin i dobijte mini plan nege za kucno održavanje sjaja i zdravlja vlasi. Broj mesta je ogranicen, odgovorite na ovaj email za prioritetan termin.",
   },
   {
     id: "keratin-week",
     name: "Keratin Week",
     subject: "Keratin Week: smooth finish + savet strucnjaka",
     message:
-      "Keratin Week je aktivan. Zakazite tretman za glatkocu, disciplinu i sjaj bez tezine. Uz tretman dobijate preporuku proizvoda koji cuva rezultat i nakon salona.",
+      "Keratin Week je aktivan. Zakažite tretman za glatkocu, disciplinu i sjaj bez tezine. Uz tretman dobijate preporuku proizvoda koji cuva rezultat i nakon salona.",
   },
   {
     id: "vip-reactivation",
@@ -106,7 +106,7 @@ export default function AdminOffersPage() {
           <p className="eyebrow">Mejl kampanje</p>
           <h1>Kampanje koje vracaju klijentkinje u salon</h1>
           <p className="subtitle">
-            Kreirajte ponudu, izaberite ton komunikacije i posaljite kampanju svim registrovanim korisnicima.
+            Kreirajte ponudu, izaberite ton komunikacije i pošaljite kampanju svim registrovanim korisnicima.
           </p>
         </div>
         <div className="admin-hero-actions">
@@ -168,7 +168,7 @@ export default function AdminOffersPage() {
         </div>
         <div className="modal-actions">
           <button type="submit" className="primary-btn" disabled={state === "sending"}>
-            {state === "sending" ? "Slanje..." : "Posalji ponudu"}
+            {state === "sending" ? "Slanje..." : "Pošalji ponudu"}
           </button>
         </div>
       </form>

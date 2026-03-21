@@ -3,7 +3,7 @@ export const LEGAL_LAST_UPDATED = "17. februar 2026.";
 export const LEGAL_ENTITY = {
   brandName: "Studio Lady Gaga",
   legalName: "Studio Lady Gaga",
-  address: "Trg đačkog bataljona, Šabac, Srbija",
+  address: "Trg đačkog bataljona bb, Šabac, Srbija",
   email: "hello@ladygagastudio.rs",
   privacyEmail: "hello@ladygagastudio.rs",
   phone: "+381643877555",
@@ -17,18 +17,18 @@ export const LEGAL_NAV_LINKS = [
     description: "Pregled svih pravnih dokumenata i opcija privatnosti.",
   },
   {
-    href: "/pravila-koriscenja",
-    label: "Pravila koriscenja",
+    href: "/pravila-korišćenja",
+    label: "Pravila korišćenja",
     description: "Uslovi upotrebe sajta, kupovine i korisnickih obaveza.",
   },
   {
     href: "/politika-privatnosti",
     label: "Politika privatnosti",
-    description: "Koje podatke obradjujemo, zasto i koliko dugo.",
+    description: "Koje podatke obrađujemo, zasto i koliko dugo.",
   },
   {
-    href: "/politika-kolacica",
-    label: "Politika kolacica",
-    description: "Kategorije kolacica, localStorage i upravljanje preferencama.",
+    href: "/politika-kolačića",
+    label: "Politika kolačića",
+    description: "Kategorije kolačića, localStorage i upravljanje preferencama.",
   },
 ] as const;

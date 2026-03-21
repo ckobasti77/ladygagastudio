@@ -65,7 +65,7 @@ Next.js Server Actions live in `app/**/actions.ts` files (e.g., `app/prijava/act
 - `/prijava` — login/register
 - `/admin` — admin dashboard (product/category/image management)
 - `/admin/ponude` — order management
-- Legal pages: `/politika-privatnosti`, `/politika-kolacica`, `/pravila-koriscenja`, `/pravno`
+- Legal pages: `/politika-privatnosti`, `/politika-kolačića`, `/pravila-korišćenja`, `/pravno`
 
 ### Image Handling
 

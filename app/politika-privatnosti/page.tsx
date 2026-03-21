@@ -9,20 +9,20 @@ export const metadata: Metadata = {
 };
 
 const RIGHTS = [
-  "Pravo na pristup podacima koje obradjujemo.",
+  "Pravo na pristup podacima koje obrađujemo.",
   "Pravo na ispravku netacnih ili nepotpunih podataka.",
   "Pravo na brisanje podataka kada vise ne postoji zakonit osnov obrade.",
-  "Pravo na ogranicenje obrade u slucajevima predvidjenim zakonom.",
+  "Pravo na ogranicenje obrade u slucajevima predviđenim zakonom.",
   "Pravo na prigovor na obradu zasnovanu na legitimnom interesu.",
-  "Pravo na prenosivost podataka kada je obradjivanje automatizovano i zasnovano na saglasnosti ili ugovoru.",
+  "Pravo na prenosivost podataka kada je obrađivanje automatizovano i zasnovano na saglasnosti ili ugovoru.",
 ] as const;
 
 export default function PrivacyPolicyPage() {
   return (
     <LegalShell
       eyebrow="Politika privatnosti"
-      title="Kako obradjujemo i cuvamo vase licne podatke"
-      lead="Ova politika objasnjava koje podatke prikupljamo, zasto ih koristimo i kako mozete ostvariti svoja prava."
+      title="Kako obrađujemo i cuvamo vase licne podatke"
+      lead="Ova politika objasnjava koje podatke prikupljamo, zasto ih koristimo i kako možete ostvariti svoja prava."
       lastUpdated={LEGAL_LAST_UPDATED}
       activePath="/politika-privatnosti"
     >
@@ -62,7 +62,7 @@ export default function PrivacyPolicyPage() {
           </thead>
           <tbody>
             <tr>
-              <td>Obrada porudzbine</td>
+              <td>Obrada porudžbine</td>
               <td>Kontakt i adresa dostave</td>
               <td>Izvrsenje ugovora</td>
             </tr>
@@ -88,7 +88,7 @@ export default function PrivacyPolicyPage() {
       <section className="legal-doc-section">
         <h2>4. Rokovi cuvanja podataka</h2>
         <ul className="legal-list">
-          <li>Podaci porudzbina cuvaju se onoliko koliko je potrebno radi evidencije i zakonskih obaveza.</li>
+          <li>Podaci porudžbina cuvaju se onoliko koliko je potrebno radi evidencije i zakonskih obaveza.</li>
           <li>Podaci iz kontakt forme cuvaju se dok postoji potreba za obradom upita ili poslovnom komunikacijom.</li>
           <li>Cookie consent i lokalne preference cuvaju se do 12 meseci ili do brisanja od strane korisnika.</li>
         </ul>
@@ -111,7 +111,7 @@ export default function PrivacyPolicyPage() {
           ))}
         </ul>
         <p>
-          Zahtev mozete poslati na <a href={`mailto:${LEGAL_ENTITY.privacyEmail}`}>{LEGAL_ENTITY.privacyEmail}</a>. Na
+          Zahtev možete poslati na <a href={`mailto:${LEGAL_ENTITY.privacyEmail}`}>{LEGAL_ENTITY.privacyEmail}</a>. Na
           vecinu zahteva odgovaramo u roku od 30 dana.
         </p>
       </section>
@@ -127,14 +127,14 @@ export default function PrivacyPolicyPage() {
       <section className="legal-doc-section">
         <h2>8. Izmene ove politike</h2>
         <p>
-          Politiku privatnosti mozemo povremeno menjati radi uskladjivanja sa zakonima ili tehnickim izmenama sajta.
+          Politiku privatnosti možemo povremeno menjati radi usklađivanja sa zakonima ili tehnickim izmenama sajta.
           Nova verzija stupa na snagu datumom objave na ovoj stranici.
         </p>
       </section>
 
       <section className="legal-link-strip" aria-label="Povezani dokumenti">
-        <Link href="/pravila-koriscenja">Pravila koriscenja</Link>
-        <Link href="/politika-kolacica">Politika kolacica</Link>
+        <Link href="/pravila-korišćenja">Pravila korišćenja</Link>
+        <Link href="/politika-kolačića">Politika kolačića</Link>
         <Link href="/pravno">Pravni centar</Link>
       </section>
     </LegalShell>

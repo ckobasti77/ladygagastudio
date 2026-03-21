@@ -130,10 +130,10 @@ export function CookieConsentManager() {
   }, [savedConsent, showPreferences]);
 
   const consentStatus = useMemo(() => {
-    if (!savedConsent) return "Izbor kolacica jos nije sacuvan.";
-    if (savedConsent.analytics && savedConsent.marketing) return "Aktivne su sve kategorije kolacica.";
+    if (!savedConsent) return "Izbor kolačića jos nije sacuvan.";
+    if (savedConsent.analytics && savedConsent.marketing) return "Aktivne su sve kategorije kolačića.";
     if (!savedConsent.analytics && !savedConsent.marketing) return "Aktivni su samo neophodni kolacici.";
-    return "Primenjene su prilagodjene preference kolacica.";
+    return "Primenjene su prilagođene preference kolačića.";
   }, [savedConsent]);
 
   const consentModeLabel = useMemo(() => {
@@ -192,7 +192,7 @@ export function CookieConsentManager() {
               Kolacici i privatnost
             </h2>
             <p>
-              Koristimo neophodne kolacice i lokalno skladistenje da bi sajt radio stabilno. Opcione kategorije mozete
+              Koristimo neophodne kolacice i lokalno skladistenje da bi sajt radio stabilno. Opcione kategorije možete
               prihvatiti ili odbiti odmah.
             </p>
             <p className="cookie-starport-status">
@@ -200,9 +200,9 @@ export function CookieConsentManager() {
               <strong>{consentModeLabel}</strong>
             </p>
             <div className="cookie-starport-links">
-              <Link href="/politika-kolacica">Politika kolacica</Link>
+              <Link href="/politika-kolačića">Politika kolačića</Link>
               <Link href="/politika-privatnosti">Politika privatnosti</Link>
-              <Link href="/pravila-koriscenja">Pravila koriscenja</Link>
+              <Link href="/pravila-korišćenja">Pravila korišćenja</Link>
             </div>
 
             <div className="cookie-preset-grid" aria-label="Brzi consent modovi">
@@ -241,7 +241,7 @@ export function CookieConsentManager() {
               Samo neophodni
             </button>
             <button type="button" className="ghost-btn" onClick={openPreferencesPanel}>
-              Podesavanja
+              Podešavanja
             </button>
             <button type="button" className="primary-btn" onClick={() => applyConsent(draft)}>
               Sacuvaj mod
@@ -275,7 +275,7 @@ export function CookieConsentManager() {
 
             <p className="cookie-lab-lead">
               Neophodni kolacici su obavezni za prijavu, korpu i stabilnost sajta. Ostale kategorije su opcione i
-              mozete ih menjati u bilo kom trenutku.
+              možete ih menjati u bilo kom trenutku.
             </p>
 
             <div className="cookie-preset-grid modal" aria-label="Brzi izbor profila">

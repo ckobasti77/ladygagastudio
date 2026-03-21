@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useMemo, useState } from "react";
@@ -40,6 +41,7 @@ type AdminOrder = {
     discount: number;
     finalUnitPrice: number;
     lineTotal: number;
+    imageUrl: string | null;
   }>;
 };
 
@@ -279,7 +281,7 @@ export default function AdminOrdersLedgerPage() {
       await setOrderStatus({ orderId: order._id, status: nextStatus });
       setFeedback({
         type: "success",
-        message: `Narudzbina ${order.orderNumber} je sada u statusu: ${statusLabel(nextStatus)}.`,
+        message: `Narudžbina ${order.orderNumber} je sada u statusu: ${statusLabel(nextStatus)}.`,
       });
     } catch (error: unknown) {
       const message = error instanceof Error && error.message ? error.message : "Promena statusa nije uspela.";
@@ -294,7 +296,7 @@ export default function AdminOrdersLedgerPage() {
       <section className={`page-grid admin-page ${styles.ordersPage}`}>
         <section className="empty-state">
           <h3>Morate biti prijavljeni kao admin.</h3>
-          <p>Prijavite se pa otvorite evidenciju narudzbina.</p>
+          <p>Prijavite se pa otvorite evidenciju narudžbina.</p>
           <button type="button" className="primary-btn" onClick={() => router.push("/prijava")}>
             Idi na prijavu
           </button>
@@ -311,11 +313,11 @@ export default function AdminOrdersLedgerPage() {
     <section className={`page-grid admin-page ${styles.ordersPage}`}>
       <section className={`hero admin-hero ${styles.hero}`}>
         <div>
-          <p className="eyebrow">Evidencija narudzbina</p>
-          <h1>Kontrolna tabla za porudzbine bez konfuzije</h1>
+          <p className="eyebrow">Evidencija narudžbina</p>
+          <h1>Kontrolna tabla za porudžbine bez konfuzije</h1>
           <p className="subtitle">
             Jedan ekran za kompletan pregled kupaca, iznosa i statusa. Pretraga, filteri i akcije su optimizovani da
-            admin moze da radi brzo i bez gresaka.
+            admin može da radi brzo i bez gresaka.
           </p>
         </div>
         <div className={`admin-hero-actions ${styles.heroActions}`}>
@@ -334,7 +336,7 @@ export default function AdminOrdersLedgerPage() {
 
       <section className={styles.kpiGrid}>
         <article className={styles.kpiCard}>
-          <span>Ukupno porudzbina</span>
+          <span>Ukupno porudžbina</span>
           <strong>{summary.totalOrders}</strong>
         </article>
         <article className={styles.kpiCard}>
@@ -354,7 +356,7 @@ export default function AdminOrdersLedgerPage() {
           <strong>{formatRsd(summary.totalRevenue)}</strong>
         </article>
         <article className={styles.kpiCard}>
-          <span>Prosek porudzbine</span>
+          <span>Prosek porudžbine</span>
           <strong>{formatRsd(summary.averageOrderAmount)}</strong>
         </article>
       </section>
@@ -363,11 +365,11 @@ export default function AdminOrdersLedgerPage() {
         <div className={styles.filterHead}>
           <div>
             <h2>Filteri i pretraga</h2>
-            <p>Prikazano {filteredOrders.length} / {orders.length} narudzbina.</p>
+            <p>Prikazano {filteredOrders.length} / {orders.length} narudžbina.</p>
           </div>
           <div className={styles.filterMeta}>
             <span>Aktivnih filtera: {filtersApplied}</span>
-            <span>Danas porudzbina: {summary.todayCount}</span>
+            <span>Danas porudžbina: {summary.todayCount}</span>
             <span>Ukupno stavki: {summary.totalItems}</span>
           </div>
         </div>
@@ -409,7 +411,7 @@ export default function AdminOrdersLedgerPage() {
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Broj narudzbine, ime, telefon, email, adresa, proizvod..."
+              placeholder="Broj narudžbine, ime, telefon, email, adresa, proizvod..."
             />
           </label>
 
@@ -482,7 +484,7 @@ export default function AdminOrdersLedgerPage() {
         <div className={styles.filterFooter}>
           <label className={styles.noteCheck}>
             <input type="checkbox" checked={noteOnly} onChange={(event) => setNoteOnly(event.target.checked)} />
-            Samo narudzbine sa napomenom kupca
+            Samo narudžbine sa napomenom kupca
           </label>
           <label className={styles.rowsPerPage}>
             Redova po strani
@@ -499,12 +501,12 @@ export default function AdminOrdersLedgerPage() {
 
       {loading ? (
         <section className={`toolbar-card ${styles.emptyState}`}>
-          <h3>Ucitavanje evidencije narudzbina...</h3>
+          <h3>Ucitavanje evidencije narudžbina...</h3>
           <p>Sistem priprema tabelu i filtere.</p>
         </section>
       ) : filteredOrders.length === 0 ? (
         <section className={`toolbar-card ${styles.emptyState}`}>
-          <h3>Nema narudzbina za izabrane filtere.</h3>
+          <h3>Nema narudžbina za izabrane filtere.</h3>
           <p>Promenite filtere ili resetujte prikaz da biste videli rezultate.</p>
         </section>
       ) : (
@@ -512,7 +514,7 @@ export default function AdminOrdersLedgerPage() {
           <div className={styles.tableInfo}>
             <p>
               Prikaz <strong>{pageStart + 1}</strong> - <strong>{Math.min(pageStart + rowsPerPage, filteredOrders.length)}</strong> od{" "}
-              <strong>{filteredOrders.length}</strong> narudzbina
+              <strong>{filteredOrders.length}</strong> narudžbina
             </p>
           </div>
 
@@ -520,7 +522,7 @@ export default function AdminOrdersLedgerPage() {
             <table className={styles.ordersTable}>
               <thead>
                 <tr>
-                  <th>Narudzbina</th>
+                  <th>Narudžbina</th>
                   <th>Kupac</th>
                   <th>Adresa</th>
                   <th>Stavke</th>
@@ -539,19 +541,22 @@ export default function AdminOrdersLedgerPage() {
                     <Fragment key={order._id}>
                       <tr className={styles.orderRow}>
                         <td>
+                          <span className={styles.mobileLabel}>Narudžbina</span>
                           <div className={styles.orderCellMain}>
                             <strong>{order.orderNumber}</strong>
                             <span>{formatDateTime(order.createdAt)}</span>
                           </div>
                         </td>
                         <td>
+                          <span className={styles.mobileLabel}>Kupac</span>
                           <div className={styles.customerCell}>
                             <strong>{fullName}</strong>
                             <a href={`tel:${order.customer.phone}`}>{order.customer.phone}</a>
-                            {order.customer.email ? <a href={`mailto:${order.customer.email}`}>{order.customer.email}</a> : <span>-</span>}
+                            {order.customer.email ? <a href={`mailto:${order.customer.email}`}>{order.customer.email}</a> : null}
                           </div>
                         </td>
                         <td>
+                          <span className={styles.mobileLabel}>Adresa</span>
                           <div className={styles.addressCell}>
                             <strong>{order.customer.city}</strong>
                             <span>
@@ -561,25 +566,48 @@ export default function AdminOrdersLedgerPage() {
                           </div>
                         </td>
                         <td>
+                          <span className={styles.mobileLabel}>Stavke</span>
                           <div className={styles.itemsCell}>
-                            <strong>{order.totals.totalItems} kom.</strong>
-                            <span>{order.items.slice(0, 2).map((item) => item.title).join(", ") || "Nema stavki"}</span>
+                            <div className={styles.itemThumbs}>
+                              {order.items.slice(0, 3).map((item, idx) =>
+                                item.imageUrl ? (
+                                  <Image
+                                    key={`${order._id}-thumb-${idx}`}
+                                    src={item.imageUrl}
+                                    alt={item.title}
+                                    width={40}
+                                    height={40}
+                                    className={styles.itemThumb}
+                                  />
+                                ) : (
+                                  <span key={`${order._id}-thumb-${idx}`} className={styles.itemThumbPlaceholder}>
+                                    {item.title.charAt(0)}
+                                  </span>
+                                ),
+                              )}
+                              {order.items.length > 3 ? (
+                                <span className={styles.itemThumbMore}>+{order.items.length - 3}</span>
+                              ) : null}
+                            </div>
+                            <span>{order.totals.totalItems} kom. — {order.items.slice(0, 2).map((item) => item.title).join(", ") || "Nema stavki"}</span>
                           </div>
                         </td>
                         <td>
+                          <span className={styles.mobileLabel}>Iznos</span>
                           <div className={styles.amountCell}>
                             <strong>{formatRsd(order.totals.totalAmount)}</strong>
-                            <span>{order.items.length} stavki u porudzbini</span>
+                            <span>{order.items.length} stavki</span>
                           </div>
                         </td>
                         <td>
+                          <span className={styles.mobileLabel}>Status</span>
                           <div className={styles.statusCell}>
                             <span className={`${styles.statusPill} ${statusClassByValue[order.status]}`}>{statusLabel(order.status)}</span>
                             <select
                               value={order.status}
                               onChange={(event) => void updateStatus(order, event.target.value as OrderStatus)}
                               disabled={isBusy}
-                              aria-label={`Status narudzbine ${order.orderNumber}`}
+                              aria-label={`Status narudžbine ${order.orderNumber}`}
                             >
                               <option value="pending">Novo</option>
                               <option value="processed">U obradi</option>
@@ -593,7 +621,7 @@ export default function AdminOrdersLedgerPage() {
                             className={`ghost-btn ${styles.detailButton} ${isExpanded ? styles.detailButtonActive : ""}`}
                             onClick={() => toggleRow(order._id)}
                           >
-                            {isExpanded ? "Sakrij" : "Detalji"}
+                            {isExpanded ? "Sakrij detalje" : "Pogledaj detalje"}
                           </button>
                         </td>
                       </tr>
@@ -615,10 +643,23 @@ export default function AdminOrdersLedgerPage() {
                               </article>
 
                               <article className={styles.detailCard}>
-                                <h4>Stavke narudzbine</h4>
+                                <h4>Stavke narudžbine</h4>
                                 <ul className={styles.itemList}>
                                   {order.items.map((item, index) => (
                                     <li key={`${order._id}-${item.productId}-${index}`}>
+                                      {item.imageUrl ? (
+                                        <Image
+                                          src={item.imageUrl}
+                                          alt={item.title}
+                                          width={50}
+                                          height={50}
+                                          className={styles.detailItemThumb}
+                                        />
+                                      ) : (
+                                        <span className={styles.detailItemThumbPlaceholder}>
+                                          {item.title.charAt(0)}
+                                        </span>
+                                      )}
                                       <div>
                                         <strong>{item.title}</strong>
                                         <span>
@@ -626,7 +667,7 @@ export default function AdminOrdersLedgerPage() {
                                           {item.discount > 0 ? ` (popust ${item.discount}%)` : ""}
                                         </span>
                                       </div>
-                                      <strong>{formatRsd(item.lineTotal)}</strong>
+                                      <strong className={styles.detailItemTotal}>{formatRsd(item.lineTotal)}</strong>
                                     </li>
                                   ))}
                                 </ul>

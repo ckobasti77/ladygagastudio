@@ -10,7 +10,7 @@ import { ProductCardImageSlider } from "@/components/product-card-image-slider";
 import { useAuth } from "@/contexts/auth-context";
 import { useCart } from "@/contexts/cart-context";
 import { useLanguage } from "@/contexts/language-context";
-import { Search, SlidersHorizontal, ShoppingBag, Star, Sparkles } from "lucide-react";
+import { Search, SlidersHorizontal, ShoppingBag, Star, Sparkles, Check } from "lucide-react";
 
 type Category = { _id: string; name: string };
 type StorageImage = { storageId: string; url: string };
@@ -138,6 +138,8 @@ export default function ProductsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [recommendedBusyProductId, setRecommendedBusyProductId] = useState<string | null>(null);
   const [isManagingCategory, setIsManagingCategory] = useState(false);
+  const [addedProductId, setAddedProductId] = useState<string | null>(null);
+  const addedTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const [isGlobalFileDrag, setIsGlobalFileDrag] = useState(false);
   const dragDepthRef = useRef(0);
   const uploadFromDropRef = useRef<(files: FileList | null) => void>(() => {});
@@ -147,6 +149,10 @@ export default function ProductsPage() {
     const timer = window.setTimeout(() => setFeedback(null), 4200);
     return () => window.clearTimeout(timer);
   }, [feedback]);
+
+  useEffect(() => {
+    return () => { if (addedTimerRef.current) clearTimeout(addedTimerRef.current); };
+  }, []);
 
   useEffect(() => {
     if (!categoryEditId || !categoryEditInputRef.current) return;
@@ -473,15 +479,25 @@ export default function ProductsPage() {
 
   const onSaveProduct = async (event: FormEvent) => {
     event.preventDefault();
-    const price = Number(form.price);
-    const stock = Number(form.stock || 0);
+    const priceInput = form.price.trim();
+    const stockInput = form.stock.trim();
+    const price = Number(priceInput);
+    const stock = Number(stockInput);
     const discount = Number(form.discount || 0);
-    if (!Number.isFinite(price) || price < 0) {
-      setFeedback({ type: "error", message: "Cena mora biti validan broj veći ili jednak nuli." });
+    if (priceInput.length === 0) {
+      setFeedback({ type: "error", message: "Unesite cenu proizvoda." });
       return;
     }
-    if (!Number.isFinite(stock) || stock < 0) {
-      setFeedback({ type: "error", message: "Stanje mora biti validan broj veći ili jednak nuli." });
+    if (!Number.isFinite(price) || price < 0 || !Number.isInteger(price)) {
+      setFeedback({ type: "error", message: "Cena mora biti ceo broj veci ili jednak nuli." });
+      return;
+    }
+    if (stockInput.length === 0) {
+      setFeedback({ type: "error", message: "Unesite stanje proizvoda." });
+      return;
+    }
+    if (!Number.isFinite(stock) || stock < 0 || !Number.isInteger(stock)) {
+      setFeedback({ type: "error", message: "Stanje mora biti ceo broj veci ili jednak nuli." });
       return;
     }
     if (!Number.isFinite(discount) || discount < 0 || discount > 100) {
@@ -623,6 +639,10 @@ export default function ProductsPage() {
       stock: product.stock,
     });
     setFeedback({ type: "success", message: `"${product.title}" je dodat u korpu.` });
+
+    if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+    setAddedProductId(product._id);
+    addedTimerRef.current = setTimeout(() => setAddedProductId(null), 2000);
   };
 
   return (
@@ -860,16 +880,16 @@ export default function ProductsPage() {
                 {/* Actions */}
                 <div className="boutique-card-actions">
                   <button
-                    className="boutique-add-btn"
+                    className={`boutique-add-btn${addedProductId === product._id ? " added" : ""}`}
                     onClick={(event) => {
                       event.stopPropagation();
                       onAddToCart(product);
                     }}
                     type="button"
-                    disabled={product.stock <= 0}
+                    disabled={product.stock <= 0 || addedProductId === product._id}
                   >
-                    <ShoppingBag size={16} />
-                    <span>{stockMeta.buttonLabel}</span>
+                    {addedProductId === product._id ? <Check size={16} /> : <ShoppingBag size={16} />}
+                    <span>{addedProductId === product._id ? "Dodato" : stockMeta.buttonLabel}</span>
                   </button>
 
                   {session?.isAdmin ? (
@@ -947,14 +967,18 @@ export default function ProductsPage() {
               <input
                 type="number"
                 min={0}
-                placeholder="Cena"
+                step={1}
+                placeholder="Unesi cenu (rsd)"
+                aria-label="Cena proizvoda u dinarima"
                 value={form.price}
                 onChange={(event) => setForm((value) => ({ ...value, price: event.target.value }))}
               />
               <input
                 type="number"
                 min={0}
-                placeholder="Stanje"
+                step={1}
+                placeholder="Unesi stanje (kom)"
+                aria-label="Stanje proizvoda na lageru"
                 value={form.stock}
                 onChange={(event) => setForm((value) => ({ ...value, stock: event.target.value }))}
               />
@@ -1212,4 +1236,5 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
     </div>
   );
 }
+
 

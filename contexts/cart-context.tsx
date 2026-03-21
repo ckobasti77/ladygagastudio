@@ -38,10 +38,21 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+function normalizeMoney(value: number) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.round(value));
+}
+
+function normalizeDiscount(value: number | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
 function resolveFinalUnitPrice(unitPrice: number, discount: number | undefined) {
-  const discountValue = discount ?? 0;
-  if (discountValue <= 0) return unitPrice;
-  return Math.max(0, Math.round(unitPrice * (1 - discountValue / 100)));
+  const safeUnitPrice = normalizeMoney(unitPrice);
+  const discountValue = normalizeDiscount(discount);
+  if (discountValue <= 0) return safeUnitPrice;
+  return Math.max(0, Math.round(safeUnitPrice * (1 - discountValue / 100)));
 }
 
 function readInitialCart(): CartItem[] {
@@ -52,17 +63,27 @@ function readInitialCart(): CartItem[] {
     const parsed = JSON.parse(raw) as CartItem[];
     if (!Array.isArray(parsed)) return [];
     return parsed
-      .map((item) => ({
-        productId: String(item.productId),
-        title: String(item.title),
-        subtitle: String(item.subtitle ?? ""),
-        image: String(item.image ?? "/logo.png"),
-        unitPrice: Number(item.unitPrice ?? 0),
-        discount: Number(item.discount ?? 0),
-        finalUnitPrice: Number(item.finalUnitPrice ?? 0),
-        quantity: Math.max(1, Math.floor(Number(item.quantity ?? 1))),
-        stock: Math.max(0, Math.floor(Number(item.stock ?? 0))),
-      }))
+      .map((item) => {
+        const unitPrice = normalizeMoney(Number(item.unitPrice ?? 0));
+        const discount = normalizeDiscount(Number(item.discount ?? 0));
+        const storedFinalPrice = Number(item.finalUnitPrice ?? 0);
+        const finalUnitPrice =
+          Number.isFinite(storedFinalPrice) && storedFinalPrice >= 0
+            ? normalizeMoney(storedFinalPrice)
+            : resolveFinalUnitPrice(unitPrice, discount);
+
+        return {
+          productId: String(item.productId),
+          title: String(item.title),
+          subtitle: String(item.subtitle ?? ""),
+          image: String(item.image ?? "/logo.png"),
+          unitPrice,
+          discount,
+          finalUnitPrice,
+          quantity: Math.max(1, Math.floor(Number(item.quantity ?? 1))),
+          stock: Math.max(0, Math.floor(Number(item.stock ?? 0))),
+        };
+      })
       .filter((item) => item.productId.length > 0);
   } catch {
     window.localStorage.removeItem(CART_STORAGE_KEY);
@@ -71,11 +92,19 @@ function readInitialCart(): CartItem[] {
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(readInitialCart);
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate persisted cart after mount
+    setItems(readInitialCart());
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
     window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
+  }, [items, isHydrated]);
 
   const addItem = (product: CartProductPayload, quantity = 1) => {
     const nextQuantity = Math.max(1, Math.floor(quantity));
@@ -83,8 +112,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     setItems((current) => {
       const existing = current.find((item) => item.productId === product.productId);
-      const discount = Number(product.discount ?? 0);
-      const finalUnitPrice = resolveFinalUnitPrice(product.unitPrice, discount);
+      const unitPrice = normalizeMoney(product.unitPrice);
+      const discount = normalizeDiscount(Number(product.discount ?? 0));
+      const finalUnitPrice = resolveFinalUnitPrice(unitPrice, discount);
       const stock = Math.max(0, Math.floor(product.stock));
       if (stock <= 0) {
         return current;
@@ -100,7 +130,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 title: product.title,
                 subtitle: product.subtitle,
                 image: product.image,
-                unitPrice: product.unitPrice,
+                unitPrice,
                 discount,
                 finalUnitPrice,
                 stock,
@@ -117,7 +147,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           title: product.title,
           subtitle: product.subtitle,
           image: product.image,
-          unitPrice: product.unitPrice,
+          unitPrice,
           discount,
           finalUnitPrice,
           stock,

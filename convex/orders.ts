@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import type { MutationCtx } from "./_generated/server";
+import type { MutationCtx, QueryCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 
@@ -60,6 +60,7 @@ type AdminOrderItem = {
   discount: number;
   finalUnitPrice: number;
   lineTotal: number;
+  imageUrl: string | null;
 };
 
 const customerValidator = v.object({
@@ -135,10 +136,21 @@ function normalizeOrderItems(items: OrderItemInput[]) {
   return [...aggregated.values()];
 }
 
+function normalizeUnitPrice(value: number) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.round(value));
+}
+
+function normalizeDiscount(value: number | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
 function resolveFinalUnitPrice(price: number, discount: number | undefined) {
-  const discountValue = discount ?? 0;
-  if (discountValue <= 0) return price;
-  return Math.max(0, Math.round(price * (1 - discountValue / 100)));
+  const safePrice = normalizeUnitPrice(price);
+  const discountValue = normalizeDiscount(discount);
+  if (discountValue <= 0) return safePrice;
+  return Math.max(0, Math.round(safePrice * (1 - discountValue / 100)));
 }
 
 function createOrderNumber(createdAt: number) {
@@ -165,12 +177,32 @@ function normalizeOrderStatus(status: Doc<"orders">["status"]): OrderStatus {
   return "pending";
 }
 
-function normalizeAdminOrderItems(
+async function resolveProductImageUrl(
+  ctx: QueryCtx,
+  productId: Id<"products">,
+): Promise<string | null> {
+  const product = await ctx.db.get(productId);
+  if (!product) return null;
+  if (product.primaryImageStorageId) {
+    const url = await ctx.storage.getUrl(product.primaryImageStorageId);
+    if (url) return url;
+  }
+  if (product.primaryImageUrl) return product.primaryImageUrl;
+  const firstStorageId = product.storageImageIds?.[0];
+  if (firstStorageId) {
+    const url = await ctx.storage.getUrl(firstStorageId);
+    if (url) return url;
+  }
+  return product.images[0] ?? null;
+}
+
+async function normalizeAdminOrderItems(
+  ctx: QueryCtx,
   order: Doc<"orders">,
   productById: Map<string, Doc<"products">>,
-): AdminOrderItem[] {
+): Promise<AdminOrderItem[]> {
   if (order.items && order.items.length > 0) {
-    return order.items
+    const items = order.items
       .map((item) => {
         const quantity = Math.max(1, Math.floor(item.quantity));
         const unitPrice = Math.max(0, Math.round(item.unitPrice));
@@ -194,6 +226,14 @@ function normalizeAdminOrderItems(
         };
       })
       .filter((item) => item.quantity > 0);
+
+    const withImages = await Promise.all(
+      items.map(async (item) => ({
+        ...item,
+        imageUrl: await resolveProductImageUrl(ctx, item.productId),
+      })),
+    );
+    return withImages;
   }
 
   if (!order.productId) return [];
@@ -201,6 +241,7 @@ function normalizeAdminOrderItems(
   const unitPrice = Math.max(0, Math.round(product?.price ?? 0));
   const discount = Math.max(0, Math.min(100, Math.round(product?.discount ?? 0)));
   const finalUnitPrice = resolveFinalUnitPrice(unitPrice, discount);
+  const imageUrl = await resolveProductImageUrl(ctx, order.productId);
   return [
     {
       productId: order.productId,
@@ -210,6 +251,7 @@ function normalizeAdminOrderItems(
       discount,
       finalUnitPrice,
       lineTotal: finalUnitPrice,
+      imageUrl,
     },
   ];
 }
@@ -235,20 +277,22 @@ async function prepareOrderItems(ctx: MutationCtx, items: OrderItemInput[]) {
   const prepared: PreparedOrderItem[] = [];
   for (const { item, product } of products) {
     if (!product) continue;
-    if (product.stock < item.quantity) {
+    const availableStock = Math.max(0, Math.floor(product.stock));
+    if (availableStock < item.quantity) {
       throw new Error(`Nema dovoljno na stanju za proizvod: ${product.title}.`);
     }
-    const discount = product.discount ?? 0;
-    const finalUnitPrice = resolveFinalUnitPrice(product.price, discount);
+    const unitPrice = normalizeUnitPrice(product.price);
+    const discount = normalizeDiscount(product.discount);
+    const finalUnitPrice = resolveFinalUnitPrice(unitPrice, discount);
     prepared.push({
       productId: product._id,
       title: product.title,
       quantity: item.quantity,
-      unitPrice: product.price,
+      unitPrice,
       discount,
       finalUnitPrice,
       lineTotal: finalUnitPrice * item.quantity,
-      remainingStock: product.stock - item.quantity,
+      remainingStock: availableStock - item.quantity,
     });
   }
 
@@ -456,9 +500,9 @@ export const listOrdersForAdmin = query({
     const [orders, products] = await Promise.all([ctx.db.query("orders").collect(), ctx.db.query("products").collect()]);
     const productById = new Map(products.map((product) => [product._id as string, product]));
 
-    return orders
-      .map((order) => {
-        const items = normalizeAdminOrderItems(order, productById);
+    const resolved = await Promise.all(
+      orders.map(async (order) => {
+        const items = await normalizeAdminOrderItems(ctx, order, productById);
         const fallbackItemsCount = items.reduce((sum, item) => sum + item.quantity, 0);
         const fallbackAmount = items.reduce((sum, item) => sum + item.lineTotal, 0);
 
@@ -485,8 +529,9 @@ export const listOrdersForAdmin = query({
           },
           items,
         };
-      })
-      .sort((a, b) => b.createdAt - a.createdAt);
+      }),
+    );
+    return resolved.sort((a, b) => b.createdAt - a.createdAt);
   },
 });
 
@@ -498,7 +543,7 @@ export const setOrderStatus = mutation({
   handler: async (ctx, args) => {
     const order = await ctx.db.get(args.orderId);
     if (!order) {
-      throw new Error("Porudzbina nije pronadjena.");
+      throw new Error("Porudžbina nije pronađena.");
     }
     await ctx.db.patch(args.orderId, { status: args.status });
   },

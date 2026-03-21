@@ -6,33 +6,33 @@ import { LEGAL_ENTITY, LEGAL_LAST_UPDATED } from "@/lib/legal-content";
 
 export const metadata: Metadata = {
   title: "Pravni centar | Studio Lady Gaga",
-  description: "Pregled pravila koriscenja, politike privatnosti i politike kolacica.",
+  description: "Pregled pravila korišćenja, politike privatnosti i politike kolačića.",
 };
 
 const LEGAL_CARDS = [
   {
-    href: "/pravila-koriscenja",
-    title: "Pravila koriscenja",
-    text: "Uslovi koriscenja sajta, online kupovine, odgovornosti i intelektualna prava.",
+    href: "/pravila-korišćenja",
+    title: "Pravila korišćenja",
+    text: "Uslovi korišćenja sajta, online kupovine, odgovornosti i intelektualna prava.",
     Icon: FileCheck2,
   },
   {
     href: "/politika-privatnosti",
     title: "Politika privatnosti",
-    text: "Kako obradjujemo licne podatke, pravni osnovi, rokovi cuvanja i prava korisnika.",
+    text: "Kako obrađujemo licne podatke, pravni osnovi, rokovi cuvanja i prava korisnika.",
     Icon: Shield,
   },
   {
-    href: "/politika-kolacica",
-    title: "Politika kolacica",
-    text: "Kategorije kolacica i localStorage zapisa sa opcijom trenutne izmene consenta.",
+    href: "/politika-kolačića",
+    title: "Politika kolačića",
+    text: "Kategorije kolačića i localStorage zapisa sa opcijom trenutne izmene consenta.",
     Icon: Cookie,
   },
 ] as const;
 
 const QUICK_CHECKLIST = [
   "Pravila i politike su dostupni iz footera na svim stranicama.",
-  "Cookie consent podrzava prihvati sve, odbij opcione i granularne preference.",
+  "Cookie consent podržava prihvati sve, odbij opcione i granularne preference.",
   "Kontakt i forme za placanje imaju obaveznu pravnu potvrdu pre slanja.",
   "Dokumenti navode kontakt za privacy zahteve i rok odgovora.",
 ] as const;
@@ -49,7 +49,7 @@ export default function LegalCenterPage() {
     <LegalShell
       eyebrow="Pravni centar"
       title="Kompletna pravna osnova sajta na jednom mestu."
-      lead="Ovde su objedinjeni svi dokumenti i UX mehanizmi vezani za privatnost, kolacice i uslove koriscenja."
+      lead="Ovde su objedinjeni svi dokumenti i UX mehanizmi vezani za privatnost, kolacice i uslove korišćenja."
       lastUpdated={LEGAL_LAST_UPDATED}
       activePath="/pravno"
     >

@@ -38,8 +38,8 @@ export function Footer() {
             Vanzemaljski premium finish za kosu koja izgleda brutalno dobro.
           </h2>
           <p className="editorial-cta-body">
-            Specijalizovani tretmani za ostecenu i blajhanu kosu, zahtevne koloracije, keratin i glam frizure uz plan
-            nege koji cuva rezultat i posle salona.
+            Specijalizovani tretmani za oštećenu i blajhanu kosu, zahtevne koloracije, keratin i glam frizure uz plan
+            nege koji čuva rezultat i posle salona.
           </p>
           <div className="editorial-cta-badges" aria-label="Najtrazenije usluge">
             {serviceHighlights.map((item) => (
@@ -50,7 +50,7 @@ export function Footer() {
           </div>
           <div className="editorial-cta-actions">
             <Link href="/kontakt" className="editorial-btn-primary">
-              Zakazi termin
+              Zakaži termin
             </Link>
             <Link href="/galerija" className="editorial-btn-secondary">
               Pogledaj galeriju
@@ -92,7 +92,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Trg đačkog bataljona, Šabac
+                  Trg đačkog bataljona bb, Šabac
                 </a>
               </li>
             </ul>
@@ -115,7 +115,7 @@ export function Footer() {
               </p>
               <p className="editorial-signal-item">
                 <span className="editorial-signal-dot" aria-hidden="true" />
-                Jasna preporuka za kucnu negu
+                Jasna preporuka za kućnu negu
               </p>
             </div>
           </section>
@@ -131,16 +131,16 @@ export function Footer() {
           </div>
 
           <nav className="editorial-legal-links" aria-label="Pravne strane">
-            <Link href="/pravila-koriscenja">Pravila koriscenja</Link>
+            <Link href="/pravila-korišćenja">Pravila korišćenja</Link>
             <Link href="/politika-privatnosti">Politika privatnosti</Link>
-            <Link href="/politika-kolacica">Politika kolacica</Link>
+            <Link href="/politika-kolačića">Politika kolačića</Link>
             <OpenCookieSettingsButton className="editorial-legal-cookie-btn">
-              Podesavanja kolacica
+              Podešavanja kolačića
             </OpenCookieSettingsButton>
           </nav>
 
           <p className="editorial-legal-note">
-            Koriscenjem sajta prihvatate pravila koriscenja i politiku privatnosti. Cookie preference mozete menjati
+            Korišćenjem sajta prihvatate pravila korišćenja i politiku privatnosti. Cookie preference možete menjati
             u bilo kom trenutku.
           </p>
 

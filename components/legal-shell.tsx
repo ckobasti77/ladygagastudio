@@ -86,7 +86,7 @@ export function LegalShell({
               <ShieldCheck aria-hidden="true" />
               Imate zahtev za pristup, izmenu ili brisanje podataka?
             </p>
-            <a href={`mailto:${LEGAL_ENTITY.privacyEmail}`}>Posaljite email</a>
+            <a href={`mailto:${LEGAL_ENTITY.privacyEmail}`}>Pošaljite email</a>
           </div>
 
           <div className="legal-sidecard-stats" aria-label="Operativni podaci">

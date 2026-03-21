@@ -782,7 +782,7 @@ export default function AdminPage() {
             Novi proizvod
           </button>
           <button type="button" className="ghost-btn" onClick={() => router.push("/admin/evidencija-narudzbina")}>
-            Evidencija narudzbina
+            Evidencija narudžbina
           </button>
           <button type="button" className="ghost-btn" onClick={() => setStockFilter("lowStock")}>
             Nizak lager
@@ -885,13 +885,24 @@ export default function AdminPage() {
                   <strong>{row.title}</strong>
                   <p>{row.categoryName}</p>
                 </div>
-                <span>{row.soldQuantity}</span>
-                <span>{row.ordersCount}</span>
-                <span>{formatRsd(row.revenue)}</span>
+                <span>
+                  <span className="mobile-label">Prodato</span>
+                  {row.soldQuantity}
+                </span>
+                <span>
+                  <span className="mobile-label">Porudžbine</span>
+                  {row.ordersCount}
+                </span>
+                <span>
+                  <span className="mobile-label">Prihod</span>
+                  {formatRsd(row.revenue)}
+                </span>
                 <span className={row.currentStock <= LOW_STOCK_LIMIT ? "sales-stock-low" : "sales-stock-ok"}>
+                  <span className="mobile-label">Lager</span>
                   {row.currentStock}
                 </span>
                 <span>
+                  <span className="mobile-label">Poslednja prodaja</span>
                   {row.lastSoldAt > 0
                     ? new Date(row.lastSoldAt).toLocaleString("sr-Latn-RS", {
                         day: "2-digit",
