@@ -276,7 +276,7 @@ export default function ProductDetailsPage() {
         <div className="product-detail-info-column">
           <div className="product-detail-info-head">
             <p className="product-detail-category">{categoryName}</p>
-            {product.recommended ? <span className="product-detail-recommended-pill">Preporucen</span> : null}
+            {product.recommended ? <span className="product-detail-recommended-pill">Preporučen</span> : null}
             <span className={`product-detail-stock-pill ${stockMeta.tone}`}>{stockMeta.badgeText}</span>
           </div>
           <h1>{product.title}</h1>
@@ -343,7 +343,7 @@ export default function ProductDetailsPage() {
                   }}
                   disabled={isUpdatingRecommended}
                 />
-                <span>Preporucen proizvod</span>
+                <span>Preporučen proizvod</span>
               </label>
               <Link href="/proizvodi" className="ghost-btn">
                 Idi na upravljanje katalogom
