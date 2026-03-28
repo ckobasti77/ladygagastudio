@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Handbag } from "lucide-react";
 import {
   founderStory,
   milkShakeTreatments,
@@ -36,7 +37,8 @@ export default function AboutPage() {
               Zakaži konsultaciju
             </Link>
             <Link href="/proizvodi" className="about-btn-ghost">
-              Pogledaj proizvode
+              Proizvodi za negu
+              <Handbag size={16} strokeWidth={2} />
             </Link>
           </div>
 

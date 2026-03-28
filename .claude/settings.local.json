@@ -8,7 +8,18 @@
       "Bash(cd C:/Users/admin/Desktop/studio-lady-gaga && npm run build 2>&1 | tail -15)",
       "Bash(cd C:/Users/admin/Desktop/studio-lady-gaga && npm run build 2>&1 | tail -8)",
       "Bash(npx convex:*)",
-      "Bash(find '/c/Users/admin/Desktop/Web Dev Projects/studio-lady-gaga' -type f \\\\\\(-name *.module.css -o -name *.css \\\\\\) ! -path */node_modules/* ! -path */.next/*)"
+      "Bash(find '/c/Users/admin/Desktop/Web Dev Projects/studio-lady-gaga' -type f \\\\\\(-name *.module.css -o -name *.css \\\\\\) ! -path */node_modules/* ! -path */.next/*)",
+      "Bash(ls:*)",
+      "Bash(cp \"/c/Users/admin/Desktop/Images & Photos/lady-gaga-slike/snimci-novi/C0992 \\(1\\).webm\" \"/c/Users/admin/Desktop/Web Dev Projects/studio-lady-gaga/public/tretmani/tretman-01.webm\")",
+      "Bash(cp \"/c/Users/admin/Desktop/Images & Photos/lady-gaga-slike/snimci-novi/C1009 \\(1\\).webm\" \"/c/Users/admin/Desktop/Web Dev Projects/studio-lady-gaga/public/tretmani/tretman-02.webm\")",
+      "Bash(cp \"/c/Users/admin/Desktop/Images & Photos/lady-gaga-slike/snimci-novi/C1011.webm\" \"/c/Users/admin/Desktop/Web Dev Projects/studio-lady-gaga/public/tretmani/tretman-03.webm\")",
+      "Bash(cp \"/c/Users/admin/Desktop/Images & Photos/lady-gaga-slike/snimci-novi/C1013.webm\" \"/c/Users/admin/Desktop/Web Dev Projects/studio-lady-gaga/public/tretmani/tretman-04.webm\")",
+      "Bash(cp \"/c/Users/admin/Desktop/Images & Photos/lady-gaga-slike/snimci-novi/C1015.webm\" \"/c/Users/admin/Desktop/Web Dev Projects/studio-lady-gaga/public/tretmani/tretman-05.webm\")",
+      "WebFetch(domain:flagcdn.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl:*)",
+      "Bash(node -e \"const l = require\\(''lucide-react''\\); console.log\\(''ShoppingBag:'', !!l.ShoppingBag\\); console.log\\(''HandBag:'', !!l.HandBag\\); console.log\\(''Handbag:'', !!l.Handbag\\);\")",
+      "Bash(node -e \"const l = require\\(''lucide-react''\\); console.log\\(''ShoppingBag:'', Boolean\\(l.ShoppingBag\\)\\); console.log\\(''HandBag:'', Boolean\\(l.HandBag\\)\\); console.log\\(''Handbag:'', Boolean\\(l.Handbag\\)\\);\")"
     ]
   }
 }

@@ -12,7 +12,7 @@ import {
   studioVideos,
 } from "@/lib/studio-content";
 import { sendContactInquiryEmail } from "./actions";
-import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Handbag, Mail, MapPin, Phone } from "lucide-react";
 
 const responseWindows = [
   "Upiti do 15h: odgovor istog dana",
@@ -115,7 +115,8 @@ export default function ContactPage() {
               <ArrowRight size={16} strokeWidth={2} />
             </a>
             <Link href="/proizvodi" className="contact-hero-btn-ghost">
-              Pogledaj proizvode
+              Proizvodi za negu
+              <Handbag size={16} strokeWidth={2} />
             </Link>
           </div>
 

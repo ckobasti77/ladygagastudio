@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Droplets,
+  Handbag,
   Images,
   MessageCircle,
   PackageSearch,
@@ -20,7 +21,9 @@ import {
   ShoppingBag,
   Sparkles,
   Video,
+  Zap,
 } from "lucide-react";
+import { TretmaniSlider } from "@/components/tretmani-slider";
 import { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useId, useMemo, useState } from "react";
 
 type HomeProduct = {
@@ -105,7 +108,7 @@ const HERO_FEATURE_CARDS = [
     heroTitle: ["Proizvodi", "za negu i", "održavanje"],
     description:
       "Šamponi, maske, tretmani i profesionalna nega za kućnu upotrebu i dugotrajan rezultat.",
-    cta: "Pogledaj proizvode",
+    cta: "Proizvodi za negu",
     href: "/proizvodi",
     image: "/slike/gaga/2.avif",
     alt: "Premium proizvodi za negu i održavanje kose",
@@ -325,6 +328,7 @@ export default function HomePage() {
                   className={`xeno-hero-card-action ${card.variant === "salon" ? "is-salon-action" : "is-shop-action"}`}
                 >
                   {card.cta}
+                  {card.variant === "shop" && <Handbag size={16} strokeWidth={2} />}
                 </Link>
               </div>
 
@@ -342,6 +346,18 @@ export default function HomePage() {
               </div>
             </article>
           ))}
+
+          <div className="xeno-hero-delivery-banner">
+            <Zap className="xeno-hero-delivery-icon" aria-hidden="true" />
+            <span className="xeno-hero-delivery-text">Dostava za <strong>48h</strong> na teritoriji Srbije</span>
+            <Image
+              src="/serbia-flag.png"
+              alt="Zastava Srbije"
+              width={28}
+              height={18}
+              className="xeno-hero-delivery-flag"
+            />
+          </div>
         </div>
       </section>
 
@@ -371,14 +387,16 @@ export default function HomePage() {
         </div>
       </section>
 
+      <TretmaniSlider />
+
       <section className="xeno-after-hero home-reveal">
         <div className="xeno-main-column">
           <section className="home-panel home-reveal xeno-story">
             <div className="xeno-story-copy">
               <div className="home-section-head">
                 <p className="home-kicker home-kicker-row">
-                  <Sparkles className="home-kicker-glyph" style={{ color: '#ca4d2a' }} aria-hidden="true" />
-                  <span style={{ color: '#ca4d2a' }}>Vizija studija</span>
+                  <Sparkles className="home-kicker-glyph" aria-hidden="true" />
+                  <span>Vizija studija</span>
                 </p>
                 <h2>U Lady Gaga no 1 svaki tretman je pažljivo osmišljen da kosa odmah izgleda luksuzno,a njena lepota i zdravlje traje.</h2>
               </div>
@@ -412,59 +430,11 @@ export default function HomePage() {
             <div className="xeno-pillar-grid">
               {qualityPillars.map((pillar) => (
                 <article key={pillar.title} className="xeno-pillar-card" data-cosmic-tilt style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                  <h3 style={{ color: '#ca4d2a', minHeight: '25%', display: 'flex', alignItems: 'start' }}>{pillar.title}</h3>
+                  <h3 style={{ color: '#9b7c68', minHeight: '25%', display: 'flex', alignItems: 'start' }}>{pillar.title}</h3>
                   <p style={{ height: '75%', display: 'flex', justifyContent: 'start' }}>{pillar.text}</p>
                 </article>
               ))}
             </div>
-          </section>
-
-          <section className="home-panel home-reveal xeno-gallery-section">
-            <div className="xeno-section-head">
-              <div className="home-section-head">
-                <p className="home-kicker home-kicker-row">
-                  <Images className="home-kicker-glyph" aria-hidden="true" />
-                  <span>Galerija uživo</span>
-                </p>
-                <h2>Najnovije transformacije iz studija, direktno sa realnih termina.</h2>
-              </div>
-              <Link href="/galerija" className="ghost-btn home-second-action">
-                Otvori celu galeriju
-              </Link>
-            </div>
-
-            {rawGalleryMedia === undefined ? (
-              <p className="home-empty">Ucitavanje galerije...</p>
-            ) : featuredImages.length === 0 ? (
-              <div className="empty-state xeno-empty">
-                <h3>Trenutno nema slika u galeriji.</h3>
-                <p>Nova inspiracija i sveže transformacije uskoro stizu.</p>
-              </div>
-            ) : (
-              <div className="xeno-gallery-grid">
-                {featuredImages.map((image, index) => (
-                  <article
-                    key={image._id}
-                    className="xeno-gallery-card"
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => openHomeLightbox(index)}
-                    onKeyDown={(event) => onHomeGalleryCardKeyDown(event, index)}
-                    aria-label={`Otvori sliku ${index + 1} od ${featuredImages.length}`}
-                    data-cosmic-tilt
-                  >
-                    <Image
-                      src={image.url}
-                      alt={image.originalName || "Fotografija iz galerije"}
-                      width={900}
-                      height={900}
-                      sizes="(max-width: 760px) 50vw, (max-width: 1080px) 33vw, 25vw"
-                      loading="lazy"
-                    />
-                  </article>
-                ))}
-              </div>
-            )}
           </section>
 
           <section className="home-panel home-reveal xeno-video-section">

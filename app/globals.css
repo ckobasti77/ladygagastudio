@@ -767,7 +767,7 @@ body.ux-enhanced .home-reveal {
 
 .home-kicker {
   margin: 0;
-  color: var(--accent-strong);
+  color: #9b7c68;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.73rem;
@@ -785,6 +785,7 @@ body.ux-enhanced .home-reveal {
   height: 0.82rem;
   flex-shrink: 0;
   stroke-width: 2.2;
+  color: #9b7c68;
 }
 
 .home-card-label {
@@ -4428,6 +4429,7 @@ body.ux-enhanced .orbit-reveal {
 .about-btn-ghost {
   display: inline-flex;
   align-items: center;
+  gap: 1rem;
   padding: 0.82rem 2rem;
   border-radius: 100px;
   font-family: var(--display-font);
@@ -7766,6 +7768,53 @@ body.ux-enhanced .orbit-reveal {
   gap: clamp(1rem, 2.5vw, 1.8rem);
 }
 
+/* Delivery banner — compact pill inside the card grid, under right card */
+.xeno-hero-delivery-banner {
+  grid-column: 2;
+  justify-self: center;
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 12px -3px rgba(180, 140, 110, 0.14);
+  border: 1px solid rgba(180, 140, 110, 0.13);
+  white-space: nowrap;
+}
+
+.xeno-hero-delivery-icon {
+  width: 18px;
+  height: 18px;
+  color: #e8a838;
+  fill: #f5c563;
+  flex-shrink: 0;
+}
+
+.xeno-hero-delivery-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--foreground);
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.xeno-hero-delivery-text strong {
+  font-weight: 700;
+  color: #9b7c68;
+}
+
+.xeno-hero-delivery-flag {
+  flex-shrink: 0;
+  border-radius: 3px;
+  object-fit: cover;
+}
+
 /* Feature card */
 .xeno-hero-feature-card {
   position: relative;
@@ -7856,6 +7905,7 @@ body.ux-enhanced .orbit-reveal {
 .xeno-hero-card-action {
   display: inline-flex;
   align-items: center;
+  gap: 1rem;
   justify-content: center;
   width: fit-content;
   min-height: 48px;
@@ -10547,6 +10597,11 @@ body.ux-enhanced .orbit-reveal {
 
   .xeno-hero-card-grid {
     grid-template-columns: 1fr;
+  }
+
+  .xeno-hero-delivery-banner {
+    grid-column: 1;
+    justify-self: center;
   }
 
   .xeno-hero-services-grid {
@@ -14643,6 +14698,7 @@ body.ux-enhanced .app-shell::before {
 .contact-hero-btn-ghost {
   display: inline-flex;
   align-items: center;
+  gap: 1rem;
   padding: 0.82rem 2rem;
   border-radius: 100px;
   font-family: var(--display-font);
@@ -15594,7 +15650,7 @@ body.ux-enhanced .app-shell::before {
 .gallery-hero-btn-ghost {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   border-radius: 1rem;
   border: 1px solid rgba(180, 170, 160, 0.45);
   background: rgba(255, 255, 255, 0.6);
@@ -15699,5 +15755,331 @@ body.ux-enhanced .app-shell::before {
   font-size: 0.78rem;
   line-height: 1.3;
   color: var(--muted);
+}
+
+/* ═══════════════════════════════════════════
+   Tretmani Video Slider
+   ═══════════════════════════════════════════ */
+
+.tretmani-section {
+  padding: 4.5rem 0 5.5rem;
+  overflow: hidden;
+}
+
+.tretmani-inner {
+  padding: 0 clamp(1.2rem, 8.5vw, 8.5rem);
+}
+
+.tretmani-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.tretmani-heading {
+  font-family: var(--serif-font);
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin: 0;
+  line-height: 1;
+}
+
+.tretmani-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.tretmani-cta {
+  white-space: nowrap;
+}
+
+/* ── Viewport with edge fades ── */
+
+.tretmani-viewport {
+  position: relative;
+}
+
+.tretmani-viewport::before,
+.tretmani-viewport::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.tretmani-viewport::before {
+  left: 0;
+  width: clamp(2.5rem, 8.5vw, 8.5rem);
+  background: linear-gradient(to right, var(--bg) 8%, transparent);
+}
+
+.tretmani-viewport::after {
+  right: 0;
+  width: clamp(2.5rem, 8.5vw, 8.5rem);
+  background: linear-gradient(to left, var(--bg) 8%, transparent);
+}
+
+/* ── Rail ── */
+
+.tretmani-rail {
+  --t-gap: 1.5rem;
+  --t-visible: 3.2;
+  display: flex;
+  gap: var(--t-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding: 0 clamp(0.75rem, 4vw, 4rem);
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  user-select: none;
+  touch-action: pan-x;
+}
+
+.tretmani-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.tretmani-rail.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+/* ── Card ── */
+
+.tretmani-card {
+  flex: 0 0 calc(
+    (100% - (var(--t-visible) - 1) * var(--t-gap)) / var(--t-visible)
+  );
+  scroll-snap-align: start;
+  min-width: 0;
+}
+
+.tretmani-card__media {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--surface-soft);
+  cursor: pointer;
+}
+
+.tretmani-card__media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.tretmani-card__media video[controls] {
+  pointer-events: auto;
+}
+
+/* ── Play overlay ── */
+
+.tretmani-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.06);
+  transition: opacity 0.4s ease, background 0.3s ease;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.tretmani-play--active {
+  inset: auto;
+  top: 8px;
+  left: 8px;
+  background: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 10;
+}
+
+.tretmani-play--active .tretmani-play__circle {
+  width: 40px;
+  height: 40px;
+}
+
+.tretmani-card__media:hover .tretmani-play--active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tretmani-card__media--playing {
+  cursor: default;
+}
+
+.tretmani-play__circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: grid;
+  place-items: center;
+  color: rgba(50, 50, 50, 0.7);
+  transition: transform 0.3s ease, background 0.3s ease;
+  padding-left: 3px;
+}
+
+.tretmani-card__media:hover .tretmani-play__circle {
+  transform: scale(1.07);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+/* ── Label ── */
+
+.tretmani-card__label {
+  margin: 0.75rem 0 0;
+  font-family: var(--serif-font);
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  font-style: italic;
+  color: var(--text);
+  padding-left: 0.1rem;
+}
+
+/* ── Arrows ── */
+
+.tretmani-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(calc(-50% - 0.75rem));
+  z-index: 4;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text);
+  background: transparent;
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.tretmani-arrow:hover:not(:disabled) {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.tretmani-arrow:disabled {
+  opacity: 0.18;
+  cursor: not-allowed;
+}
+
+.tretmani-arrow svg {
+  width: 24px;
+  height: 24px;
+}
+
+.tretmani-arrow--prev {
+  left: clamp(0.25rem, 1vw, 1.25rem);
+}
+
+.tretmani-arrow--next {
+  right: clamp(0.25rem, 1vw, 1.25rem);
+}
+
+/* ── Dark mode ── */
+
+:root[data-theme="dark"] .tretmani-play__circle {
+  background: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:root[data-theme="dark"] .tretmani-card__media:hover .tretmani-play__circle {
+  background: rgba(255, 255, 255, 0.48);
+}
+
+:root[data-theme="dark"] .tretmani-card__media {
+  background: var(--surface);
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 1080px) {
+  .tretmani-rail {
+    --t-visible: 2.15;
+  }
+
+  .tretmani-rail {
+    padding: 0 clamp(0.75rem, 3vw, 2rem);
+  }
+
+  .tretmani-inner {
+    padding: 0 clamp(1.2rem, 5vw, 3rem);
+  }
+
+  .tretmani-viewport::before,
+  .tretmani-viewport::after {
+    width: clamp(2rem, 6vw, 4rem);
+  }
+
+  .tretmani-arrow--prev {
+    left: 0.35rem;
+  }
+
+  .tretmani-arrow--next {
+    right: 0.35rem;
+  }
+}
+
+@media (max-width: 680px) {
+  .tretmani-section {
+    padding: 3rem 0 3.5rem;
+  }
+
+  .tretmani-rail {
+    --t-visible: 1.15;
+    --t-gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .tretmani-inner {
+    padding: 0 1.2rem;
+  }
+
+  .tretmani-viewport::before,
+  .tretmani-viewport::after {
+    width: 1.5rem;
+  }
+
+  .tretmani-arrow {
+    display: none;
+  }
+
+  .tretmani-play__circle {
+    width: 52px;
+    height: 52px;
+  }
+
+  .tretmani-heading {
+    letter-spacing: 0.08em;
+  }
+
+  .tretmani-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
 }
 

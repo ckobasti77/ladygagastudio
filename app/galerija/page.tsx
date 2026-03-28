@@ -8,7 +8,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { GalleryLightbox } from "@/components/gallery-lightbox";
 import { useAuth } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
-import { Download, ImagePlus, Pause, Play, Trash2, X } from "lucide-react";
+import { Download, Handbag, ImagePlus, Pause, Play, Trash2, X } from "lucide-react";
 import {
   ChangeEvent,
   FormEvent,
@@ -403,7 +403,8 @@ export default function GalleryPage() {
               Kontakt / upit
             </Link>
             <Link href="/proizvodi" className="gallery-hero-btn-ghost">
-              Pogledaj proizvode
+              Proizvodi za negu
+              <Handbag size={16} strokeWidth={2} />
             </Link>
           </div>
         ) : null}
