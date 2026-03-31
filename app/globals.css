@@ -203,7 +203,7 @@ a {
 }
 
 .main-content {
-  padding: 2rem 0 4rem;
+  padding: 1.8rem 0 0.7rem;
   min-height: 72vh;
 }
 
@@ -5870,6 +5870,13 @@ body.ux-enhanced .orbit-reveal {
   outline: none;
 }
 
+.gallery-card.is-featured {
+  border-color: color-mix(in srgb, var(--accent) 64%, var(--border));
+  box-shadow:
+    0 36px 58px -44px rgba(7, 14, 24, 0.98),
+    0 0 0 1px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
 .gallery-card:focus-visible {
   box-shadow:
     0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent),
@@ -5957,6 +5964,53 @@ body.ux-enhanced .orbit-reveal {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--text) 84%, var(--accent));
+}
+
+.gallery-featured-toggle {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.42);
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  padding: 0;
+}
+
+.gallery-featured-toggle:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.gallery-featured-toggle.is-featured {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 8px 16px -12px color-mix(in srgb, var(--accent) 56%, rgba(0, 0, 0, 0.3));
+}
+
+.gallery-featured-toggle:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.gallery-featured-toggle:disabled:not(.is-featured) {
+  filter: grayscale(0.35);
+}
+
+.gallery-featured-toggle svg {
+  width: 17px;
+  height: 17px;
 }
 
 .gallery-card-actions {
@@ -8623,19 +8677,60 @@ body.ux-enhanced .orbit-reveal {
 .xeno-story {
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-  gap: 0.9rem;
-  align-items: start;
+  gap: clamp(1.2rem, 2.4vw, 2rem);
+  align-items: center;
+}
+
+.xeno-story .home-section-head h2 {
+  max-width: 28ch;
 }
 
 .xeno-story-copy {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.92rem;
+  align-content: start;
+}
+
+.xeno-story-head {
+  padding: 0.75rem 0.86rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  background:
+    radial-gradient(circle at 10% 8%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),
+    color-mix(in srgb, #ffffff 86%, var(--surface-soft));
+}
+
+.xeno-story-head h2 {
+  max-width: 24ch;
 }
 
 .xeno-story-copy p {
   margin: 0;
   color: var(--muted);
-  line-height: 1.6;
+  line-height: 1.62;
+  font-size: 0.9rem;
+  max-width: 54ch;
+}
+
+.xeno-story-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+}
+
+.xeno-story-highlights span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+  background: color-mix(in srgb, #ffffff 82%, var(--accent) 14%);
+  color: color-mix(in srgb, var(--text) 86%, var(--accent));
+  padding: 0.3rem 0.72rem;
+  font-size: 0.66rem;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .xeno-chip-row {
@@ -8646,11 +8741,19 @@ body.ux-enhanced .orbit-reveal {
 }
 
 .xeno-story-media {
-  border-radius: 22px;
+  border-radius: 28px;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
-  background: color-mix(in srgb, var(--surface-soft) 80%, transparent);
-  box-shadow: 0 24px 42px -34px rgba(4, 10, 18, 0.92);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+  background: color-mix(in srgb, var(--surface-soft) 88%, transparent);
+  box-shadow:
+    0 24px 46px -34px rgba(4, 10, 18, 0.92),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  transition: transform 0.4s cubic-bezier(0.22, 0.68, 0, 1), box-shadow 0.4s ease;
+}
+
+.xeno-story-media:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 50px -30px rgba(4, 10, 18, 0.7);
 }
 
 .xeno-story-media img {
@@ -8675,6 +8778,10 @@ body.ux-enhanced .orbit-reveal {
   display: grid;
   gap: 0.65rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.xeno-treatment-grid-brutal {
+  align-items: stretch;
 }
 
 .xeno-pillar-card {
@@ -8712,6 +8819,7 @@ body.ux-enhanced .orbit-reveal {
   transition: all 0.36s cubic-bezier(0.22, 0.68, 0, 1);
   animation: treat-in 0.55s cubic-bezier(0.22, 0.68, 0, 1) both;
   animation-delay: calc(var(--t-i, 0) * 0.09s);
+  height: 100%;
 }
 
 @keyframes treat-in {
@@ -8765,12 +8873,20 @@ body.ux-enhanced .orbit-reveal {
 
 .xeno-treatment-num {
   font-family: var(--display-font);
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.04em;
   color: color-mix(in srgb, var(--border) 90%, var(--text));
-  min-width: 2.4rem;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 0.5px solid color-mix(in srgb, var(--accent) 34%, var(--border));
+  padding-top: 1px;
+  flex-shrink: 0;
   transition: all 0.36s cubic-bezier(0.22, 0.68, 0, 1);
   user-select: none;
 }
@@ -8788,7 +8904,7 @@ body.ux-enhanced .orbit-reveal {
   letter-spacing: -0.01em;
 }
 
-.xeno-treatment-card p {
+.xeno-treatment-card p:not(.xeno-treatment-badge) {
   margin: 0.3rem 0 0;
   color: var(--muted);
   font-size: 0.84rem;
@@ -8797,17 +8913,45 @@ body.ux-enhanced .orbit-reveal {
 
 .xeno-treatment-badge {
   margin: 0 0 0.55rem;
-  display: inline-flex;
-  width: fit-content;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
-  background: color-mix(in srgb, var(--accent) 7%, var(--surface-soft));
-  padding: 0.22rem 0.58rem;
-  font-size: 0.66rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  background:
+    linear-gradient(150deg, color-mix(in srgb, #ffffff 84%, var(--accent) 12%), color-mix(in srgb, #ffffff 70%, var(--surface-soft)));
+  padding: 0.66rem 0.68rem 0.62rem;
+  gap: 0.4rem;
+  font-size: 0.68rem;
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: color-mix(in srgb, var(--accent) 82%, #273244);
+  box-shadow:
+    0 10px 18px -16px color-mix(in srgb, var(--accent) 40%, rgba(20, 40, 74, 0.28)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.xeno-treatment-badge-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: color-mix(in srgb, var(--accent) 78%, #1f2937);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.xeno-treatment-badge-icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  margin: auto;
 }
 
 .xeno-treatment-line {
@@ -8865,11 +9009,11 @@ body.ux-enhanced .orbit-reveal {
 }
 
 .xeno-treatment-topline {
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  column-gap: 0.56rem;
-  row-gap: 0.2rem;
+  gap: 0.58rem;
+  text-align: center;
 }
 
 .xeno-treatment-topline h3 {
@@ -8877,6 +9021,7 @@ body.ux-enhanced .orbit-reveal {
   font-size: 0.98rem;
   line-height: 1.28;
   letter-spacing: -0.01em;
+  text-align: center;
 }
 
 .xeno-treatment-body {
@@ -8889,12 +9034,21 @@ body.ux-enhanced .orbit-reveal {
   color: var(--muted);
   font-size: 0.82rem;
   line-height: 1.48;
+  text-align: center;
+  max-width: 34ch;
+  width: 100%;
+  min-height: 6.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .xeno-treatment-badge-clean {
-  width: fit-content;
+  width: 100%;
   align-items: center;
-  gap: 0.34rem;
+  gap: 0.42rem;
+  min-height: 6.2rem;
+  justify-content: center;
 }
 
 .xeno-treatment-card-clean {
@@ -8902,21 +9056,55 @@ body.ux-enhanced .orbit-reveal {
 }
 
 .xeno-treatment-card-clean .xeno-treatment-topline {
-  align-items: start;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 6.5rem;
+  width: 100%;
 }
 
 .xeno-treatment-card-clean .xeno-treatment-topline h3 {
-  min-height: calc(2 * 1.28em);
+  min-height: 2.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .xeno-treatment-card-clean .xeno-treatment-body {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto minmax(6.3rem, 1fr) auto;
+  justify-items: center;
+  align-items: start;
+  row-gap: 0.58rem;
+  width: 100%;
   height: 100%;
+  text-align: center;
 }
 
 .xeno-treatment-card-clean .xeno-treatment-badge-clean {
-  margin: auto 0 0;
-  align-self: flex-start;
+  margin: 0;
+  align-self: stretch;
+}
+
+.xeno-treatment-card-clean .xeno-treatment-badge-clean > span:last-child {
+  min-height: 2.65em;
+  max-width: 20ch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xeno-treatment-card-tone-1 .xeno-treatment-badge-icon {
+  background: color-mix(in srgb, #43b8d8 22%, transparent);
+  color: color-mix(in srgb, #1d95bb 88%, #162538);
+}
+
+.xeno-treatment-card-tone-2 .xeno-treatment-badge-icon {
+  background: color-mix(in srgb, #c7936f 24%, transparent);
+  color: color-mix(in srgb, #aa7656 88%, #1f2530);
+}
+
+.xeno-treatment-card-tone-3 .xeno-treatment-badge-icon {
+  background: color-mix(in srgb, #8c79bf 22%, transparent);
+  color: color-mix(in srgb, #6c5aa0 86%, #1f2530);
 }
 
 :root[data-theme="light"] .xeno-treatments,
@@ -9017,14 +9205,18 @@ body.ux-enhanced .orbit-reveal {
 :root[data-theme="light"] .xeno-treatment-card-clean .xeno-treatment-num,
 :root:not([data-theme="dark"]) .xeno-treatment-card-clean .xeno-treatment-num {
   color: color-mix(in srgb, var(--accent) 56%, #0f172a);
-  font-size: 1.76rem;
-  min-width: 2rem;
+  font-size: 1.46rem;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border));
 }
 
 :root[data-theme="light"] .xeno-treatment-card-clean .xeno-treatment-badge,
 :root:not([data-theme="dark"]) .xeno-treatment-card-clean .xeno-treatment-badge {
-  border-color: color-mix(in srgb, var(--accent) 24%, var(--border));
-  background: color-mix(in srgb, #ffffff 82%, var(--accent) 14%);
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+  background:
+    linear-gradient(150deg, color-mix(in srgb, #ffffff 84%, var(--accent) 14%), color-mix(in srgb, #ffffff 72%, var(--surface-soft)));
+  box-shadow: 0 2px 8px -4px rgba(180, 140, 110, 0.15);
 }
 
 :root[data-theme="light"] .xeno-treatment-card-clean .xeno-treatment-line,
@@ -9055,6 +9247,31 @@ body.ux-enhanced .orbit-reveal {
   .xeno-treatment-meta span {
     font-size: 0.6rem;
     letter-spacing: 0.06em;
+  }
+
+  .xeno-treatment-card-clean .xeno-treatment-topline {
+    min-height: 0;
+  }
+
+  .xeno-treatment-card-clean .xeno-treatment-topline h3 {
+    min-height: 0;
+  }
+
+  .xeno-treatment-copy {
+    min-height: 0;
+  }
+
+  .xeno-treatment-badge-clean {
+    min-height: 0;
+  }
+
+  .xeno-treatment-card-clean .xeno-treatment-body {
+    grid-template-rows: auto auto auto;
+    row-gap: 0.5rem;
+  }
+
+  .xeno-treatment-card-clean .xeno-treatment-badge-clean > span:last-child {
+    min-height: 0;
   }
 }
 .xeno-section-head {
@@ -9099,41 +9316,80 @@ body.ux-enhanced .orbit-reveal {
   transform: scale(1.04);
 }
 
-.xeno-video-grid {
-  display: grid;
-  gap: 0.65rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.xeno-video-card {
-  border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
-  padding: 0.58rem;
+.xeno-bestworks-section .xeno-section-head > .home-section-head {
+  padding: 0.62rem 0.72rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
   background:
-    radial-gradient(circle at 14% 12%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 62%),
-    color-mix(in srgb, var(--surface) 90%, transparent);
-  display: grid;
-  gap: 0.5rem;
+    radial-gradient(circle at 8% 8%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 64%),
+    color-mix(in srgb, #ffffff 84%, var(--surface-soft));
 }
 
-.xeno-video-card video {
+.xeno-bestworks-note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.xeno-bestworks-grid {
+  display: grid;
+  gap: 0.72rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.xeno-bestworks-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  background: color-mix(in srgb, var(--surface-soft) 75%, transparent);
+  box-shadow: 0 20px 36px -32px rgba(5, 10, 18, 0.92);
+  transition: transform 0.32s cubic-bezier(0.22, 0.68, 0, 1), box-shadow 0.32s ease;
+}
+
+.xeno-bestworks-label {
+  position: absolute;
+  left: 0.62rem;
+  bottom: 0.62rem;
+  margin: 0;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  backdrop-filter: blur(8px);
+  color: color-mix(in srgb, var(--text) 90%, var(--accent));
+  padding: 0.22rem 0.58rem;
+  font-size: 0.64rem;
+  font-weight: 780;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.xeno-bestworks-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 42px -30px rgba(5, 10, 18, 0.65);
+}
+
+.xeno-bestworks-media {
+  overflow: hidden;
+}
+
+.xeno-bestworks-media img {
   width: 100%;
-  border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  height: auto;
+  display: block;
   aspect-ratio: 4 / 5;
   object-fit: cover;
-  background: #050b14;
+  transition: transform 0.28s ease;
 }
 
-.xeno-video-card h3 {
-  margin: 0;
-  font-size: 0.98rem;
+.xeno-bestworks-card:hover img {
+  transform: scale(1.04);
 }
 
-.xeno-video-card p {
-  margin: 0.16rem 0 0;
-  color: var(--muted);
-  font-size: 0.82rem;
+@media (max-width: 760px) {
+  .xeno-bestworks-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .xeno-category-slider-stack {
@@ -10097,8 +10353,21 @@ body.ux-enhanced .orbit-reveal {
 }
 
 /* Story */
+:root[data-theme="dark"] .xeno-story-head {
+  border-color: rgba(80, 65, 50, 0.4);
+  background:
+    radial-gradient(circle at 10% 8%, rgba(196, 168, 144, 0.08), transparent 64%),
+    rgba(34, 28, 22, 0.66);
+}
+
 :root[data-theme="dark"] .xeno-story-copy p {
   color: #a89888;
+}
+
+:root[data-theme="dark"] .xeno-story-highlights span {
+  border-color: rgba(80, 65, 50, 0.45);
+  background: rgba(50, 40, 30, 0.56);
+  color: #c7ab93;
 }
 
 :root[data-theme="dark"] .xeno-story-media {
@@ -10127,6 +10396,21 @@ body.ux-enhanced .orbit-reveal {
   border-color: rgba(80, 65, 50, 0.35);
   background: rgba(26, 22, 18, 0.5);
   box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="dark"] .xeno-bestworks-section .xeno-section-head > .home-section-head {
+  border-color: rgba(80, 65, 50, 0.38);
+  background: rgba(28, 23, 18, 0.72);
+}
+
+:root[data-theme="dark"] .xeno-bestworks-note {
+  color: #ab9a8b;
+}
+
+:root[data-theme="dark"] .xeno-bestworks-label {
+  border-color: rgba(80, 65, 50, 0.52);
+  background: rgba(22, 18, 14, 0.75);
+  color: #ccb59f;
 }
 
 :root[data-theme="dark"] .xeno-gallery-card:focus-visible {
@@ -10211,6 +10495,27 @@ body.ux-enhanced .orbit-reveal {
   border-color: rgba(196, 168, 144, 0.25);
   background: rgba(196, 168, 144, 0.1);
   color: #c4a890;
+}
+
+:root[data-theme="dark"] .xeno-treatment-badge-icon {
+  background: rgba(196, 168, 144, 0.14);
+  color: #d3b8a2;
+  box-shadow: inset 0 0 0 1px rgba(196, 168, 144, 0.22);
+}
+
+:root[data-theme="dark"] .xeno-treatment-card-tone-1 .xeno-treatment-badge-icon {
+  background: rgba(100, 175, 194, 0.24);
+  color: #9fd3e3;
+}
+
+:root[data-theme="dark"] .xeno-treatment-card-tone-2 .xeno-treatment-badge-icon {
+  background: rgba(196, 146, 108, 0.24);
+  color: #e3bd9a;
+}
+
+:root[data-theme="dark"] .xeno-treatment-card-tone-3 .xeno-treatment-badge-icon {
+  background: rgba(138, 116, 180, 0.24);
+  color: #c9b8ea;
 }
 
 :root[data-theme="dark"] .xeno-treatment-line {
@@ -10499,6 +10804,22 @@ body.ux-enhanced .orbit-reveal {
   line-height: 1.55;
 }
 
+.gallery-featured-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.gallery-featured-status strong {
+  color: color-mix(in srgb, var(--text) 90%, var(--accent));
+}
+
+.gallery-featured-inline-note {
+  margin: 0.18rem 0 0;
+  font-size: 0.76rem;
+}
+
 .gallery-card-video {
   width: 100%;
   height: 100%;
@@ -10531,8 +10852,15 @@ body.ux-enhanced .orbit-reveal {
 }
 
 .gallery-card-kind.image {
+  left: 2.7rem;
   background: color-mix(in srgb, #f3fbff 78%, transparent);
   color: color-mix(in srgb, #1170a6 82%, #000);
+}
+
+.gallery-card.is-featured .gallery-card-kind.image {
+  background: color-mix(in srgb, var(--accent) 84%, #ffffff);
+  color: #ffffff;
+  border-color: color-mix(in srgb, var(--accent) 70%, #ffffff);
 }
 
 .gallery-card-kind.video {
@@ -12851,7 +13179,7 @@ body.ux-enhanced .legal-reveal {
 .editorial-footer {
   position: relative;
   overflow: hidden;
-  padding: clamp(4rem, 8vw, 7rem) 0 0;
+  padding: clamp(1.4rem, 3.4vw, 2.25rem) 0 0;
   background:
     linear-gradient(
       180deg,
@@ -13334,7 +13662,7 @@ body.ux-enhanced .legal-reveal {
 
 @media (max-width: 760px) {
   .editorial-footer {
-    padding-top: clamp(2.5rem, 6vw, 4rem);
+    padding-top: clamp(1.2rem, 5vw, 1.8rem);
   }
 
   .editorial-cta-card {

@@ -84,6 +84,7 @@ export default defineSchema({
     originalName: v.string(),
     contentType: v.optional(v.string()),
     size: v.optional(v.number()),
+    featured: v.optional(v.boolean()),
     createdAt: v.number(),
   }).index("by_created_at", ["createdAt"]),
 

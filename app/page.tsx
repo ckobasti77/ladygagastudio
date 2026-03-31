@@ -11,7 +11,6 @@ import {
   ChevronRight,
   Droplets,
   Handbag,
-  Images,
   MessageCircle,
   PackageSearch,
   Palette,
@@ -20,11 +19,12 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
-  Video,
+  Award,
+  Dna,
   Zap,
 } from "lucide-react";
 import { TretmaniSlider } from "@/components/tretmani-slider";
-import { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 
 type HomeProduct = {
   _id: string;
@@ -175,14 +175,17 @@ export default function HomePage() {
   const snapshot = (useQuery(api.products.homeSnapshot, {}) as HomeSnapshot | undefined) ?? EMPTY_SNAPSHOT;
   const rawGalleryMedia = useQuery(api.gallery.list, {}) as GalleryMedia[] | undefined;
   const galleryMedia = rawGalleryMedia ?? EMPTY_MEDIA;
+  const featuredWorksRaw = useQuery(api.gallery.featuredList, {}) as GalleryMedia[] | undefined;
 
   const { featuredProducts, featuredCategorySliders, sidebarProducts } = snapshot;
 
   const galleryImages = useMemo(() => galleryMedia.filter((item) => item.kind === "image"), [galleryMedia]);
-  const galleryVideos = useMemo(() => galleryMedia.filter((item) => item.kind === "video"), [galleryMedia]);
 
   const featuredImages = useMemo(() => galleryImages.slice(0, 8), [galleryImages]);
-  const featuredVideos = useMemo(() => galleryVideos.slice(0, 3), [galleryVideos]);
+  const featuredWorks = useMemo(
+    () => (featuredWorksRaw ?? []).filter((item) => item.kind === "image").slice(0, 3),
+    [featuredWorksRaw],
+  );
   const sidebarDisplayProducts = sidebarProducts;
   const sliderSections = featuredCategorySliders.length > 0
     ? featuredCategorySliders
@@ -258,12 +261,6 @@ export default function HomePage() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activeHomeLightboxMedia, closeHomeLightbox, nextHomeMedia, previousHomeMedia]);
-
-  const onHomeGalleryCardKeyDown = (event: ReactKeyboardEvent<HTMLElement>, index: number) => {
-    if (event.key !== "Enter" && event.key !== " ") return;
-    event.preventDefault();
-    openHomeLightbox(index);
-  };
 
   return (
     <div className="page-grid home-page xeno-home">
@@ -393,17 +390,22 @@ export default function HomePage() {
         <div className="xeno-main-column">
           <section className="home-panel home-reveal xeno-story">
             <div className="xeno-story-copy">
-              <div className="home-section-head">
+              <div className="home-section-head xeno-story-head">
                 <p className="home-kicker home-kicker-row">
                   <Sparkles className="home-kicker-glyph" aria-hidden="true" />
                   <span>Vizija studija</span>
                 </p>
-                <h2>U Lady Gaga no 1 svaki tretman je pažljivo osmišljen da kosa odmah izgleda luksuzno,a njena lepota i zdravlje traje.</h2>
+                <h2>Svaki tretman je osmisljen da kosa izgleda luksuzno odmah, a rezultat ostane stabilan i dugotrajan.</h2>
               </div>
 
               {founderStory.slice(2).map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>
               ))}
+              <div className="xeno-story-highlights" aria-label="Glavni principi rada">
+                <span>Personalizovan plan</span>
+                <span>Premium preparati</span>
+                <span>Dugotrajan rezultat</span>
+              </div>
             </div>
 
             <div className="xeno-story-media">
@@ -437,38 +439,56 @@ export default function HomePage() {
             </div>
           </section>
 
-          <section className="home-panel home-reveal xeno-video-section">
-            <div className="xeno-section-head">
+          <section className="home-panel home-reveal xeno-bestworks-section">
+            <div className="xeno-section-head" style={{ marginBottom: '1.5rem' }}>
               <div className="home-section-head">
                 <p className="home-kicker home-kicker-row">
-                  <Video className="home-kicker-glyph" aria-hidden="true" />
-                  <span>Snimci iz galerije</span>
+                  <Award className="home-kicker-glyph" aria-hidden="true" />
+                  <span>Top radovi iz galerije</span>
                 </p>
-                <h2>Snimci koji prikazuju teksturu, sjaj i finalni finish u pokretu.</h2>
+                <h2>Tri rada koja najbolje predstavljaju rezultat studija.</h2>
               </div>
               <Link href="/galerija" className="ghost-btn home-second-action">
-                Pogledaj sve snimke
+                Pogledaj galeriju
               </Link>
             </div>
+            
 
-            {rawGalleryMedia === undefined ? (
-              <p className="home-empty">Ucitavanje snimaka...</p>
-            ) : featuredVideos.length === 0 ? (
+            {featuredWorksRaw === undefined ? (
+              <p className="home-empty">Učitavanje...</p>
+            ) : featuredWorks.length === 0 ? (
               <div className="empty-state xeno-empty">
-                <h3>Trenutno nema snimaka u galeriji.</h3>
-                <p>Novi video materijal iz studija uskoro ce biti objavljen.</p>
+                <h3>Istaknuti radovi jos nisu izabrani.</h3>
+                <p>U galeriji oznacite 3 rada i prikazacemo ih ovde.</p>
               </div>
             ) : (
-              <div className="xeno-video-grid">
-                {featuredVideos.map((video) => (
-                  <article key={video._id} className="xeno-video-card" data-cosmic-tilt>
-                    <video controls preload="metadata" playsInline muted>
-                      <source src={video.url} type={video.contentType || "video/mp4"} />
-                    </video>
-                    <div>
-                      <h3>{video.originalName || "Snimak iz studija"}</h3>
-                      <p>{formatShortDate(video.createdAt)}</p>
+              <div className="xeno-bestworks-grid">
+                {featuredWorks.map((item, index) => (
+                  <article
+                    key={item._id}
+                    className="xeno-bestworks-card"
+                    data-cosmic-tilt
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => openHomeLightbox(index)}
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter" && event.key !== " ") return;
+                      event.preventDefault();
+                      openHomeLightbox(index);
+                    }}
+                    aria-label={`Otvori izdvojeni rad ${index + 1} od ${featuredWorks.length}`}
+                  >
+                    <div className="xeno-bestworks-media">
+                      <Image
+                        src={item.url}
+                        alt={item.originalName || "Rad iz studija"}
+                        width={600}
+                        height={750}
+                        sizes="(max-width: 760px) 100vw, (max-width: 1080px) 50vw, 33vw"
+                        loading="lazy"
+                      />
                     </div>
+                    <p className="xeno-bestworks-label">Rad {String(index + 1).padStart(2, "0")}</p>
                   </article>
                 ))}
               </div>
@@ -495,10 +515,11 @@ export default function HomePage() {
             </div>
             <div className="xeno-treatment-grid xeno-treatment-grid-brutal">
               {milkShakeTreatments.map((treatment, i) => {
+                const BadgeIcon = [Droplets, Dna, Sparkles][i] ?? Sparkles;
                 return (
                   <article
                     key={treatment.name}
-                    className="xeno-treatment-card xeno-treatment-card-clean"
+                    className={`xeno-treatment-card xeno-treatment-card-clean xeno-treatment-card-tone-${i + 1}`}
                     style={{ "--t-i": i } as React.CSSProperties}
                   >
                     <div className="xeno-treatment-body">
@@ -510,7 +531,9 @@ export default function HomePage() {
                       </div>
                       <p className="xeno-treatment-copy">{treatment.description}</p>
                       <p className="xeno-treatment-badge xeno-treatment-badge-clean">
-                        <Sparkles size={12} aria-hidden="true" />
+                        <span className="xeno-treatment-badge-icon" aria-hidden="true">
+                          <BadgeIcon size={18} />
+                        </span>
                         <span>{treatment.benefit}</span>
                       </p>
                     </div>
@@ -736,12 +759,4 @@ function formatRsd(value: number) {
   return `${value.toLocaleString("sr-RS")} RSD`;
 }
 
-function formatShortDate(timestamp: number) {
-  if (!Number.isFinite(timestamp) || timestamp <= 0) return "";
-  const date = new Date(timestamp);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}.${month}.${year}`;
-}
 

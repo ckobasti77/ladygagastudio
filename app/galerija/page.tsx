@@ -8,7 +8,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { GalleryLightbox } from "@/components/gallery-lightbox";
 import { useAuth } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
-import { Download, Handbag, ImagePlus, Pause, Play, Trash2, X } from "lucide-react";
+import { CheckCircle2, Download, Handbag, ImagePlus, Pause, Play, Trash2, X } from "lucide-react";
 import {
   ChangeEvent,
   FormEvent,
@@ -30,6 +30,7 @@ type GalleryMedia = {
   originalName: string;
   contentType?: string;
   size?: number;
+  featured?: boolean;
   createdAt: number;
   kind: MediaKind;
 };
@@ -60,6 +61,13 @@ export default function GalleryPage() {
 
   const addImage = useMutation(api.gallery.addImage);
   const deleteImage = useMutation(api.gallery.deleteImage);
+  const toggleFeaturedMutation = useMutation(api.gallery.toggleFeatured);
+
+  const featuredCount = useMemo(
+    () => media.filter((item) => item.featured === true && item.kind === "image").length,
+    [media],
+  );
+  const isFeaturedFull = featuredCount >= 3;
 
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -79,6 +87,32 @@ export default function GalleryPage() {
     const timer = window.setTimeout(() => setFeedback(null), 4200);
     return () => window.clearTimeout(timer);
   }, [feedback]);
+
+  const onToggleFeatured = useCallback(
+    async (item: GalleryMedia) => {
+      if (item.kind !== "image") {
+        setFeedback({ type: "error", message: "Samo slike mogu biti istaknute." });
+        return;
+      }
+      if (!item.featured && isFeaturedFull) {
+        setFeedback({ type: "error", message: "Vec su oznacene 3 slike. Skinite jednu oznaku da biste dodali novu." });
+        return;
+      }
+      try {
+        await toggleFeaturedMutation({
+          imageId: item._id,
+          featured: !item.featured,
+        });
+        setFeedback({
+          type: "success",
+          message: item.featured ? "Slika je uklonjena iz istaknutih." : "Slika je oznacena za naslovnu.",
+        });
+      } catch {
+        setFeedback({ type: "error", message: "Akcija nije uspela. Pokusajte ponovo." });
+      }
+    },
+    [isFeaturedFull, toggleFeaturedMutation],
+  );
 
   const onUploadMedia = useCallback(
     async (files: FileList | null) => {
@@ -469,6 +503,12 @@ export default function GalleryPage() {
               : "Istraži galeriju i otvori kadar koji želis da pregledas preko celog ekrana. Tasteri: "}
             <kbd>Left</kbd> <kbd>Right</kbd> i <kbd>Esc</kbd>.
           </p>
+          {isAdmin ? (
+            <p className="gallery-featured-status">
+              Istaknuto za naslovnu: <strong>{featuredCount}/3</strong>. Kada oznacis 3 rada, ostale slike se zakljucavaju
+              dok ne skines jednu oznaku.
+            </p>
+          ) : null}
         </div>
 
         {rawMedia === undefined ? (
@@ -486,10 +526,13 @@ export default function GalleryPage() {
               kind="image"
               items={images}
               isAdmin={isAdmin}
+              featuredCount={featuredCount}
+              isFeaturedFull={isFeaturedFull}
               onOpen={openLightbox}
               onCardKeyDown={onCardKeyDown}
               onDownload={download}
               onDelete={requestDelete}
+              onToggleFeatured={onToggleFeatured}
             />
 
             <GalleryMediaSection
@@ -498,10 +541,13 @@ export default function GalleryPage() {
               kind="video"
               items={videos}
               isAdmin={isAdmin}
+              featuredCount={featuredCount}
+              isFeaturedFull={isFeaturedFull}
               onOpen={openLightbox}
               onCardKeyDown={onCardKeyDown}
               onDownload={download}
               onDelete={requestDelete}
+              onToggleFeatured={onToggleFeatured}
             />
           </div>
         ) : (
@@ -578,20 +624,26 @@ function GalleryMediaSection({
   kind,
   items,
   isAdmin,
+  featuredCount,
+  isFeaturedFull,
   onOpen,
   onCardKeyDown,
   onDownload,
   onDelete,
+  onToggleFeatured,
 }: {
   title: string;
   description: string;
   kind: MediaKind;
   items: GalleryMedia[];
   isAdmin: boolean;
+  featuredCount: number;
+  isFeaturedFull: boolean;
   onOpen: (kind: MediaKind, index: number) => void;
   onCardKeyDown: (event: ReactKeyboardEvent<HTMLElement>, kind: MediaKind, index: number) => void;
   onDownload: (item: GalleryMedia) => Promise<void>;
   onDelete: (item: GalleryMedia) => void;
+  onToggleFeatured: (item: GalleryMedia) => void;
 }) {
   return (
     <article className="gallery-media-section">
@@ -599,6 +651,11 @@ function GalleryMediaSection({
         <p className="orbit-panel-tag">{title}</p>
         <h3>{title}</h3>
         <p>{description}</p>
+        {isAdmin && kind === "image" ? (
+          <p className="gallery-featured-inline-note">
+            Oznaceno: <strong>{featuredCount}/3</strong> radova za naslovnu.
+          </p>
+        ) : null}
       </div>
 
       {items.length === 0 ? (
@@ -611,7 +668,7 @@ function GalleryMediaSection({
           {items.map((item, index) => (
             <figure
               key={item._id}
-              className="gallery-card"
+              className={`gallery-card${item.featured ? " is-featured" : ""}`}
               role="button"
               tabIndex={0}
               onClick={() => onOpen(kind, index)}
@@ -636,6 +693,28 @@ function GalleryMediaSection({
               </div>
 
               <span className={`gallery-card-kind ${kind}`}>{kind === "image" ? "Slika" : "Snimak"}</span>
+
+              {isAdmin && kind === "image" ? (
+                <button
+                  type="button"
+                  className={`gallery-featured-toggle ${item.featured ? "is-featured" : ""}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onToggleFeatured(item);
+                  }}
+                  disabled={!item.featured && isFeaturedFull}
+                  aria-label={item.featured ? "Ukloni iz istaknutih" : "Označi kao istaknuto"}
+                  title={
+                    item.featured
+                      ? "Ukloni iz istaknutih"
+                      : isFeaturedFull
+                        ? "Već su izabrane 3 istaknute slike"
+                        : "Označi kao istaknuto"
+                  }
+                >
+                  <CheckCircle2 aria-hidden />
+                </button>
+              ) : null}
 
               <figcaption className="gallery-card-caption">
                 <span>{formatShortDate(item.createdAt)}</span>

@@ -11,6 +11,7 @@ type GalleryRow = {
   originalName: string;
   contentType?: string;
   size?: number;
+  featured?: boolean;
   createdAt: number;
   kind: MediaKind;
 };
@@ -40,6 +41,7 @@ export const list = query({
           originalName: doc.originalName,
           contentType: doc.contentType,
           size: doc.size,
+          featured: doc.featured,
           createdAt: doc.createdAt,
           kind: inferMediaKind(doc.contentType, doc.originalName),
         };
@@ -50,6 +52,63 @@ export const list = query({
     return resolved
       .filter((row): row is GalleryRow => row !== null)
       .sort((a, b) => b.createdAt - a.createdAt || (b._id as string).localeCompare(a._id as string));
+  },
+});
+
+export const featuredList = query({
+  args: {},
+  handler: async (ctx): Promise<GalleryRow[]> => {
+    const docs = await ctx.db.query("galleryImages").collect();
+    const featuredDocs = docs.filter(
+      (doc) => doc.featured === true && inferMediaKind(doc.contentType, doc.originalName) === "image",
+    );
+    const resolved = await Promise.all(
+      featuredDocs.map(async (doc) => {
+        const url = await ctx.storage.getUrl(doc.storageId);
+        if (!url) return null;
+        return {
+          _id: doc._id,
+          storageId: doc.storageId,
+          url,
+          originalName: doc.originalName,
+          contentType: doc.contentType,
+          size: doc.size,
+          featured: true,
+          createdAt: doc.createdAt,
+          kind: inferMediaKind(doc.contentType, doc.originalName),
+        } as GalleryRow;
+      }),
+    );
+    return resolved
+      .filter((row): row is GalleryRow => row !== null)
+      .sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+export const toggleFeatured = mutation({
+  args: {
+    imageId: v.id("galleryImages"),
+    featured: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const doc = await ctx.db.get(args.imageId);
+    if (!doc) throw new Error("Gallery image not found.");
+    const targetKind = inferMediaKind(doc.contentType, doc.originalName);
+
+    if (args.featured) {
+      if (targetKind !== "image") {
+        throw new Error("Only images can be featured.");
+      }
+      const allDocs = await ctx.db.query("galleryImages").collect();
+      const currentFeaturedCount = allDocs.filter(
+        (d) => d.featured === true && inferMediaKind(d.contentType, d.originalName) === "image",
+      ).length;
+      if (currentFeaturedCount >= 3) {
+        throw new Error("Maximum 3 featured images allowed.");
+      }
+    }
+
+    await ctx.db.patch(args.imageId, { featured: args.featured });
   },
 });
 

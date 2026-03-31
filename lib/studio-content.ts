@@ -11,18 +11,21 @@ export const milkShakeTreatments = [
     description:
       "Kompletna linija tretmana za hidrataciju, obnovu i zaštitu kose, prilagođena stvarnom stanju vlasi.",
     benefit: "Hidratacija + obnova + zaštita",
+    icon: "droplets",
   },
   {
     name: "Amino 18",
     description:
       "Intenzivna obnova strukture vlasi i jačanje kose koja je oslabljena blajhanjem, farbanjem ili toplotom.",
     benefit: "Dubinska rekonstrukcija",
+    icon: "dna",
   },
   {
     name: "K-Silk Keratin",
     description:
       "Tretman za ispravljanje i zaglađivanje sa dugotrajnim sjajem, uz smanjenje frizza i lakše feniranje.",
     benefit: "Ravna, glatka i sjajna kosa",
+    icon: "sparkles",
   },
 ] as const;
 
