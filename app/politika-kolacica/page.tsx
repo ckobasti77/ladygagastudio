@@ -10,22 +10,22 @@ import { LEGAL_LAST_UPDATED } from "@/lib/legal-content";
 
 export const metadata: Metadata = {
   title: "Politika kolačića | Studio Lady Gaga",
-  description: "Detalji o kolacicima i localStorage tehnologijama na sajtu Studio Lady Gaga.",
+  description: "Detalji o kolačićima i localStorage tehnologijama na sajtu Studio Lady Gaga.",
 };
 
 export default function CookiePolicyPage() {
   return (
     <LegalShell
       eyebrow="Politika kolačića"
-      title="Kolacici, localStorage i consent preference"
-      lead="Ova politika opisuje koje tehnologije koristimo, zasto ih koristimo i kako ih možete kontrolisati."
+      title="Kolačići, localStorage i consent preference"
+      lead="Ova politika opisuje koje tehnologije koristimo, zašto ih koristimo i kako ih možete kontrolisati."
       lastUpdated={LEGAL_LAST_UPDATED}
       activePath="/politika-kolacica"
     >
       <section className="legal-doc-section">
-        <h2>1. Šta su kolacici</h2>
+        <h2>1. Šta su kolačići</h2>
         <p>
-          Kolacici su mali tekstualni zapisi koje browser cuva radi pravilnog rada sajta, pamcenja preferenci i
+          Kolačići su mali tekstualni zapisi koje browser čuva radi pravilnog rada sajta, pamćenja preferenci i
           eventualne analitike. Pored klasicnih kolačića, koristimo i localStorage za funkcije koje zahtevaju brzu
           lokalnu memoriju.
         </p>
@@ -38,7 +38,7 @@ export default function CookiePolicyPage() {
             <tr>
               <th>Kategorija</th>
               <th>Svrha</th>
-              <th>Može se iskljuciti</th>
+              <th>Može se isključiti</th>
             </tr>
           </thead>
           <tbody>
@@ -77,7 +77,7 @@ export default function CookiePolicyPage() {
               <td>{COOKIE_CONSENT_COOKIE_NAME}</td>
               <td>Cookie (first-party)</td>
               <td>12 meseci</td>
-              <td>Pamti da li je korisnik dao/izmenio consent.</td>
+              <td>Pamti da li je korisnik dao ili izmenio consent.</td>
             </tr>
             <tr>
               <td>{COOKIE_CONSENT_STORAGE_KEY}</td>
@@ -121,8 +121,8 @@ export default function CookiePolicyPage() {
       <section className="legal-doc-section">
         <h2>5. Brisanje kolačića u browseru</h2>
         <p>
-          Možete rucno obrisati kolacice i localStorage kroz podešavanja browsera. Nakon brisanja, consent banner ce
-          biti ponovo prikazan pri sledecoj poseti.
+          Možete ručno obrisati kolačiće i localStorage kroz podešavanja browsera. Nakon brisanja, consent banner će
+          biti ponovo prikazan pri sledećoj poseti.
         </p>
       </section>
 

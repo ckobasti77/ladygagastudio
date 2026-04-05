@@ -16,7 +16,6 @@ export function Footer() {
   const quickLinks = [
     { href: "/", label: t.nav.home },
     { href: "/o-nama", label: t.nav.about },
-    { href: "/galerija", label: t.nav.gallery },
     { href: "/proizvodi", label: t.nav.products },
     { href: "/kontakt", label: t.nav.contact },
     { href: "/pravno", label: "Pravni centar" },
@@ -41,7 +40,7 @@ export function Footer() {
             Specijalizovani tretmani za oštećenu i blajhanu kosu, zahtevne koloracije, keratin i glam frizure uz plan
             nege koji čuva rezultat i posle salona.
           </p>
-          <div className="editorial-cta-badges" aria-label="Najtrazenije usluge">
+          <div className="editorial-cta-badges" aria-label="Najtraženije usluge">
             {serviceHighlights.map((item) => (
               <span className="editorial-badge" key={item}>
                 {item}
@@ -51,9 +50,6 @@ export function Footer() {
           <div className="editorial-cta-actions">
             <Link href="/kontakt" className="editorial-btn-primary">
               Zakaži termin
-            </Link>
-            <Link href="/galerija" className="editorial-btn-secondary">
-              Pogledaj galeriju
             </Link>
           </div>
         </section>

@@ -66,7 +66,7 @@ function formatDateTime(timestamp: number) {
 
 function statusLabel(status: OrderStatus) {
   if (status === "processed") return "U obradi";
-  if (status === "completed") return "Zavrseno";
+  if (status === "completed") return "Završeno";
   return "Novo";
 }
 
@@ -319,13 +319,13 @@ export default function AdminOrdersLedgerPage() {
         type: "success",
         message:
           result.missingProductsCount > 0
-            ? `Narudzbina ${order.orderNumber} je obrisana. Neki proizvodi vise ne postoje, pa stanje nije potpuno vraceno.`
+            ? `Narudžbina ${order.orderNumber} je obrisana. Neki proizvodi više ne postoje, pa stanje nije potpuno vraćeno.`
             : result.restockedQuantity > 0
-              ? `Narudzbina ${order.orderNumber} je obrisana i vraceno je ${result.restockedQuantity} komada na stanje.`
-              : `Narudzbina ${order.orderNumber} je obrisana.`,
+              ? `Narudžbina ${order.orderNumber} je obrisana i vraćeno je ${result.restockedQuantity} komada na stanje.`
+              : `Narudžbina ${order.orderNumber} je obrisana.`,
       });
     } catch (error: unknown) {
-      const message = error instanceof Error && error.message ? error.message : "Brisanje porudzbine nije uspelo.";
+      const message = error instanceof Error && error.message ? error.message : "Brisanje porudžbine nije uspelo.";
       setFeedback({ type: "error", message });
     } finally {
       setIsDeleting(false);
@@ -359,7 +359,7 @@ export default function AdminOrdersLedgerPage() {
           <h1>Kontrolna tabla za porudžbine bez konfuzije</h1>
           <p className="subtitle">
             Jedan ekran za kompletan pregled kupaca, iznosa i statusa. Pretraga, filteri i akcije su optimizovani da
-            admin može da radi brzo i bez gresaka.
+            admin može da radi brzo i bez grešaka.
           </p>
         </div>
         <div className={`admin-hero-actions ${styles.heroActions}`}>
@@ -390,7 +390,7 @@ export default function AdminOrdersLedgerPage() {
           <strong>{summary.processed}</strong>
         </article>
         <article className={styles.kpiCard}>
-          <span>Zavrsene</span>
+          <span>Završene</span>
           <strong>{summary.completed}</strong>
         </article>
         <article className={styles.kpiCard}>
@@ -443,7 +443,7 @@ export default function AdminOrdersLedgerPage() {
             className={`${styles.quickStatusChip} ${styles.completedChip} ${statusFilter === "completed" ? styles.activeChip : ""}`}
             onClick={() => setStatusFilter("completed")}
           >
-            Zavrseno ({summary.completed})
+            Završeno ({summary.completed})
           </button>
         </div>
 
@@ -463,7 +463,7 @@ export default function AdminOrdersLedgerPage() {
               <option value="all">Svi statusi</option>
               <option value="pending">Novo</option>
               <option value="processed">U obradi</option>
-              <option value="completed">Zavrseno</option>
+              <option value="completed">Završeno</option>
             </select>
           </label>
 
@@ -484,7 +484,7 @@ export default function AdminOrdersLedgerPage() {
             <select value={sortBy} onChange={(event) => setSortBy(event.target.value as SortBy)}>
               <option value="newest">Najnovije</option>
               <option value="oldest">Najstarije</option>
-              <option value="amountDesc">Najveci iznos</option>
+              <option value="amountDesc">Najveći iznos</option>
               <option value="amountAsc">Najmanji iznos</option>
               <option value="customerAsc">Kupac A-Z</option>
             </select>
@@ -543,7 +543,7 @@ export default function AdminOrdersLedgerPage() {
 
       {loading ? (
         <section className={`toolbar-card ${styles.emptyState}`}>
-          <h3>Ucitavanje evidencije narudžbina...</h3>
+          <h3>Učitavanje evidencije narudžbina...</h3>
           <p>Sistem priprema tabelu i filtere.</p>
         </section>
       ) : filteredOrders.length === 0 ? (
@@ -653,7 +653,7 @@ export default function AdminOrdersLedgerPage() {
                             >
                               <option value="pending">Novo</option>
                               <option value="processed">U obradi</option>
-                              <option value="completed">Zavrseno</option>
+                              <option value="completed">Završeno</option>
                             </select>
                           </div>
                         </td>
@@ -672,9 +672,9 @@ export default function AdminOrdersLedgerPage() {
                               className={`ghost-btn danger ${styles.deleteButton}`}
                               onClick={() => setDeleteTarget(order)}
                               disabled={isBusy}
-                              aria-label={`Obrisi narudzbinu ${order.orderNumber}`}
+                              aria-label={`Obriši narudžbinu ${order.orderNumber}`}
                             >
-                              Obrisi
+                              Obriši
                             </button>
                           </div>
                         </td>
@@ -750,7 +750,7 @@ export default function AdminOrdersLedgerPage() {
               onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
               disabled={safePage >= totalPages}
             >
-              Sledeca
+              Sledeća
             </button>
           </div>
         </section>
@@ -758,8 +758,8 @@ export default function AdminOrdersLedgerPage() {
 
       {deleteTarget ? (
         <Modal onClose={closeDeleteModal}>
-          <h3>Da li ste sigurni da zelite da obrisete narudzbinu {deleteTarget.orderNumber}?</h3>
-          <p>Brisanjem ce porudzbina biti uklonjena iz evidencije, a stanje proizvoda ce biti vraceno gde je to moguce.</p>
+          <h3>Da li ste sigurni da želite da obrišete narudžbinu {deleteTarget.orderNumber}?</h3>
+          <p>Brisanjem će porudžbina biti uklonjena iz evidencije, a stanje proizvoda će biti vraćeno gde je to moguće.</p>
           <div className="modal-actions">
             <button type="button" className="ghost-btn" onClick={closeDeleteModal} disabled={isDeleting}>
               Odustani

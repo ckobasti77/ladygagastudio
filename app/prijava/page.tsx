@@ -14,7 +14,7 @@ function resolveErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) {
     return error.message;
   }
-  return "Dogodila se greska. Pokusajte ponovo.";
+  return "Dogodila se greška. Pokušajte ponovo.";
 }
 
 function AuthPageContent() {
@@ -79,10 +79,10 @@ function AuthPageContent() {
       if (mode === "signin") {
         const session = await loginUser(email, password);
         if (!session) {
-          setAuthStatus({ type: "error", message: "Neispravan email ili sifra." });
+          setAuthStatus({ type: "error", message: "Neispravan email ili šifra." });
           return;
         }
-        setAuthStatus({ type: "success", message: "Uspesna prijava." });
+      setAuthStatus({ type: "success", message: "Uspešna prijava." });
         router.push(session.isAdmin ? "/admin" : "/");
         return;
       }
@@ -91,7 +91,7 @@ function AuthPageContent() {
       if (marketingAccepted) {
         await subscribeToMarketing({ email, firstName, lastName, source: "registration" });
       }
-      setAuthStatus({ type: "success", message: "Registracija uspesna. Prijavljeni ste." });
+      setAuthStatus({ type: "success", message: "Registracija uspešna. Prijavljeni ste." });
       router.push("/");
     } catch (error: unknown) {
       setAuthStatus({ type: "error", message: resolveErrorMessage(error) });
@@ -122,18 +122,18 @@ function AuthPageContent() {
     setResetStatus({ type: "idle", message: "" });
 
     if (newPassword.trim().length < 8) {
-      setResetStatus({ type: "error", message: "Nova sifra mora imati najmanje 8 karaktera." });
+      setResetStatus({ type: "error", message: "Nova šifra mora imati najmanje 8 karaktera." });
       return;
     }
     if (!passwordRules.every((rule) => rule.ok)) {
       setResetStatus({
         type: "error",
-        message: "Nova sifra mora imati veliko slovo, broj i specijalni znak.",
+        message: "Nova šifra mora imati veliko slovo, broj i specijalni znak.",
       });
       return;
     }
     if (newPassword !== confirmPassword) {
-      setResetStatus({ type: "error", message: "Potvrda sifre se ne poklapa." });
+      setResetStatus({ type: "error", message: "Potvrda šifre se ne poklapa." });
       return;
     }
 
@@ -173,7 +173,7 @@ function AuthPageContent() {
             <h1 className="auth-luxe-title">Prijava i bezbednost naloga</h1>
             <p className="auth-luxe-lead">
               Prijavite se ili kreirajte nalog kroz jedinstven i bezbedan pristup.
-              Sistem automatski primenjuje nivo ovlascenja prema vasem nalogu.
+              Sistem automatski primenjuje nivo ovlašćenja prema vašem nalogu.
             </p>
             <div className="auth-luxe-tags">
               <span className="auth-luxe-tag">Prijava</span>
@@ -188,7 +188,7 @@ function AuthPageContent() {
             <>
               <div className="auth-luxe-card-head">
                 <h2>{mode === "signin" ? "Prijava naloga" : "Registracija naloga"}</h2>
-                <div className="auth-luxe-tabs" role="tablist" aria-label="Korisnicka autentikacija">
+                <div className="auth-luxe-tabs" role="tablist" aria-label="Korisnička autentikacija">
                   <button
                     type="button"
                     className={`auth-luxe-tab ${mode === "signin" ? "is-active" : ""}`}
@@ -228,7 +228,7 @@ function AuthPageContent() {
                     required
                     type="password"
                     value={password}
-                    placeholder="Sifra"
+                    placeholder="Šifra"
                     onChange={(event) => setPassword(event.target.value)}
                     minLength={6}
                   />
@@ -263,15 +263,15 @@ function AuthPageContent() {
                       setForgotStatus({ type: "idle", message: "" });
                     }}
                   >
-                    Zaboravljena sifra
+                    Zaboravljena šifra
                   </button>
                 </div>
               </form>
 
               {showForgotPassword ? (
                 <form className="auth-luxe-forgot" onSubmit={submitForgotPassword}>
-                  <h3>Reset sifre</h3>
-                  <p>Unesite email i poslacemo vam link za postavljanje nove lozinke.</p>
+                  <h3>Reset šifre</h3>
+                  <p>Unesite email i poslaćemo vam link za postavljanje nove lozinke.</p>
                   <div className="auth-luxe-field">
                     <input
                       required
@@ -294,15 +294,15 @@ function AuthPageContent() {
           ) : (
             <div className="auth-luxe-reset-shell">
               <div className="auth-luxe-card-head">
-                <h2>Bezbedno resetovanje sifre</h2>
+                <h2>Bezbedno resetovanje šifre</h2>
                 <p className="auth-luxe-reset-caption">
-                  Link je jednokratan. Postavite jacu sifru kako biste zastitili nalog i nastavili prijavu bez prekida.
+                  Link je jednokratan. Postavite jaču šifru kako biste zaštitili nalog i nastavili prijavu bez prekida.
                 </p>
               </div>
 
               <div className="auth-luxe-steps" aria-hidden="true">
                 <span className="auth-luxe-step is-done">Link otvoren</span>
-                <span className="auth-luxe-step is-current">Nova sifra</span>
+                <span className="auth-luxe-step is-current">Nova šifra</span>
                 <span className="auth-luxe-step">Potvrda</span>
               </div>
 
@@ -311,13 +311,13 @@ function AuthPageContent() {
                   <ShieldAlert aria-hidden="true" />
                   <div>
                     <strong>Reset link nije validan.</strong>
-                    <p>Otvorite prijavu i zatrazi novi link za reset sifre.</p>
+                    <p>Otvorite prijavu i zatražite novi link za reset šifre.</p>
                   </div>
                 </div>
               ) : (
                 <form className="auth-luxe-form" onSubmit={submitResetPassword}>
                   <label className="auth-luxe-label" htmlFor="reset-new-password">
-                    Nova sifra
+                    Nova šifra
                   </label>
                   <div className="auth-luxe-pw-wrap">
                     <input
@@ -325,7 +325,7 @@ function AuthPageContent() {
                       required
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
-                      placeholder="Unesite novu sifru"
+                      placeholder="Unesite novu šifru"
                       onChange={(event) => setNewPassword(event.target.value)}
                       minLength={8}
                     />
@@ -333,14 +333,14 @@ function AuthPageContent() {
                       type="button"
                       className="auth-luxe-pw-toggle"
                       onClick={() => setShowNewPassword((value) => !value)}
-                      aria-label={showNewPassword ? "Sakrij sifru" : "Prikazi sifru"}
+                      aria-label={showNewPassword ? "Sakrij šifru" : "Prikaži šifru"}
                     >
                       {showNewPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
                     </button>
                   </div>
 
                   <label className="auth-luxe-label" htmlFor="reset-confirm-password">
-                    Potvrda nove sifre
+                    Potvrda nove šifre
                   </label>
                   <div className="auth-luxe-pw-wrap">
                     <input
@@ -348,7 +348,7 @@ function AuthPageContent() {
                       required
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
-                      placeholder="Ponovite novu sifru"
+                      placeholder="Ponovite novu šifru"
                       onChange={(event) => setConfirmPassword(event.target.value)}
                       minLength={8}
                     />
@@ -356,7 +356,7 @@ function AuthPageContent() {
                       type="button"
                       className="auth-luxe-pw-toggle"
                       onClick={() => setShowConfirmPassword((value) => !value)}
-                      aria-label={showConfirmPassword ? "Sakrij potvrdu sifre" : "Prikazi potvrdu sifre"}
+                      aria-label={showConfirmPassword ? "Sakrij potvrdu šifre" : "Prikaži potvrdu šifre"}
                     >
                       {showConfirmPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
                     </button>
@@ -369,7 +369,7 @@ function AuthPageContent() {
                     <p>{passwordStrengthLabel}</p>
                   </div>
 
-                  <ul className="auth-luxe-rules" aria-label="Pravila za novu sifru">
+                  <ul className="auth-luxe-rules" aria-label="Pravila za novu šifru">
                     {passwordRules.map((rule) => (
                       <li key={rule.id} className={rule.ok ? "is-ok" : ""}>
                         <CheckCircle2 aria-hidden="true" />
@@ -379,7 +379,7 @@ function AuthPageContent() {
                   </ul>
 
                   {confirmPassword.length > 0 && !passwordsMatch ? (
-                    <p className="error-text">Potvrda sifre se ne poklapa sa novom sifrom.</p>
+                    <p className="error-text">Potvrda šifre se ne poklapa sa novom šifrom.</p>
                   ) : null}
 
                   {resetStatus.type !== "idle" ? (
@@ -389,7 +389,7 @@ function AuthPageContent() {
                   <div className="auth-luxe-actions">
                     <button type="submit" className="auth-luxe-submit" disabled={resetBusy || !canSubmitReset}>
                       <span className="auth-luxe-submit-shine" aria-hidden="true" />
-                      {resetBusy ? "Resetovanje..." : "Sacuvaj novu sifru"}
+                      {resetBusy ? "Resetovanje..." : "Sačuvaj novu šifru"}
                     </button>
                     <button type="button" className="auth-luxe-ghost" onClick={() => router.replace("/prijava")}>
                       Nazad na prijavu
@@ -401,7 +401,7 @@ function AuthPageContent() {
               <div className="auth-luxe-help">
                 <KeyRound aria-hidden="true" />
                 <p>
-                  Ako je link istekao, vratite se na prijavu i izaberite opciju &quot;Zaboravljena sifra&quot;.
+                  Ako je link istekao, vratite se na prijavu i izaberite opciju &quot;Zaboravljena šifra&quot;.
                 </p>
               </div>
             </div>

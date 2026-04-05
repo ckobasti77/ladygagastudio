@@ -21,21 +21,21 @@ const OFFER_TEMPLATES: OfferTemplate[] = [
     name: "Blonde Refresh",
     subject: "Blonde refresh termin + mini plan nege",
     message:
-      "Rezervisite svoj blonde refresh termin i dobijte mini plan nege za kucno održavanje sjaja i zdravlja vlasi. Broj mesta je ogranicen, odgovorite na ovaj email za prioritetan termin.",
+      "Rezervišite svoj Blonde Refresh termin i dobijte mini plan nege za kućno održavanje sjaja i zdravlja vlasi. Broj mesta je ograničen, odgovorite na ovaj email za prioritetan termin.",
   },
   {
     id: "keratin-week",
     name: "Keratin Week",
-    subject: "Keratin Week: smooth finish + savet strucnjaka",
+    subject: "Keratin Week: smooth finish + savet stručnjaka",
     message:
-      "Keratin Week je aktivan. Zakažite tretman za glatkocu, disciplinu i sjaj bez tezine. Uz tretman dobijate preporuku proizvoda koji cuva rezultat i nakon salona.",
+      "Keratin Week je aktivan. Zakažite tretman za glatkoću, disciplinu i sjaj bez težine. Uz tretman dobijate preporuku proizvoda koji čuva rezultat i nakon salona.",
   },
   {
     id: "vip-reactivation",
     name: "VIP Reactivation",
-    subject: "Povratnicki VIP paket za sledecu posetu",
+    subject: "Povratnički VIP paket za sledeću posetu",
     message:
-      "Za nase postojece klijentkinje aktivirali smo VIP paket pri sledecoj poseti: personalizovana konsultacija, osvezavanje look-a i jasna preporuka nege za naredne nedelje.",
+      "Za naše postojeće klijentkinje aktivirali smo VIP paket pri sledećoj poseti: personalizovana konsultacija, osvežavanje izgleda i jasna preporuka nege za naredne nedelje.",
   },
 ];
 
@@ -104,7 +104,7 @@ export default function AdminOffersPage() {
       <section className="hero admin-hero">
         <div>
           <p className="eyebrow">Mejl kampanje</p>
-          <h1>Kampanje koje vracaju klijentkinje u salon</h1>
+          <h1>Kampanje koje vraćaju klijentkinje u salon</h1>
           <p className="subtitle">
             Kreirajte ponudu, izaberite ton komunikacije i pošaljite kampanju svim registrovanim korisnicima.
           </p>
@@ -121,8 +121,8 @@ export default function AdminOffersPage() {
       ) : null}
 
       <section className="toolbar-card admin-offer-template-panel">
-        <h2>Brzi sabloni kampanje</h2>
-        <p className="order-summary">Izaberite sablon i prilagodite poruku pre slanja.</p>
+        <h2>Brzi šabloni kampanje</h2>
+        <p className="order-summary">Izaberite šablon i prilagodite poruku pre slanja.</p>
         <div className="admin-offer-template-grid">
           {OFFER_TEMPLATES.map((template) => (
             <button
@@ -162,9 +162,9 @@ export default function AdminOffersPage() {
           <span>Poruka: {message.trim().length} karaktera</span>
         </div>
         <div className="admin-offer-preview">
-          <p className="admin-offer-preview-label">Preview</p>
-          <h3>{subject.trim().length > 0 ? subject : "Naslov kampanje ce se prikazati ovde"}</h3>
-          <p>{message.trim().length > 0 ? message : "Tekst kampanje ce se prikazati ovde."}</p>
+          <p className="admin-offer-preview-label">Pregled</p>
+          <h3>{subject.trim().length > 0 ? subject : "Naslov kampanje će se prikazati ovde"}</h3>
+          <p>{message.trim().length > 0 ? message : "Tekst kampanje će se prikazati ovde."}</p>
         </div>
         <div className="modal-actions">
           <button type="submit" className="primary-btn" disabled={state === "sending"}>

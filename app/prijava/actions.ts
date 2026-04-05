@@ -48,7 +48,7 @@ function resolveErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) {
     return error.message;
   }
-  return "Dogodila se greska. Pokusajte ponovo.";
+  return "Dogodila se greška. Pokušajte ponovo.";
 }
 
 function readSmtpConfig() {
@@ -106,11 +106,11 @@ function buildResetEmailText({
   return [
     firstName ? `Zdravo ${firstName},` : "Zdravo,",
     "",
-    "Primili smo zahtev za reset sifre.",
+    "Primili smo zahtev za reset šifre.",
     `Link za reset: ${link}`,
-    expiresAt ? `Link vazi do: ${new Date(expiresAt).toLocaleString("sr-Latn-RS")}` : "",
+    expiresAt ? `Link važi do: ${new Date(expiresAt).toLocaleString("sr-Latn-RS")}` : "",
     "",
-    "Ako niste vi trazili reset, ignorisite ovu poruku.",
+    "Ako niste vi tražili reset, ignorišite ovu poruku.",
     "Studio Lady Gaga",
   ]
     .filter(Boolean)
@@ -131,14 +131,14 @@ function buildResetEmailHtml({
       <div style="max-width:700px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:18px;overflow:hidden;">
         <div style="background:linear-gradient(130deg,#202735,#0f1728);padding:20px;color:#ffffff;">
           <p style="margin:0 0 6px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">Studio Lady Gaga</p>
-          <h1 style="margin:0;font-size:24px;">Reset sifre</h1>
+          <h1 style="margin:0;font-size:24px;">Reset šifre</h1>
         </div>
         <div style="padding:20px;">
           <p style="margin:0 0 10px;">${escapeHtml(firstName ? `Zdravo ${firstName},` : "Zdravo,")}</p>
           <p style="margin:0 0 14px;line-height:1.6;">Kliknite dugme ispod da postavite novu sifru.</p>
           <p style="margin:0 0 14px;">
             <a href="${escapeHtml(link)}" style="display:inline-block;padding:10px 16px;border-radius:10px;background:#e56f4a;color:#fff;text-decoration:none;font-weight:700;">
-              Resetuj sifru
+              Resetuj šifru
             </a>
           </p>
           <p style="margin:0 0 8px;font-size:13px;color:#4b5563;">Ako dugme ne radi, otvorite ovaj link:</p>
@@ -147,7 +147,7 @@ function buildResetEmailHtml({
           </p>
           ${
             expiresAt
-              ? `<p style="margin:0;font-size:13px;color:#4b5563;">Link vazi do: ${escapeHtml(
+              ? `<p style="margin:0;font-size:13px;color:#4b5563;">Link važi do: ${escapeHtml(
                   new Date(expiresAt).toLocaleString("sr-Latn-RS"),
                 )}</p>`
               : ""
@@ -183,7 +183,7 @@ export async function requestPasswordResetEmail(payload: RequestPasswordResetPay
     if (!resetResult.token) {
       return {
         ok: true,
-        message: "Ako nalog postoji, link za reset sifre je poslat na email adresu.",
+        message: "Ako nalog postoji, link za reset šifre je poslat na email adresu.",
       };
     }
 
@@ -202,7 +202,7 @@ export async function requestPasswordResetEmail(payload: RequestPasswordResetPay
     await transporter.sendMail({
       from: smtpConfig.value.from,
       to: [email],
-      subject: "Reset sifre - Studio Lady Gaga",
+      subject: "Reset šifre - Studio Lady Gaga",
       text: buildResetEmailText({
         firstName: resetResult.firstName,
         link,
@@ -217,7 +217,7 @@ export async function requestPasswordResetEmail(payload: RequestPasswordResetPay
 
     return {
       ok: true,
-      message: "Ako nalog postoji, link za reset sifre je poslat na email adresu.",
+      message: "Ako nalog postoji, link za reset šifre je poslat na email adresu.",
     };
   } catch (error: unknown) {
     return { ok: false, error: resolveErrorMessage(error) };
@@ -232,7 +232,7 @@ export async function resetPassword(payload: ResetPasswordPayload): Promise<Acti
     return { ok: false, error: "Reset token nije validan." };
   }
   if (password.length < 6) {
-    return { ok: false, error: "Nova sifra mora imati najmanje 6 karaktera." };
+    return { ok: false, error: "Nova šifra mora imati najmanje 6 karaktera." };
   }
 
   const convexUrl = readConvexUrl();
@@ -246,7 +246,7 @@ export async function resetPassword(payload: ResetPasswordPayload): Promise<Acti
       token,
       password,
     });
-    return { ok: true, message: "Sifra je uspesno promenjena. Sada se prijavite." };
+    return { ok: true, message: "Šifra je uspešno promenjena. Sada se prijavite." };
   } catch (error: unknown) {
     return { ok: false, error: resolveErrorMessage(error) };
   }

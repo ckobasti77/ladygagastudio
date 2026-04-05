@@ -85,12 +85,12 @@ function readSmtpConfig() {
   const portRaw = process.env.SMTP_PORT ?? "587";
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-  const from = process.env.OFFER_FROM_EMAIL ?? user;
+  const from = process.env.OFFER_FROM_EMAIL?.trim() || user || ADMIN_EMAIL;
   const secure = process.env.SMTP_SECURE === "true" || portRaw === "465";
   const port = Number(portRaw);
 
   if (!host || !user || !pass || !from) {
-    return { ok: false as const, error: "Nedostaju SMTP varijable: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, OFFER_FROM_EMAIL." };
+    return { ok: false as const, error: "Nedostaju SMTP varijable: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS." };
   }
 
   if (!Number.isFinite(port) || port <= 0) {

@@ -1,18 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useMutation } from "convex/react";
+import { ArrowRight, Handbag, Mail, MapPin, Phone } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { useLanguage } from "@/contexts/language-context";
-import {
-  milkShakeTreatments,
-  studioGallery,
-  studioServices,
-  studioVideos,
-} from "@/lib/studio-content";
+import { milkShakeTreatments, studioServices } from "@/lib/studio-content";
 import { sendContactInquiryEmail } from "./actions";
-import { ArrowRight, Handbag, Mail, MapPin, Phone } from "lucide-react";
 
 const responseWindows = [
   "Upiti do 15h: odgovor istog dana",
@@ -37,7 +33,7 @@ const contactNodes = [
   },
   {
     title: "Lokacija",
-    value: "Trg \u0111a\u010dkog bataljona bb, \u0160abac",
+    value: "Trg đačkog bataljona bb, Šabac",
     detail: "Parking i gradski prevoz u blizini studija.",
     Icon: MapPin,
     stagger: "contact-card-stagger-3",
@@ -63,8 +59,10 @@ export default function ContactPage() {
       );
       return;
     }
+
     setStatus("sending");
     setStatusMessage("");
+
     try {
       const createdAt = Date.now();
       await createInquiry(form);
@@ -72,28 +70,27 @@ export default function ContactPage() {
         ...form,
         createdAt,
       });
+
       setForm({ name: "", email: "", message: "" });
       setLegalAccepted(false);
+
       if (emailResult.ok) {
         setStatus("sent");
-        setStatusMessage("Poruka je uspesno poslata.");
+        setStatusMessage("Poruka je uspešno poslata.");
       } else {
         setStatus("error");
         setStatusMessage(
-          `Upit je sacuvan, ali email nije poslat: ${emailResult.error}`
+          `Upit je sačuvan, ali email nije poslat: ${emailResult.error}`
         );
       }
     } catch {
       setStatus("error");
-      setStatusMessage(
-        "Slanje nije uspelo. Pokusajte ponovo za par sekundi."
-      );
+      setStatusMessage("Slanje nije uspelo. Pokušajte ponovo za par sekundi.");
     }
   };
 
   return (
     <div className="contact-page">
-      {/* ── Hero ── */}
       <section className="contact-hero">
         <div className="contact-hero-bg" aria-hidden="true" />
 
@@ -101,7 +98,7 @@ export default function ContactPage() {
           <p className="contact-eyebrow">Kontakt</p>
 
           <h1 className="contact-title">
-            Pošaljite poruku i dobijate jasan plan za vasu kosu.
+            Pošaljite poruku i dobijate jasan plan za vašu kosu.
           </h1>
 
           <p className="contact-lead">
@@ -130,15 +127,11 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* ── Contact Cards ── */}
       <section className="contact-cards-grid">
         {contactNodes.map((node) => {
           const Icon = node.Icon;
           return (
-            <article
-              key={node.title}
-              className={`contact-card ${node.stagger}`}
-            >
+            <article key={node.title} className={`contact-card ${node.stagger}`}>
               <div className="contact-card-inner">
                 <div className="contact-card-icon">
                   <Icon size={20} strokeWidth={1.8} />
@@ -152,65 +145,82 @@ export default function ContactPage() {
         })}
       </section>
 
-      {/* ── Services ── */}
       <section className="contact-services">
         <div className="contact-services-inner">
-          <div className="contact-services-header">
-            <p className="contact-eyebrow">Šta možete zakazati</p>
-            <h2>Usluge i tretmani koje najčešće biraju klijentkinje.</h2>
-          </div>
+          <div className="contact-services-layout">
+            <div className="contact-services-copy">
+              <div className="contact-services-header">
+                <p className="contact-eyebrow">Šta možete zakazati</p>
+                <h2>Usluge i tretmani koje klijentkinje najčešće biraju.</h2>
+              </div>
 
-          <div className="contact-services-columns">
-            <div className="contact-services-group">
-              <h3>Usluge</h3>
-              <ul className="contact-services-list">
-                {studioServices.map((service) => (
-                  <li key={service}>
-                    <span className="contact-list-dot" />
-                    {service}
-                  </li>
-                ))}
-              </ul>
+              <p className="contact-services-intro">
+                Svaki termin planiramo prema trenutnom stanju kose, prethodnim
+                hemijskim procesima i rezultatu koji želite da postignete.
+              </p>
+
+              <div className="contact-services-panels">
+                <article className="contact-services-panel">
+                  <div className="contact-services-panel-head">
+                    <p className="contact-services-panel-kicker">Najtraženije</p>
+                    <h3>Usluge</h3>
+                  </div>
+                  <ul className="contact-services-list">
+                    {studioServices.map((service) => (
+                      <li key={service}>
+                        <span className="contact-list-dot" />
+                        {service}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+
+                <article className="contact-services-panel">
+                  <div className="contact-services-panel-head">
+                    <p className="contact-services-panel-kicker">
+                      Profesionalna nega
+                    </p>
+                    <h3>Milk Shake protokoli</h3>
+                  </div>
+                  <ul className="contact-services-list">
+                    {milkShakeTreatments.map((treatment) => (
+                      <li key={treatment.name}>
+                        <span className="contact-list-dot" />
+                        {treatment.name}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              </div>
             </div>
 
-            <div className="contact-services-group">
-              <h3>Milk Shake protokoli</h3>
-              <ul className="contact-services-list">
-                {milkShakeTreatments.map((treatment) => (
-                  <li key={treatment.name}>
-                    <span className="contact-list-dot" />
-                    {treatment.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="contact-services-group contact-services-video-col">
-              <h3>Atmosfera studija</h3>
-              <video
-                controls
-                preload="metadata"
-                playsInline
-                poster={studioGallery[0].src}
-                className="contact-services-video"
-              >
-                <source src={studioVideos[2].src} type="video/webm" />
-              </video>
-            </div>
+            <figure className="contact-services-media">
+              <div className="contact-services-media-frame">
+                <Image
+                  src="/slike/kontakt-slika.avif"
+                  alt="Atmosfera studija Lady Gaga"
+                  width={800}
+                  height={1000}
+                  sizes="(max-width: 1023px) 100vw, 34vw"
+                  className="contact-services-video"
+                />
+              </div>
+              <figcaption className="contact-services-media-caption">
+                Mirna atmosfera, precizan pregled i preporuka nege za kuću.
+              </figcaption>
+            </figure>
           </div>
         </div>
       </section>
 
-      {/* ── Map & Form ── */}
       <section id="contact-form-section" className="contact-map-form">
-        {/* Map */}
         <article className="contact-map-card">
           <div className="contact-map-inner">
             <p className="contact-eyebrow">Mapa dolaska</p>
             <h2>Locirajte studio i planirajte dolazak.</h2>
             <p>
               Ako dolazite prvi put, napišite u poruci da ste nova klijentkinja
-              i dobijate smernice za najbrzi dolazak.
+              i dobijate smernice za najbrži dolazak.
             </p>
             <iframe
               title="Studio Lady Gaga mapa"
@@ -221,7 +231,6 @@ export default function ContactPage() {
           </div>
         </article>
 
-        {/* Form */}
         <form onSubmit={submit} className="contact-form-card">
           <div className="contact-form-inner">
             <div className="contact-form-header">
@@ -293,7 +302,10 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <label className="contact-form-consent" htmlFor="contact-legal-consent">
+            <label
+              className="contact-form-consent"
+              htmlFor="contact-legal-consent"
+            >
               <input
                 id="contact-legal-consent"
                 type="checkbox"
@@ -302,10 +314,9 @@ export default function ContactPage() {
                 onChange={(event) => setLegalAccepted(event.target.checked)}
               />
               <span>
-                Potvrđujem da sam procitala i prihvatam{" "}
+                Potvrđujem da sam pročitala i prihvatam{" "}
                 <Link href="/politika-privatnosti">Politiku privatnosti</Link>{" "}
-                i{" "}
-                  <Link href="/pravila-koriscenja">Pravila korišćenja</Link>.
+                i <Link href="/pravila-koriscenja">Pravila korišćenja</Link>.
               </span>
             </label>
 

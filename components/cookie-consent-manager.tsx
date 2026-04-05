@@ -130,9 +130,9 @@ export function CookieConsentManager() {
   }, [savedConsent, showPreferences]);
 
   const consentStatus = useMemo(() => {
-    if (!savedConsent) return "Izbor kolačića jos nije sacuvan.";
+    if (!savedConsent) return "Izbor kolačića još nije sačuvan.";
     if (savedConsent.analytics && savedConsent.marketing) return "Aktivne su sve kategorije kolačića.";
-    if (!savedConsent.analytics && !savedConsent.marketing) return "Aktivni su samo neophodni kolacici.";
+    if (!savedConsent.analytics && !savedConsent.marketing) return "Aktivni su samo neophodni kolačići.";
     return "Primenjene su prilagođene preference kolačića.";
   }, [savedConsent]);
 
@@ -189,10 +189,10 @@ export function CookieConsentManager() {
             </p>
             <h2>
               <Cookie aria-hidden="true" />
-              Kolacici i privatnost
+              Kolačići i privatnost
             </h2>
             <p>
-              Koristimo neophodne kolacice i lokalno skladistenje da bi sajt radio stabilno. Opcione kategorije možete
+              Koristimo neophodne kolačiće i lokalno skladištenje da bi sajt radio stabilno. Opcione kategorije možete
               prihvatiti ili odbiti odmah.
             </p>
             <p className="cookie-starport-status">
@@ -231,7 +231,7 @@ export function CookieConsentManager() {
                 aria-pressed={isSameDraft(draft, FULL_DRAFT)}
               >
                 <span>Hyper</span>
-                <small>Sve opcije ukljucene</small>
+                <small>Sve opcije uključene</small>
               </button>
             </div>
           </div>
@@ -244,7 +244,7 @@ export function CookieConsentManager() {
               Podešavanja
             </button>
             <button type="button" className="primary-btn" onClick={() => applyConsent(draft)}>
-              Sacuvaj mod
+              Sačuvaj mod
             </button>
           </div>
         </div>
@@ -274,7 +274,7 @@ export function CookieConsentManager() {
             </header>
 
             <p className="cookie-lab-lead">
-              Neophodni kolacici su obavezni za prijavu, korpu i stabilnost sajta. Ostale kategorije su opcione i
+              Neophodni kolačići su obavezni za prijavu, korpu i stabilnost sajta. Ostale kategorije su opcione i
               možete ih menjati u bilo kom trenutku.
             </p>
 
@@ -317,7 +317,7 @@ export function CookieConsentManager() {
                   </h3>
                   <span className="cookie-lab-lock">Uvek aktivni</span>
                 </div>
-                <p>Omogucavaju osnovne funkcije sajta: sesiju, korpu, temu i bezbednosne preference.</p>
+                <p>Omogućavaju osnovne funkcije sajta: sesiju, korpu, temu i bezbednosne preference.</p>
               </article>
 
               <article className="cookie-lab-card">
@@ -332,7 +332,7 @@ export function CookieConsentManager() {
                     <span aria-hidden="true" />
                   </label>
                 </div>
-                <p>Pomaze nam da razumemo performanse stranica i optimizujemo UX tokove.</p>
+                <p>Pomaže nam da razumemo performanse stranica i optimizujemo UX tokove.</p>
               </article>
 
               <article className="cookie-lab-card">
@@ -347,7 +347,7 @@ export function CookieConsentManager() {
                     <span aria-hidden="true" />
                   </label>
                 </div>
-                <p>Koristi se samo za personalizovane kampanje i remarketing ako je ukljuceno.</p>
+                <p>Koristi se samo za personalizovane kampanje i remarketing ako je uključeno.</p>
               </article>
             </div>
 
@@ -356,7 +356,7 @@ export function CookieConsentManager() {
                 Odbij opcione
               </button>
               <button type="button" className="ghost-btn" onClick={() => applyConsent(draft)}>
-                Sacuvaj izbor
+                Sačuvaj izbor
               </button>
               <button type="button" className="primary-btn" onClick={() => applyConsent(FULL_DRAFT)}>
                 Prihvati sve

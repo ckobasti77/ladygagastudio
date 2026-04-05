@@ -35,7 +35,6 @@ export function Navbar() {
   const navItems = [
     { href: "/", label: t.nav.home },
     { href: "/o-nama", label: t.nav.about },
-    { href: "/galerija", label: t.nav.gallery },
     { href: "/proizvodi", label: t.nav.products },
     { href: "/kontakt", label: t.nav.contact },
   ];

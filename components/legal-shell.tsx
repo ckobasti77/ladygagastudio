@@ -38,7 +38,7 @@ export function LegalShell({
         <h1>{title}</h1>
         <p className="legal-lead">{lead}</p>
 
-        <div className="legal-signal-row" aria-label="Klucni principi dokumentacije">
+        <div className="legal-signal-row" aria-label="Ključni principi dokumentacije">
           <span>
             <Sparkles aria-hidden="true" />
             Privacy by design
@@ -56,7 +56,7 @@ export function LegalShell({
         <div className="legal-hero-meta">
           <span>
             <CalendarClock aria-hidden="true" />
-            Poslednje azuriranje: {lastUpdated}
+            Poslednje ažuriranje: {lastUpdated}
           </span>
           <a href={`mailto:${LEGAL_ENTITY.privacyEmail}`}>Privacy kontakt: {LEGAL_ENTITY.privacyEmail}</a>
         </div>

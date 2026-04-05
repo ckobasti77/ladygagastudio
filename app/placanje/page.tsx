@@ -82,7 +82,7 @@ function resolveErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) {
     return error.message;
   }
-  return "Narucivanje nije uspelo. Pokusajte ponovo.";
+  return "Naručivanje nije uspelo. Pokušajte ponovo.";
 }
 
 export default function CheckoutPage() {
@@ -227,13 +227,13 @@ export default function CheckoutPage() {
       <section className="page-grid orbit-page checkout-orbit">
         <article className="orbit-hero orbit-reveal">
           <div className="orbit-hud" aria-hidden>
-            <span>Placanje</span>
+            <span>Plaćanje</span>
             <strong>Studio Lady Gaga | Narudžbina</strong>
           </div>
 
-          <p className="orbit-eyebrow">Placanje</p>
-          <h1>Nema artikala za narucivanje.</h1>
-          <p className="orbit-lead">Dodajte proizvode u korpu pa nastavite na placanje.</p>
+          <p className="orbit-eyebrow">Plaćanje</p>
+          <h1>Nema artikala za naručivanje.</h1>
+          <p className="orbit-lead">Dodajte proizvode u korpu pa nastavite na plaćanje.</p>
 
           <div className="orbit-actions">
             <Link href="/proizvodi" className="primary-btn orbit-main-action">
@@ -257,7 +257,7 @@ export default function CheckoutPage() {
             <strong>Studio Lady Gaga | Narudžbina kreirana</strong>
           </div>
 
-          <p className="orbit-eyebrow">Placanje</p>
+          <p className="orbit-eyebrow">Plaćanje</p>
           <h1>Narudžbina je uspesno kreirana.</h1>
           <p className="orbit-lead">
             {statusMessage}
@@ -281,13 +281,13 @@ export default function CheckoutPage() {
     <section className="page-grid orbit-page checkout-orbit">
       <article className="orbit-hero orbit-reveal">
         <div className="orbit-hud" aria-hidden>
-          <span>Placanje</span>
+          <span>Plaćanje</span>
           <strong>Studio Lady Gaga | Narudžbina</strong>
         </div>
 
-        <p className="orbit-eyebrow">Placanje</p>
+        <p className="orbit-eyebrow">Plaćanje</p>
         <h1>Unesite podatke i potvrdite narudžbinu</h1>
-        <p className="orbit-lead">Placanje karticom nije ukljuceno. Narudžbina se salje direktno na email admina.</p>
+        <p className="orbit-lead">Plaćanje karticom nije uključeno. Narudžbina se šalje direktno na email admina.</p>
 
         <div className="orbit-metric-row">
           <article className="orbit-metric">
@@ -362,7 +362,7 @@ export default function CheckoutPage() {
           <div className="checkout-grid-2">
             <input
               required
-              placeholder="Postanski broj"
+              placeholder="Poštanski broj"
               value={form.postalCode}
               onChange={(event) => setForm((value) => ({ ...value, postalCode: event.target.value }))}
             />
@@ -389,7 +389,7 @@ export default function CheckoutPage() {
                 onChange={(event) => setLegalAccepted(event.target.checked)}
               />
               <span>
-                    Potvrđujem da sam procitala i prihvatam <Link href="/pravila-koriscenja">Pravila korišćenja</Link> i{" "}
+                    Potvrđujem da sam pročitala i prihvatam <Link href="/pravila-koriscenja">Pravila korišćenja</Link> i{" "}
                 <Link href="/politika-privatnosti">Politiku privatnosti</Link>.
               </span>
             </label>
@@ -401,7 +401,7 @@ export default function CheckoutPage() {
                 checked={marketingAccepted}
                 onChange={(event) => setMarketingAccepted(event.target.checked)}
               />
-              <span>Opcionalno: pristajem da mi povremeno stizu promo ponude i novosti studija email-om.</span>
+              <span>Opcionalno: pristajem da mi povremeno stižu promo ponude i novosti studija email-om.</span>
             </label>
           </div>
 

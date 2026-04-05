@@ -489,7 +489,7 @@ export default function ProductsPage() {
       return;
     }
     if (!Number.isFinite(price) || price < 0 || !Number.isInteger(price)) {
-      setFeedback({ type: "error", message: "Cena mora biti ceo broj veci ili jednak nuli." });
+      setFeedback({ type: "error", message: "Cena mora biti ceo broj veći ili jednak nuli." });
       return;
     }
     if (stockInput.length === 0) {
@@ -497,7 +497,7 @@ export default function ProductsPage() {
       return;
     }
     if (!Number.isFinite(stock) || stock < 0 || !Number.isInteger(stock)) {
-      setFeedback({ type: "error", message: "Stanje mora biti ceo broj veci ili jednak nuli." });
+      setFeedback({ type: "error", message: "Stanje mora biti ceo broj veći ili jednak nuli." });
       return;
     }
     if (!Number.isFinite(discount) || discount < 0 || discount > 100) {
@@ -526,7 +526,7 @@ export default function ProductsPage() {
         storageImageIds: form.storageImageIds,
         primaryImageStorageId: form.primaryImageStorageId ?? undefined,
       });
-      setFeedback({ type: "success", message: editProductId ? "Proizvod je azuriran." : "Novi proizvod je dodat." });
+      setFeedback({ type: "success", message: editProductId ? "Proizvod je ažuriran." : "Novi proizvod je dodat." });
       closeProductModal();
     } catch {
       setFeedback({ type: "error", message: "Čuvanje proizvoda nije uspelo." });
@@ -660,7 +660,7 @@ export default function ProductsPage() {
           <Sparkles size={14} aria-hidden="true" />
           <span>Kolekcija proizvoda</span>
         </p>
-        <h1 className="boutique-title">Naša Ponuda</h1>
+        <h1 className="boutique-title">Naša ponuda</h1>
         <p className="boutique-subtitle">
           Pažljivo odabrani proizvodi za profesionalnu negu i održavanje kose kod kuće.
         </p>
@@ -968,7 +968,7 @@ export default function ProductsPage() {
                 type="number"
                 min={0}
                 step={1}
-                placeholder="Unesi cenu (rsd)"
+                placeholder="Unesi cenu (RSD)"
                 aria-label="Cena proizvoda u dinarima"
                 value={form.price}
                 onChange={(event) => setForm((value) => ({ ...value, price: event.target.value }))}
@@ -1079,7 +1079,7 @@ export default function ProductsPage() {
       {showDiscardCreateModal ? (
         <Modal onClose={() => setShowDiscardCreateModal(false)}>
           <h3>Napustiti unos novog proizvoda?</h3>
-          <p>Uneti podaci nece biti sacuvani.</p>
+          <p>Uneti podaci neće biti sačuvani.</p>
           <div className="modal-actions">
             <button type="button" className="ghost-btn" onClick={() => setShowDiscardCreateModal(false)}>
               Nazad
@@ -1183,7 +1183,7 @@ function getStockMeta(stock: number): {
 function formatRsd(value: number) {
   const safeValue = Math.max(0, Math.round(value));
   const groupedValue = safeValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `${groupedValue} rsd`;
+  return `${groupedValue} RSD`;
 }
 
 function IconEdit() {

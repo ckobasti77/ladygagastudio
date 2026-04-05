@@ -19,12 +19,12 @@ export const LEGAL_NAV_LINKS = [
   {
     href: "/pravila-koriscenja",
     label: "Pravila korišćenja",
-    description: "Uslovi upotrebe sajta, kupovine i korisnickih obaveza.",
+    description: "Uslovi upotrebe sajta, kupovine i korisničkih obaveza.",
   },
   {
     href: "/politika-privatnosti",
     label: "Politika privatnosti",
-    description: "Koje podatke obrađujemo, zasto i koliko dugo.",
+    description: "Koje podatke obrađujemo, zašto i koliko dugo.",
   },
   {
     href: "/politika-kolacica",

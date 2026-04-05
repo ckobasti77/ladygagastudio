@@ -91,7 +91,7 @@ export default function ProductDetailsPage() {
       <section className="page-grid orbit-page product-detail-page">
         <article className="orbit-panel orbit-reveal">
           <p className="orbit-panel-tag">Proizvod</p>
-          <p>Ucitavanje proizvoda...</p>
+          <p>Učitavanje proizvoda...</p>
         </article>
       </section>
     );
@@ -248,7 +248,7 @@ export default function ProductDetailsPage() {
                   type="button"
                   className={`product-detail-thumb ${index === activeImageIndex ? "active" : ""}`}
                   onClick={() => setActiveImageIndex(index)}
-                  aria-label={`Prikazi sliku ${index + 1}`}
+                  aria-label={`Prikaži sliku ${index + 1}`}
                   aria-selected={index === activeImageIndex}
                   role="tab"
                 >
@@ -289,7 +289,7 @@ export default function ProductDetailsPage() {
               <strong>{formatRsd(resolvedPrice)}</strong>
               {discount > 0 ? <span className="product-detail-old-price">{formatRsd(product.price)}</span> : null}
             </div>
-            {discount > 0 ? <p className="product-detail-price-save">Usteda {formatRsd(product.price - resolvedPrice)}</p> : null}
+            {discount > 0 ? <p className="product-detail-price-save">Ušteda {formatRsd(product.price - resolvedPrice)}</p> : null}
           </div>
 
           <div className="product-detail-meta-grid">
@@ -358,7 +358,7 @@ export default function ProductDetailsPage() {
           <p className="orbit-panel-tag">Povezano</p>
           <div className="product-detail-related-head">
             <h2>Povezani proizvodi</h2>
-            <span>Jos iz iste kategorije</span>
+            <span>Još iz iste kategorije</span>
           </div>
           <div className="product-detail-related-grid">
             {relatedProducts.map((item) => (
@@ -404,7 +404,7 @@ function getFinalPrice(product: Pick<Product, "price" | "discount">) {
 function formatRsd(value: number) {
   const safeValue = Math.max(0, Math.round(value));
   const groupedValue = safeValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `${groupedValue} rsd`;
+  return `${groupedValue} RSD`;
 }
 
 function ArrowLeft() {

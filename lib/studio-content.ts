@@ -1,8 +1,8 @@
 export const founderStory = [
   "Moje ime je Dragana i iza studija Lady Gaga stoji dugogodišnja posvećenost lepoti, detaljima i profesionalnoj nezi kose.",
   "Specijalizovana sam za tretmane oštećene i blajhane kose, zahtevne koloracije i glam stil frizura.",
-  "Verujemo u snagu personalizovanog pristupa: vrhunski proizvodi, stručna nega i preciznost u svakom detalju omogućavaju da svaki klijent zablista u svom jedinstvenom stilu. ",
-  "Za nas, lepota je više od izgleda - to je samopouzdanje koje traje , osećaj sofisticiranosti i luksuza koji klijent nosi sa sobom svaki dan.",
+  "Verujemo u snagu personalizovanog pristupa: vrhunski proizvodi, stručna nega i preciznost u svakom detalju omogućavaju da svaki klijent zablista u svom jedinstvenom stilu.",
+  "Za nas, lepota je više od izgleda - to je samopouzdanje koje traje, osećaj sofisticiranosti i luksuza koji klijent nosi sa sobom svaki dan.",
 ];
 
 export const milkShakeTreatments = [
@@ -44,11 +44,11 @@ export const qualityPillars = [
   },
   {
     title: "Savremene tehnike",
-    text: "U radu koristimo pažljivo odabrane preparate i provedene metode koje čuvaju kvalitet, strukturu i lepotu kose. ",
+    text: "U radu koristimo pažljivo odabrane preparate i proverene metode koje čuvaju kvalitet, strukturu i lepotu kose.",
   },
   {
     title: "Individualni plan negovanja",
-    text: "Svaki klijentkinja dobija preporuku tretmana i profesionalne nege prilagođene potrebama njene kose.",
+    text: "Svaka klijentkinja dobija preporuku tretmana i profesionalne nege prilagođene potrebama njene kose.",
   },
 ] as const;
 
@@ -63,7 +63,7 @@ export const studioGallery = [
   },
   {
     src: "/slike/20251204_172217.avif",
-    alt: "Svecana frizura u studiju",
+    alt: "Svečana frizura u studiju",
   },
   {
     src: "/slike/20251204_111329.avif",
@@ -103,20 +103,3 @@ export const studioGallery = [
   },
 ] as const;
 
-export const studioVideos = [
-  {
-    src: "/snimci/20260205_082602.webm",
-    title: "Salon atmosfera",
-    caption: "Rad u realnom tempu i rezultat odmah nakon tretmana.",
-  },
-  {
-    src: "/snimci/20260207_115844.webm",
-    title: "Glam finishing",
-    caption: "Finalni styling i sjaj koji izgleda premium.",
-  },
-  {
-    src: "/snimci/20250416_164013_1.webm",
-    title: "Kolor proces",
-    caption: "Precizan kolor rad sa fokusom na zdravlje kose.",
-  },
-] as const;

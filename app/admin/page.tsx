@@ -737,10 +737,10 @@ export default function AdminPage() {
         type: "success",
         message:
           status === "resolved"
-            ? "Upit je oznacen kao resen."
+            ? "Upit je označen kao rešen."
             : status === "in_progress"
-              ? "Upit je oznacen kao u obradi."
-              : "Upit je vracen u novi status.",
+              ? "Upit je označen kao u obradi."
+              : "Upit je vraćen u novi status.",
       });
     } catch {
       setFeedback({ type: "error", message: "Promena statusa upita nije uspela." });
@@ -827,7 +827,7 @@ export default function AdminPage() {
         <div className="admin-sales-head">
           <div>
             <h2>Prodaja proizvoda</h2>
-            <p>Tracking po proizvodu: prodato, broj porudzbina, prihod i poslednja prodaja.</p>
+            <p>Praćenje po proizvodu: prodato, broj porudžbina, prihod i poslednja prodaja.</p>
           </div>
           <div className="admin-sales-controls">
             <input
@@ -839,8 +839,8 @@ export default function AdminPage() {
             <select value={salesSortBy} onChange={(event) => setSalesSortBy(event.target.value as SalesSortBy)}>
               <option value="soldDesc">Sort: najprodavaniji</option>
               <option value="soldAsc">Sort: najmanje prodato</option>
-              <option value="revenueDesc">Sort: najveci prihod</option>
-              <option value="ordersDesc">Sort: najvise porudzbina</option>
+              <option value="revenueDesc">Sort: najveći prihod</option>
+              <option value="ordersDesc">Sort: najviše porudžbina</option>
               <option value="lastSoldDesc">Sort: najnovija prodaja</option>
             </select>
           </div>
@@ -848,7 +848,7 @@ export default function AdminPage() {
 
         <div className="dashboard-grid admin-sales-kpis">
           <article className="metric-card">
-            <span>Ukupno porudzbina</span>
+            <span>Ukupno porudžbina</span>
             <strong>{salesSummary.ordersCount}</strong>
           </article>
           <article className="metric-card">
@@ -866,7 +866,7 @@ export default function AdminPage() {
         </div>
 
         {rawSales === undefined ? (
-          <p className="admin-sales-empty">Ucitavanje prodajne analitike...</p>
+          <p className="admin-sales-empty">Učitavanje prodajne analitike...</p>
         ) : filteredSales.length === 0 ? (
           <p className="admin-sales-empty">Trenutno nema podataka o prodaji za zadati filter.</p>
         ) : (
@@ -874,7 +874,7 @@ export default function AdminPage() {
             <div className="admin-sales-table-head">
               <span>Proizvod</span>
               <span>Prodato</span>
-              <span>Porudzbine</span>
+              <span>Porudžbine</span>
               <span>Prihod</span>
               <span>Lager</span>
               <span>Poslednja prodaja</span>
@@ -939,7 +939,7 @@ export default function AdminPage() {
               <option value="all">Svi statusi</option>
               <option value="new">Novi</option>
               <option value="in_progress">U obradi</option>
-              <option value="resolved">Reseni</option>
+              <option value="resolved">Rešeni</option>
             </select>
           </div>
         </div>
@@ -958,13 +958,13 @@ export default function AdminPage() {
             <strong>{inquirySummary.inProgress}</strong>
           </article>
           <article className="metric-card">
-            <span>Reseni</span>
+            <span>Rešeni</span>
             <strong>{inquirySummary.resolved}</strong>
           </article>
         </div>
 
         {rawInquiries === undefined ? (
-          <p className="admin-sales-empty">Ucitavanje upita...</p>
+          <p className="admin-sales-empty">Učitavanje upita...</p>
         ) : filteredInquiries.length === 0 ? (
           <p className="admin-sales-empty">Nema upita za izabrani filter.</p>
         ) : (
@@ -1011,7 +1011,7 @@ export default function AdminPage() {
                       onClick={() => void onChangeInquiryStatus(inquiry._id, "resolved")}
                       disabled={isBusy || status === "resolved"}
                     >
-                      Reseno
+                      Rešeno
                     </button>
                   </div>
                 </article>
@@ -1156,7 +1156,7 @@ export default function AdminPage() {
                         className={`icon-btn icon-btn-circle admin-category-home-btn${isFeaturedForHome ? " is-on" : ""}`}
                         onClick={() => void onToggleCategoryFeatured(category)}
                         aria-label={isFeaturedForHome ? `Ukloni kategoriju "${category.name}" sa početne strane` : `Istakni kategoriju "${category.name}" na početnoj strani`}
-                        title={isFeaturedForHome ? "Prikazano na početnoj" : "Nije prikazano na početnoj"}
+                    title={isFeaturedForHome ? "Prikazano na početnoj" : "Nije prikazano na početnoj"}
                         disabled={featuredCategoryBusyId === category._id || isManagingCategory}
                       >
                         <IconHome />
@@ -1239,7 +1239,7 @@ export default function AdminPage() {
                       <strong>{formatRsd(resolvedPrice)}</strong>
                       {discount > 0 ? <span className="old-price">{formatRsd(product.price)}</span> : null}
                     </div>
-                    {discount > 0 ? <p className="price-saved">Usteda {formatRsd(product.price - resolvedPrice)}</p> : null}
+                    {discount > 0 ? <p className="price-saved">Ušteda {formatRsd(product.price - resolvedPrice)}</p> : null}
                   </div>
                 </div>
                 <div className="card-actions admin-card-actions">
@@ -1403,7 +1403,7 @@ export default function AdminPage() {
 }
 
 function inquiryStatusLabel(status: InquiryStatus) {
-  if (status === "resolved") return "Reseno";
+  if (status === "resolved") return "Rešeno";
   if (status === "in_progress") return "U obradi";
   return "Novo";
 }

@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     "frizerski salon Šabac",
     "koloracija kose",
     "keratin tretman",
-    "nega ostecene kose",
+    "nega oštećene kose",
     "studio lady gaga",
     "proizvodi za kosu",
   ],

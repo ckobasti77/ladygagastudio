@@ -24,15 +24,12 @@ export default function CartPage() {
           <p className="orbit-eyebrow">Korpa</p>
           <h1>Vaša korpa je trenutno prazna.</h1>
           <p className="orbit-lead">
-            Dodajte proizvode iz kataloga i nastavite na placanje.
+            Dodajte proizvode iz kataloga i nastavite na plaćanje.
           </p>
 
           <div className="orbit-actions">
             <Link href="/proizvodi" className="primary-btn orbit-main-action">
               Idi na proizvode
-            </Link>
-            <Link href="/galerija" className="ghost-btn orbit-second-action">
-              Pogledaj galeriju
             </Link>
           </div>
         </article>
@@ -51,7 +48,7 @@ export default function CartPage() {
         <p className="orbit-eyebrow">Korpa</p>
         <h1>Pregled korpe i priprema za naručivanje</h1>
         <p className="orbit-lead">
-          U korpi imate <strong>{itemCount}</strong> artikala. Pregledajte stavke i nastavite na placanje.
+          U korpi imate <strong>{itemCount}</strong> artikala. Pregledajte stavke i nastavite na plaćanje.
         </p>
 
         <div className="orbit-metric-row">
@@ -146,7 +143,7 @@ export default function CartPage() {
           </div>
           <div className="cart-summary-actions">
             <Link href="/placanje" className="primary-btn">
-              Nastavi na placanje
+              Nastavi na plaćanje
             </Link>
             <Link href="/proizvodi" className="ghost-btn">
               Dodaj još proizvoda

@@ -9,7 +9,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${siteUrl}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${siteUrl}/o-nama`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
-    { url: `${siteUrl}/galerija`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteUrl}/proizvodi`, lastModified: now, changeFrequency: "daily", priority: 0.92 },
     { url: `${siteUrl}/kontakt`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${siteUrl}/korpa`, lastModified: now, changeFrequency: "daily", priority: 0.5 },

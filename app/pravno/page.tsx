@@ -19,7 +19,7 @@ const LEGAL_CARDS = [
   {
     href: "/politika-privatnosti",
     title: "Politika privatnosti",
-    text: "Kako obrađujemo licne podatke, pravni osnovi, rokovi cuvanja i prava korisnika.",
+    text: "Kako obrađujemo lične podatke, pravne osnove, rokove čuvanja i prava korisnika.",
     Icon: Shield,
   },
   {
@@ -33,7 +33,7 @@ const LEGAL_CARDS = [
 const QUICK_CHECKLIST = [
   "Pravila i politike su dostupni iz footera na svim stranicama.",
   "Cookie consent podržava prihvati sve, odbij opcione i granularne preference.",
-  "Kontakt i forme za placanje imaju obaveznu pravnu potvrdu pre slanja.",
+  "Kontakt i forme za plaćanje imaju obaveznu pravnu potvrdu pre slanja.",
   "Dokumenti navode kontakt za privacy zahteve i rok odgovora.",
 ] as const;
 
@@ -49,7 +49,7 @@ export default function LegalCenterPage() {
     <LegalShell
       eyebrow="Pravni centar"
       title="Kompletna pravna osnova sajta na jednom mestu."
-      lead="Ovde su objedinjeni svi dokumenti i UX mehanizmi vezani za privatnost, kolacice i uslove korišćenja."
+      lead="Ovde su objedinjeni svi dokumenti i UX mehanizmi vezani za privatnost, kolačiće i uslove korišćenja."
       lastUpdated={LEGAL_LAST_UPDATED}
       activePath="/pravno"
     >
@@ -81,7 +81,7 @@ export default function LegalCenterPage() {
       <section className="legal-doc-section">
         <h2>
           <Sparkles aria-hidden="true" />
-          Pravni checklist implementacije
+          Pravna checklista implementacije
         </h2>
         <ul className="legal-list">
           {QUICK_CHECKLIST.map((item) => (

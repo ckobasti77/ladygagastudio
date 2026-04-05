@@ -266,7 +266,7 @@ function resolveErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) {
     return error.message;
   }
-  return "Nepoznata greska";
+  return "Nepoznata greška";
 }
 
 function readSmtpConfig() {

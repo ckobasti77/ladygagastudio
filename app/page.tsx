@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { GalleryLightbox } from "@/components/gallery-lightbox";
-import { founderStory, milkShakeTreatments, qualityPillars, studioGallery } from "@/lib/studio-content";
+import { PremiumTreatmentShowcase } from "@/components/premium-treatment-showcase";
+import { founderStory, qualityPillars, studioGallery } from "@/lib/studio-content";
 import {
   ChevronLeft,
   ChevronRight,
@@ -20,11 +20,9 @@ import {
   ShoppingBag,
   Sparkles,
   Award,
-  Dna,
   Zap,
 } from "lucide-react";
-import { TretmaniSlider } from "@/components/tretmani-slider";
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 
 type HomeProduct = {
   _id: string;
@@ -58,15 +56,6 @@ type HomeSnapshot = {
   featuredCategorySliders: HomeCategorySlider[];
 };
 
-type GalleryMedia = {
-  _id: string;
-  url: string;
-  originalName: string;
-  contentType?: string;
-  createdAt: number;
-  kind: "image" | "video";
-};
-
 type HeroFeatureCard = {
   label: string;
   heroTitle: readonly string[];
@@ -87,8 +76,6 @@ const EMPTY_SNAPSHOT: HomeSnapshot = {
   featuredCategorySliders: [],
 };
 
-const EMPTY_MEDIA: GalleryMedia[] = [];
-
 const HERO_FEATURE_CARDS = [
   {
     label: "Frizerski salon",
@@ -100,7 +87,7 @@ const HERO_FEATURE_CARDS = [
     image: "/slike/gaga/1.avif",
     alt: "Rad u frizerskom salonu Studio Lady Gaga",
     variant: "salon",
-    title: "Oštecena i blajhana kosa",
+    title: "Oštećena i blajhana kosa",
     text: "Intenzivna obnova uz pažljivo očuvanje kvaliteta vlasi.",
   },
   {
@@ -141,7 +128,7 @@ const HERO_FEATURE_CARDS = [
 const HERO_SERVICE_CARDS = [
   {
     Icon: ShieldCheck,
-    title: "Oštecena i blajhana kosa",
+    title: "Oštećena i blajhana kosa",
     text: "Intenzivna obnova uz pažljivo očuvanje kvaliteta vlasi.",
   },
   {
@@ -171,21 +158,20 @@ const HERO_SERVICE_CARDS = [
   },
 ] as const;
 
+const HOME_BEFORE_AFTER_EXAMPLES = [
+  {
+    before: "/slike/pre-1.avif",
+    after: "/slike/posle-1.avif",
+  },
+  {
+    before: "/slike/pre-2.avif",
+    after: "/slike/posle-2.avif",
+  },
+] as const;
+
 export default function HomePage() {
   const snapshot = (useQuery(api.products.homeSnapshot, {}) as HomeSnapshot | undefined) ?? EMPTY_SNAPSHOT;
-  const rawGalleryMedia = useQuery(api.gallery.list, {}) as GalleryMedia[] | undefined;
-  const galleryMedia = rawGalleryMedia ?? EMPTY_MEDIA;
-  const featuredWorksRaw = useQuery(api.gallery.featuredList, {}) as GalleryMedia[] | undefined;
-
   const { featuredProducts, featuredCategorySliders, sidebarProducts } = snapshot;
-
-  const galleryImages = useMemo(() => galleryMedia.filter((item) => item.kind === "image"), [galleryMedia]);
-
-  const featuredImages = useMemo(() => galleryImages.slice(0, 8), [galleryImages]);
-  const featuredWorks = useMemo(
-    () => (featuredWorksRaw ?? []).filter((item) => item.kind === "image").slice(0, 3),
-    [featuredWorksRaw],
-  );
   const sidebarDisplayProducts = sidebarProducts;
   const sliderSections = featuredCategorySliders.length > 0
     ? featuredCategorySliders
@@ -193,74 +179,6 @@ export default function HomePage() {
       ? [{ categoryId: "featured-fallback", categoryName: "Preporučeni proizvodi", products: featuredProducts }]
       : [];
   const heroFeatureCards = HERO_FEATURE_CARDS.slice(0, 2) as unknown as HeroFeatureCard[];
-
-  const [homeLightboxIndex, setHomeLightboxIndex] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (homeLightboxIndex === null || featuredImages.length === 0) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [featuredImages.length, homeLightboxIndex]);
-
-  const openHomeLightbox = useCallback(
-    (index: number) => {
-      if (index < 0 || index >= featuredImages.length) return;
-      setHomeLightboxIndex(index);
-    },
-    [featuredImages.length],
-  );
-
-  const closeHomeLightbox = useCallback(() => setHomeLightboxIndex(null), []);
-
-  const nextHomeMedia = useCallback(() => {
-    setHomeLightboxIndex((current) => {
-      if (current === null || featuredImages.length === 0) return null;
-      return (current + 1) % featuredImages.length;
-    });
-  }, [featuredImages.length]);
-
-  const previousHomeMedia = useCallback(() => {
-    setHomeLightboxIndex((current) => {
-      if (current === null || featuredImages.length === 0) return null;
-      return (current - 1 + featuredImages.length) % featuredImages.length;
-    });
-  }, [featuredImages.length]);
-
-  const activeHomeLightboxIndex = useMemo(() => {
-    if (homeLightboxIndex === null || featuredImages.length === 0) return null;
-    return ((homeLightboxIndex % featuredImages.length) + featuredImages.length) % featuredImages.length;
-  }, [featuredImages.length, homeLightboxIndex]);
-
-  const activeHomeLightboxMedia = useMemo(() => {
-    if (activeHomeLightboxIndex === null) return null;
-    return featuredImages[activeHomeLightboxIndex] ?? null;
-  }, [activeHomeLightboxIndex, featuredImages]);
-
-  useEffect(() => {
-    if (activeHomeLightboxMedia === null) return;
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        closeHomeLightbox();
-        return;
-      }
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        nextHomeMedia();
-        return;
-      }
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        previousHomeMedia();
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [activeHomeLightboxMedia, closeHomeLightbox, nextHomeMedia, previousHomeMedia]);
 
   return (
     <div className="page-grid home-page xeno-home">
@@ -296,13 +214,13 @@ export default function HomePage() {
             Lepota i potpuna transformacija kose na jednom mestu.
           </h1>
           <p className="xeno-hero-subtitle">
-            Iza studija stoji dugogodišnja posvećenost vrhunskoj nezi kose, preciznost u radu i pažnja prema svakom detalju. 
+            Iza studija stoji dugogodišnja posvećenost vrhunskoj nezi kose, preciznost u radu i pažnja prema svakom detalju.
           </p>
           <p className="xeno-hero-subtitle xeno-hero-subtitle-secondary">
-            Specijalizovana sam za regeneraciju oštećene kose, zahtevne koloracije, kao i glamurozne  frizure koje ističu prirodnu lepotu i stil svake žene. 
+            Specijalizovana sam za regeneraciju oštećene kose, zahtevne koloracije, kao i glamurozne frizure koje ističu prirodnu lepotu i stil svake žene.
           </p>
           <p className="xeno-hero-subtitle xeno-hero-subtitle-secondary">
-            U studiju Lady Gaga no.1 svaki klijent dobija  individualni pristup, profesionalne tretmane i rezultat koji spaja zdravu kosu i savršenu estetiku.
+            U studiju Lady Gaga No. 1 svaki klijent dobija individualni pristup, profesionalne tretmane i rezultat koji spaja zdravu kosu i savršenu estetiku.
           </p>
         </div>
 
@@ -384,7 +302,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <TretmaniSlider />
+      <PremiumTreatmentShowcase />
 
       <section className="xeno-after-hero home-reveal">
         <div className="xeno-main-column">
@@ -395,7 +313,7 @@ export default function HomePage() {
                   <Sparkles className="home-kicker-glyph" aria-hidden="true" />
                   <span>Vizija studija</span>
                 </div>
-                <h2>Svaki tretman je osmisljen da kosa izgleda luksuzno odmah, a rezultat ostane stabilan i dugotrajan.</h2>
+                <h2>Svaki tretman je osmišljen da kosa izgleda luksuzno odmah, a rezultat ostane stabilan i dugotrajan.</h2>
               </div>
 
               {founderStory.slice(2).map((paragraph) => (
@@ -411,7 +329,7 @@ export default function HomePage() {
             <div className="xeno-story-media">
               <Image
                 src="/slike/gaga/3.avif"
-                alt={galleryImages[1]?.originalName || studioGallery[1].alt}
+                alt={studioGallery[1].alt}
                 width={900}
                 height={900}
                 sizes="(max-width: 980px) 100vw, 36vw"
@@ -440,109 +358,81 @@ export default function HomePage() {
           </section>
 
           <section className="home-panel home-reveal xeno-bestworks-section">
-            <div className="xeno-section-head" style={{ marginBottom: '1.5rem' }}>
+            <div className="xeno-section-head xeno-bestworks-head">
               <div className="home-section-head">
                 <p className="home-kicker home-kicker-row">
                   <Award className="home-kicker-glyph" aria-hidden="true" />
-                  <span>Top radovi iz galerije</span>
+                  <span>Pre i posle</span>
                 </p>
-                <h2>Tri rada koja najbolje predstavljaju rezultat studija.</h2>
+                <h2>Jedna fotografija iz studija i dva primera pre i posle.</h2>
               </div>
-              <Link href="/galerija" className="ghost-btn home-second-action">
-                Pogledaj galeriju
-              </Link>
             </div>
-            
 
-            {featuredWorksRaw === undefined ? (
-              <p className="home-empty">Učitavanje...</p>
-            ) : featuredWorks.length === 0 ? (
-              <div className="empty-state xeno-empty">
-                <h3>Istaknuti radovi jos nisu izabrani.</h3>
-                <p>U galeriji oznacite 3 rada i prikazacemo ih ovde.</p>
-              </div>
-            ) : (
-              <div className="xeno-bestworks-grid">
-                {featuredWorks.map((item, index) => (
-                  <article
-                    key={item._id}
-                    className="xeno-bestworks-card"
-                    data-cosmic-tilt
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => openHomeLightbox(index)}
-                    onKeyDown={(event) => {
-                      if (event.key !== "Enter" && event.key !== " ") return;
-                      event.preventDefault();
-                      openHomeLightbox(index);
-                    }}
-                    aria-label={`Otvori izdvojeni rad ${index + 1} od ${featuredWorks.length}`}
-                  >
-                    <div className="xeno-bestworks-media">
-                      <Image
-                        src={item.url}
-                        alt={item.originalName || "Rad iz studija"}
-                        width={600}
-                        height={750}
-                        sizes="(max-width: 760px) 100vw, (max-width: 1080px) 50vw, 33vw"
-                        loading="lazy"
-                      />
+            <div className="xeno-bestworks-layout">
+              <article className="xeno-bestworks-studio" data-cosmic-tilt>
+                <p className="xeno-before-after-title">Studio</p>
+                <div className="xeno-bestworks-card xeno-bestworks-single">
+                  <div className="xeno-bestworks-media">
+                    <Image
+                      src="/slike/o-nama-slika.avif"
+                      alt="Fotografija iz studija Lady Gaga"
+                      width={1200}
+                      height={900}
+                      sizes="(max-width: 760px) 100vw, 30vw"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p className="xeno-bestworks-label">Ambijent</p>
+                </div>
+              </article>
+
+              <div className="xeno-before-after-stack">
+                {HOME_BEFORE_AFTER_EXAMPLES.map((example, index) => (
+                  <article key={example.before} className="xeno-before-after-example" data-cosmic-tilt>
+                    <div className="xeno-before-after-topline">
+                      <p className="xeno-before-after-title">Primer {String(index + 1).padStart(2, "0")}</p>
+                      <span>Pre i posle</span>
                     </div>
-                    <p className="xeno-bestworks-label">Rad {String(index + 1).padStart(2, "0")}</p>
+
+                    <div className="xeno-before-after-grid">
+                      <article className="xeno-bestworks-card xeno-bestworks-compare is-before">
+                        <div className="xeno-bestworks-media">
+                          <Image
+                            src={example.before}
+                            alt={`Pre tretmana ${index + 1}`}
+                            width={600}
+                            height={750}
+                            sizes="(max-width: 760px) 100vw, 26vw"
+                            loading="lazy"
+                          />
+                        </div>
+                        <p className="xeno-bestworks-label">Pre</p>
+                      </article>
+
+                      <div className="xeno-before-after-divider" aria-hidden="true">
+                        <span>→</span>
+                      </div>
+
+                      <article className="xeno-bestworks-card xeno-bestworks-compare is-after">
+                        <div className="xeno-bestworks-media">
+                          <Image
+                            src={example.after}
+                            alt={`Posle tretmana ${index + 1}`}
+                            width={600}
+                            height={750}
+                            sizes="(max-width: 760px) 100vw, 26vw"
+                            loading="lazy"
+                          />
+                        </div>
+                        <p className="xeno-bestworks-label">Posle</p>
+                      </article>
+                    </div>
                   </article>
                 ))}
               </div>
-            )}
-          </section>
-
-
-          <section className="home-panel home-reveal xeno-treatments">
-            <div className="xeno-treatment-hero">
-              <p className="home-kicker home-kicker-row">
-                <Droplets className="home-kicker-glyph" aria-hidden="true" />
-                <span>Milk Shake tretmani</span>
-              </p>
-              <h2 className="xeno-treatment-title">Brutalna nega. Luksuzan finish.</h2>
-              <p className="xeno-treatment-lead">3 ciljana protokola za sjaj, snagu i kontrolu frizza.</p>
-              <div className="xeno-treatment-meta" aria-hidden="true">
-                <span>
-                  <Sparkles size={13} />
-                  Signature rituali
-                </span>
-                <span>03 protokola</span>
-                <span>100% personalizovano</span>
-              </div>
-            </div>
-            <div className="xeno-treatment-grid xeno-treatment-grid-brutal">
-              {milkShakeTreatments.map((treatment, i) => {
-                const BadgeIcon = [Droplets, Dna, Sparkles][i] ?? Sparkles;
-                return (
-                  <article
-                    key={treatment.name}
-                    className={`xeno-treatment-card xeno-treatment-card-clean xeno-treatment-card-tone-${i + 1}`}
-                    style={{ "--t-i": i } as React.CSSProperties}
-                  >
-                    <div className="xeno-treatment-body">
-                      <div className="xeno-treatment-topline">
-                        <span className="xeno-treatment-num" aria-hidden="true">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        <h3>{treatment.name}</h3>
-                      </div>
-                      <p className="xeno-treatment-copy">{treatment.description}</p>
-                      <p className="xeno-treatment-badge xeno-treatment-badge-clean">
-                        <span className="xeno-treatment-badge-icon" aria-hidden="true">
-                          <BadgeIcon size={18} />
-                        </span>
-                        <span>{treatment.benefit}</span>
-                      </p>
-                    </div>
-                    <span className="xeno-treatment-line" aria-hidden="true" />
-                  </article>
-                );
-              })}
             </div>
           </section>
+
 
           <section className="home-panel home-reveal xeno-products">
             <div className="xeno-section-head">
@@ -559,7 +449,7 @@ export default function HomePage() {
             </div>
 
             {sliderSections.length === 0 ? (
-              <p className="home-empty">Nova selekcija proizvoda ce biti aktivirana uskoro.</p>
+              <p className="home-empty">Nova selekcija proizvoda će biti aktivirana uskoro.</p>
             ) : (
               <div className="xeno-category-slider-stack">
                 {sliderSections.map((slider) => (
@@ -573,9 +463,9 @@ export default function HomePage() {
             <div>
               <p className="home-kicker home-kicker-row">
                 <SendHorizontal className="home-kicker-glyph" aria-hidden="true" />
-                <span>Sledeci korak</span>
+                <span>Sledeći korak</span>
               </p>
-              <h2>Pošaljite inspiraciju, a mi vracamo jasan plan tretmana i preporuku proizvoda.</h2>
+              <h2>Pošaljite inspiraciju, a mi vraćamo jasan plan tretmana i preporuku proizvoda.</h2>
               <p>
                 Cilj je rezultat koji izgleda odlično odmah, ali i ostaje stabilan tokom narednih nedelja.
               </p>
@@ -584,9 +474,6 @@ export default function HomePage() {
             <div className="home-hero-actions">
               <Link href="/kontakt" className="primary-btn home-main-action">
                 Kontakt i rezervacija
-              </Link>
-              <Link href="/galerija" className="ghost-btn home-second-action">
-                Galerija radova
               </Link>
               <Link href="/o-nama" className="ghost-btn home-second-action">
                 Upoznaj studio
@@ -626,17 +513,6 @@ export default function HomePage() {
         </aside>
       </section>
 
-      {activeHomeLightboxMedia && activeHomeLightboxIndex !== null ? (
-        <GalleryLightbox
-          key={`${activeHomeLightboxMedia._id}:${activeHomeLightboxIndex}`}
-          media={activeHomeLightboxMedia}
-          index={activeHomeLightboxIndex}
-          total={featuredImages.length}
-          onClose={closeHomeLightbox}
-          onNext={nextHomeMedia}
-          onPrevious={previousHomeMedia}
-        />
-      ) : null}
     </div>
   );
 }
@@ -742,7 +618,7 @@ function FeaturedCategorySlider({
         <button
           type="button"
           className="xeno-category-slider-arrow xeno-category-slider-arrow-side"
-          aria-label={`Sledeci proizvodi za kategoriju ${categoryName}`}
+          aria-label={`Sledeći proizvodi za kategoriju ${categoryName}`}
           aria-controls={sliderId}
           disabled={!canScrollNext}
           onClick={() => scrollRail(1)}

@@ -9,7 +9,6 @@ import {
   qualityPillars,
   studioGallery,
   studioServices,
-  studioVideos,
 } from "@/lib/studio-content";
 
 const studioHighlights = [
@@ -76,14 +75,13 @@ export default function AboutPage() {
 
           <div className="about-founder-media">
             <div className="about-video-wrap">
-              <video
-                controls
-                preload="metadata"
-                playsInline
-                poster={studioGallery[3].src}
-              >
-                <source src={studioVideos[1].src} type="video/webm" />
-              </video>
+              <Image
+                src="/slike/o-nama-slika.avif"
+                alt="Atmosfera i rad u studiju Lady Gaga"
+                width={900}
+                height={1125}
+                sizes="(max-width: 1024px) 100vw, 40vw"
+              />
               <p className="about-video-caption">Studio atmosfera</p>
             </div>
           </div>
