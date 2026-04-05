@@ -391,10 +391,10 @@ export default function HomePage() {
           <section className="home-panel home-reveal xeno-story">
             <div className="xeno-story-copy">
               <div className="home-section-head xeno-story-head">
-                <p className="home-kicker home-kicker-row">
+                <div className="home-kicker home-kicker-row">
                   <Sparkles className="home-kicker-glyph" aria-hidden="true" />
                   <span>Vizija studija</span>
-                </p>
+                </div>
                 <h2>Svaki tretman je osmisljen da kosa izgleda luksuzno odmah, a rezultat ostane stabilan i dugotrajan.</h2>
               </div>
 

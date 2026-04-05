@@ -40,7 +40,7 @@ export const studioServices = [
 export const qualityPillars = [
   {
     title: "Stručna analiza kose",
-    text: "Svaki tretman određuje se prema tipu i trenutnom stanju kose, brz primene univerzalnih rešenja.",
+    text: "Svaki tretman određuje se prema tipu i trenutnom stanju kose, bez primene univerzalnih rešenja.",
   },
   {
     title: "Savremene tehnike",

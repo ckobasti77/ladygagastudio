@@ -35,7 +35,7 @@ export function Footer() {
         <section className="editorial-cta-card" aria-labelledby="editorial-footer-heading">
           <p className="editorial-cta-eyebrow">Studio Lady Gaga</p>
           <h2 id="editorial-footer-heading" className="editorial-cta-title">
-            Vanzemaljski premium finish za kosu koja izgleda brutalno dobro.
+            Vrhunski završni efekat za kosu koja izgleda negovano i upečatljivo.
           </h2>
           <p className="editorial-cta-body">
             Specijalizovani tretmani za oštećenu i blajhanu kosu, zahtevne koloracije, keratin i glam frizure uz plan
