@@ -76,14 +76,14 @@ function buildOfferHtml(payload: OfferCampaignPayload) {
   const htmlMessage = normalizedLines.map((line) => escapeHtml(line)).join("<br/>");
 
   return `
-    <div style="background:#f4f5f7;padding:24px 12px;font-family:Arial,sans-serif;color:#111827;">
-      <div style="max-width:700px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">
-        <div style="background:linear-gradient(140deg,#e56f4a,#ca4d2a);padding:20px;color:#ffffff;">
-          <p style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;">Studio Lady Gaga</p>
-          <h1 style="margin:0;font-size:24px;">${escapeHtml(payload.subject)}</h1>
-        </div>
+    <div style="background-color:#f4f5f7;padding:24px 12px;font-family:Arial,sans-serif;color:#111827;">
+      <div style="max-width:700px;margin:0 auto;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">
         <div style="padding:20px;">
-          <p style="margin:0;white-space:normal;line-height:1.6;">${htmlMessage || "Nova ponuda je dostupna."}</p>
+          <div style="margin:0 0 18px;padding:16px 18px;border-left:4px solid #ca4d2a;background-color:#fff4ef;border-radius:12px;">
+            <p style="margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#9a3412;font-weight:700;">Studio Lady Gaga</p>
+            <h1 style="margin:0;font-size:24px;line-height:1.3;color:#111827;font-weight:700;">${escapeHtml(payload.subject)}</h1>
+          </div>
+          <p style="margin:0;white-space:normal;line-height:1.6;color:#111827;">${htmlMessage || "Nova ponuda je dostupna."}</p>
           <p style="margin:18px 0 0;color:#4b5563;">Hvala sto ste deo nase zajednice.</p>
         </div>
       </div>
