@@ -95,12 +95,17 @@ function resolveOfferMonitorEmail() {
   return (process.env.OFFER_MONITOR_EMAIL?.trim() || ADMIN_EMAIL).trim().toLowerCase();
 }
 
+function formatSenderAddress(displayName: string, email: string) {
+  return `${displayName} <${email.trim().toLowerCase()}>`;
+}
+
 function readSmtpConfig() {
   const host = process.env.SMTP_HOST;
   const portRaw = process.env.SMTP_PORT ?? "587";
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-  const from = process.env.OFFER_FROM_EMAIL?.trim() || user || ADMIN_EMAIL;
+  const senderEmail = user?.trim() || ADMIN_EMAIL;
+  const from = process.env.OFFER_FROM_EMAIL?.trim() || formatSenderAddress("Studio Lady Gaga", senderEmail);
   const secure = process.env.SMTP_SECURE === "true" || portRaw === "465";
   const port = Number(portRaw);
 
