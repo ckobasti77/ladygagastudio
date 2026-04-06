@@ -197,7 +197,7 @@ function buildHtmlPayload(payload: CheckoutEmailPayload) {
                 </p>
                 <table role="presentation" style="width:100%;border-collapse:collapse;font-size:14px;">
                   <tr>
-                    <td style="padding:4px 0;color:#4b5563;">Kolicina</td>
+                    <td style="padding:4px 0;color:#4b5563;">Količina</td>
                     <td style="padding:4px 0;text-align:right;font-weight:600;color:#111827;">${item.quantity}</td>
                   </tr>
                   <tr>
