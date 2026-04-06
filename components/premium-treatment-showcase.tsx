@@ -22,8 +22,6 @@ const GLAM_BENEFITS = [
 
 const GLAM_GALLERY = [
   { src: "/tretmani/sminka/1.avif", alt: "Profesionalna glam šminka sa sjajnim tenom" },
-  { src: "/tretmani/sminka/2.avif", alt: "Elegantna večernja glam šminka" },
-  { src: "/tretmani/sminka/3.avif", alt: "Soft glam look za posebnu priliku" },
   { src: "/tretmani/sminka/4.avif", alt: "Precizno definisana profesionalna šminka" },
   { src: "/tretmani/sminka/5.avif", alt: "Glam makeup sa luksuznim finišem" },
 ];
@@ -175,15 +173,18 @@ export function PremiumTreatmentShowcase() {
             <div className="absolute inset-x-[10%] top-6 h-24 rounded-full bg-[#b47a59]/30 blur-3xl dark:bg-[#b47a59]/25" aria-hidden="true" />
 
             <div className="absolute right-0 top-0 w-[78%] overflow-hidden rounded-[2rem] border border-[#ead8cc] shadow-[0_30px_80px_-42px_rgba(92,56,35,0.3)] dark:border-white/12 dark:shadow-[0_30px_80px_-42px_rgba(0,0,0,0.82)]">
-              <Image
-                src="/tretmani/integrity/slika-1.avif"
-                alt="Integrity tretman za obnovu oštećene kose"
-                width={1200}
-                height={1500}
-                quality={100}
-                sizes="(max-width: 1024px) 86vw, 40vw"
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                disablePictureInPicture
+                aria-label="Integrity tretman za obnovu oštećene kose"
                 className="h-full w-full object-cover"
-              />
+              >
+                <source src="/tretmani/integrity/snimak-1.webm" type="video/webm" />
+              </video>
             </div>
 
             <div className="absolute bottom-0 left-0 w-[58%] overflow-hidden rounded-[1.8rem] border border-[#ead8cc] bg-[#f3ebe4] shadow-[0_28px_70px_-44px_rgba(92,56,35,0.32)] dark:border-white/12 dark:bg-[#241814] dark:shadow-[0_28px_70px_-44px_rgba(0,0,0,0.9)]">
