@@ -586,6 +586,30 @@ export const listOrdersForAdmin = query({
   },
 });
 
+export const countPendingOrders = query({
+  args: {},
+  handler: async (ctx) => {
+    const orders = await ctx.db.query("orders").collect();
+    return orders.reduce((count, order) => {
+      return normalizeOrderStatus(order.status) === "pending" ? count + 1 : count;
+    }, 0);
+  },
+});
+
+export const listPendingOrdersForBadge = query({
+  args: {},
+  handler: async (ctx) => {
+    const orders = await ctx.db.query("orders").collect();
+    return orders
+      .filter((order) => normalizeOrderStatus(order.status) === "pending")
+      .map((order) => ({
+        _id: order._id,
+        createdAt: order.createdAt,
+      }))
+      .sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
 export const setOrderStatus = mutation({
   args: {
     orderId: v.id("orders"),

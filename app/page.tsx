@@ -364,7 +364,7 @@ export default function HomePage() {
                   <Award className="home-kicker-glyph" aria-hidden="true" />
                   <span>Pre i posle</span>
                 </p>
-                <h2>Jedna fotografija iz studija i dva primera pre i posle.</h2>
+                <h2>Od studija do vidljive razlike.</h2>
               </div>
             </div>
 

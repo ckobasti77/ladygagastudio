@@ -43,6 +43,7 @@ type SendOrderEmailResult =
 
 let cachedTransporter: nodemailer.Transporter | null = null;
 let cachedTransporterKey = "";
+let cachedTransporterVerified = false;
 
 function formatRsd(value: number) {
   return `${Math.max(0, Math.round(value)).toLocaleString("sr-Latn-RS")} RSD`;
@@ -88,7 +89,7 @@ function resolveFinalUnitPrice(unitPrice: number, discount: number) {
 
 function normalizeRecipients(rawRecipients: string | undefined) {
   const recipients = rawRecipients
-    ?.split(",")
+    ?.split(/[;,]/)
     .map((value) => value.trim())
     .filter((value) => value.length > 0);
 
@@ -273,7 +274,7 @@ function readSmtpConfig() {
   const host = process.env.SMTP_HOST?.trim();
   const portRaw = process.env.SMTP_PORT?.trim() || "587";
   const user = process.env.SMTP_USER?.trim();
-  const pass = process.env.SMTP_PASS?.replace(/\s+/g, "");
+  const pass = process.env.SMTP_PASS?.trim();
   const secure = process.env.SMTP_SECURE === "true" || portRaw === "465";
   const port = Number(portRaw);
   const from = process.env.ORDER_FROM_EMAIL?.trim() || user || DEFAULT_FROM_EMAIL;
@@ -330,7 +331,17 @@ function getTransporter(config: {
     },
   });
   cachedTransporterKey = cacheKey;
+  cachedTransporterVerified = false;
   return cachedTransporter;
+}
+
+async function ensureTransporterReady(transporter: nodemailer.Transporter) {
+  if (cachedTransporterVerified) {
+    return;
+  }
+
+  await transporter.verify();
+  cachedTransporterVerified = true;
 }
 
 export async function sendCheckoutOrderEmail(payload: CheckoutEmailPayload): Promise<SendOrderEmailResult> {
@@ -357,16 +368,30 @@ export async function sendCheckoutOrderEmail(payload: CheckoutEmailPayload): Pro
   });
 
   try {
-    await transporter.sendMail({
+    await ensureTransporterReady(transporter);
+    const info = await transporter.sendMail({
       from: smtpConfig.value.from,
       to: recipients,
       subject: `Nova narudžbina ${normalizedPayload.orderNumber}`,
       text: buildTextPayload(normalizedPayload),
       html: buildHtmlPayload(normalizedPayload),
-      replyTo: normalizedPayload.customer.email,
+      ...(normalizedPayload.customer.email ? { replyTo: normalizedPayload.customer.email } : {}),
+    });
+    console.info("Checkout order email sent", {
+      orderNumber: normalizedPayload.orderNumber,
+      recipients,
+      accepted: info.accepted,
+      rejected: info.rejected,
+      response: info.response,
+      messageId: info.messageId,
     });
     return { ok: true };
   } catch (error: unknown) {
+    console.error("Checkout order email failed", {
+      orderNumber: normalizedPayload.orderNumber,
+      recipients,
+      error: resolveErrorMessage(error),
+    });
     return {
       ok: false,
       error: `Slanje emaila nije uspelo (${resolveErrorMessage(error)}).`,

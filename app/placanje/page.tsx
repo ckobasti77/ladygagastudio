@@ -211,11 +211,15 @@ export default function CheckoutPage() {
       setLegalAccepted(false);
       setMarketingAccepted(false);
       setStatus("success");
+      const orderFeedbackMessage = emailResult.ok
+        ? "Narudžbina je uspešno poslata i email obaveštenje je isporučeno adminu."
+        : "Narudžbina je uspešno kreirana, ali email obaveštenje adminu nije poslato. Porudžbina je ipak sačuvana u evidenciji narudžbina.";
       setStatusMessage(
         emailResult.ok
           ? "Narudžbina je uspešno poslata."
           : "Narudžbina je uspešno poslata.",
       );
+      setStatusMessage(orderFeedbackMessage);
     } catch (error: unknown) {
       setStatus("error");
       setStatusMessage(resolveErrorMessage(error));

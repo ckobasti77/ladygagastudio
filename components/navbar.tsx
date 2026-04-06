@@ -3,12 +3,38 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { Menu, Moon, ShoppingCart, Sun, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useQuery } from "convex/react";
+import { ClipboardList, Menu, Moon, ShoppingCart, Sun, X } from "lucide-react";
+import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/contexts/auth-context";
 import { useCart } from "@/contexts/cart-context";
 import { useLanguage } from "@/contexts/language-context";
 import { useTheme } from "@/contexts/theme-context";
+import { ADMIN_ORDERS_SEEN_EVENT, readAdminOrdersSeenAt } from "@/lib/admin-orders-badge";
+
+type PendingOrderBadgeEntry = {
+  _id: string;
+  createdAt: number;
+};
+
+function subscribeToAdminOrdersSeen(onStoreChange: () => void) {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  window.addEventListener(ADMIN_ORDERS_SEEN_EVENT, onStoreChange as EventListener);
+  window.addEventListener("storage", onStoreChange);
+
+  return () => {
+    window.removeEventListener(ADMIN_ORDERS_SEEN_EVENT, onStoreChange as EventListener);
+    window.removeEventListener("storage", onStoreChange);
+  };
+}
+
+function getAdminOrdersSeenSnapshot() {
+  return readAdminOrdersSeenAt();
+}
 
 export function Navbar() {
   const pathname = usePathname();
@@ -21,6 +47,17 @@ export function Navbar() {
   const lastScrollYRef = useRef(0);
   const tickingRef = useRef(false);
   const isHeaderHiddenRef = useRef(false);
+  const isAdmin = session?.isAdmin === true;
+  const adminOrdersHref = "/admin/evidencija-narudzbina";
+  const adminOrdersIsActive = pathname.startsWith(adminOrdersHref);
+  const pendingOrdersQuery = useQuery(api.orders.listPendingOrdersForBadge, isAdmin ? {} : "skip") as
+    | PendingOrderBadgeEntry[]
+    | undefined;
+  const lastSeenOrdersAt = useSyncExternalStore(
+    isAdmin ? subscribeToAdminOrdersSeen : () => () => undefined,
+    isAdmin ? getAdminOrdersSeenSnapshot : () => 0,
+    () => 0,
+  );
   const menuId = "primary-navigation";
   const open = openForPath === pathname;
   const themeToggleLabel = theme === "light" ? "Prebaci na tamnu temu" : "Prebaci na svetlu temu";
@@ -84,6 +121,41 @@ export function Navbar() {
     };
   }, [open]);
 
+  const pendingOrdersCount = useMemo(() => {
+    if (!isAdmin) {
+      return 0;
+    }
+
+    const pendingOrders = pendingOrdersQuery ?? [];
+    return pendingOrders.reduce((count, order) => {
+      return order.createdAt > lastSeenOrdersAt ? count + 1 : count;
+    }, 0);
+  }, [isAdmin, lastSeenOrdersAt, pendingOrdersQuery]);
+
+  const quickShortcut = isAdmin ? (
+    <Link
+      href={adminOrdersHref}
+      className={`cart-nav-link ${adminOrdersIsActive ? "active" : ""}`}
+      onClick={() => setOpenForPath(null)}
+      aria-label="Evidencija narudžbina"
+      title="Evidencija narudžbina"
+    >
+      <ClipboardList aria-hidden />
+      {pendingOrdersCount > 0 ? <span className="nav-count-badge cart-nav-badge">{pendingOrdersCount}</span> : null}
+    </Link>
+  ) : (
+    <Link
+      href="/korpa"
+      className={`cart-nav-link ${pathname === "/korpa" ? "active" : ""}`}
+      onClick={() => setOpenForPath(null)}
+      aria-label={t.nav.cart}
+      title={t.nav.cart}
+    >
+      <ShoppingCart aria-hidden />
+      {itemCount > 0 ? <span className="nav-count-badge cart-nav-badge">{itemCount}</span> : null}
+    </Link>
+  );
+
   return (
     <header
       className={[
@@ -111,16 +183,7 @@ export function Navbar() {
         </Link>
 
         <div className="nav-quick-actions">
-          <Link
-            href="/korpa"
-            className={`cart-nav-link ${pathname === "/korpa" ? "active" : ""}`}
-            onClick={() => setOpenForPath(null)}
-            aria-label={t.nav.cart}
-            title={t.nav.cart}
-          >
-            <ShoppingCart aria-hidden />
-            {itemCount > 0 ? <span className="nav-count-badge cart-nav-badge">{itemCount}</span> : null}
-          </Link>
+          {quickShortcut}
           <button
             type="button"
             onClick={toggleTheme}
@@ -187,16 +250,7 @@ export function Navbar() {
               </Link>
             )}
 
-            <Link
-              href="/korpa"
-              className={`cart-nav-link ${pathname === "/korpa" ? "active" : ""}`}
-              onClick={() => setOpenForPath(null)}
-              aria-label={t.nav.cart}
-              title={t.nav.cart}
-            >
-              <ShoppingCart aria-hidden />
-              {itemCount > 0 ? <span className="nav-count-badge cart-nav-badge">{itemCount}</span> : null}
-            </Link>
+            {quickShortcut}
 
             <button
               type="button"

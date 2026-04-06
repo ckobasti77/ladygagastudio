@@ -7,6 +7,7 @@ import { Fragment, type ReactNode, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/contexts/auth-context";
+import { markAdminOrdersSeen } from "@/lib/admin-orders-badge";
 import styles from "./page.module.css";
 
 type OrderStatus = "pending" | "processed" | "completed";
@@ -109,6 +110,14 @@ export default function AdminOrdersLedgerPage() {
       router.replace("/");
     }
   }, [router, session]);
+
+  useEffect(() => {
+    if (!session?.isAdmin) {
+      return;
+    }
+
+    markAdminOrdersSeen();
+  }, [session]);
 
   useEffect(() => {
     if (!feedback) return;

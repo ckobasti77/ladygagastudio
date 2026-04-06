@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
-import { sendOfferCampaign } from "./actions";
+import { getOfferRecipientsPreview, sendOfferCampaign } from "./actions";
 
 type SendState = "idle" | "sending" | "success" | "error";
 
@@ -14,6 +14,14 @@ type OfferTemplate = {
   subject: string;
   message: string;
 };
+
+type OfferRecipient = {
+  email: string;
+  firstName: string;
+  lastName: string;
+};
+
+type RecipientLoadState = "idle" | "loading" | "success" | "error";
 
 const OFFER_TEMPLATES: OfferTemplate[] = [
   {
@@ -48,6 +56,10 @@ export default function AdminOffersPage() {
   const [state, setState] = useState<SendState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [recipientState, setRecipientState] = useState<RecipientLoadState>("idle");
+  const [recipientStatusMessage, setRecipientStatusMessage] = useState("");
+  const [monitorEmail, setMonitorEmail] = useState("");
+  const [recipients, setRecipients] = useState<OfferRecipient[]>([]);
 
   const applyTemplate = (template: OfferTemplate) => {
     setSelectedTemplateId(template.id);
@@ -58,6 +70,40 @@ export default function AdminOffersPage() {
       setState("idle");
     }
   };
+
+  useEffect(() => {
+    if (!session?.isAdmin) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadRecipients = async () => {
+      setRecipientState("loading");
+      setRecipientStatusMessage("");
+
+      const result = await getOfferRecipientsPreview();
+      if (cancelled) {
+        return;
+      }
+
+      if (!result.ok) {
+        setRecipientState("error");
+        setRecipientStatusMessage(result.error);
+        return;
+      }
+
+      setRecipientState("success");
+      setMonitorEmail(result.monitorEmail);
+      setRecipients(result.recipients);
+    };
+
+    void loadRecipients();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.isAdmin]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -138,9 +184,48 @@ export default function AdminOffersPage() {
         </div>
       </section>
 
+      <section className="toolbar-card admin-offer-recipient-panel">
+        <div className="admin-offer-recipient-head">
+          <div>
+            <h2>Spisak primalaca</h2>
+            <p className="order-summary">Ponuda se salje na nadzorni mejl i svim prijavljenim marketing kontaktima iz baze.</p>
+          </div>
+          <span className="admin-offer-recipient-count">{recipients.length} emailova</span>
+        </div>
+
+        <div className="admin-offer-live-meta">
+          <span>Nadzorni mejl (To): {monitorEmail || "hello@ladygagastudio.rs"}</span>
+          <span>BCC primaoci: {recipients.length}</span>
+        </div>
+
+        {recipientState === "loading" ? <p className="order-summary">Ucitavanje spiska primalaca...</p> : null}
+        {recipientState === "error" ? <p className="status-msg admin-status-error">{recipientStatusMessage}</p> : null}
+        {recipientState === "success" && recipients.length === 0 ? (
+          <p className="order-summary">Trenutno nema prijavljenih mejlova za slanje ponuda.</p>
+        ) : null}
+        {recipientState === "success" && recipients.length > 0 ? (
+          <>
+            <textarea
+              className="admin-offer-recipient-export"
+              readOnly
+              value={recipients.map((recipient) => recipient.email).join("\n")}
+              rows={Math.min(Math.max(recipients.length + 1, 4), 12)}
+            />
+            <ul className="admin-offer-recipient-list">
+              {recipients.map((recipient) => (
+                <li key={recipient.email} className="admin-offer-recipient-item">
+                  <strong>{recipient.email}</strong>
+                  <span>{[recipient.firstName, recipient.lastName].filter(Boolean).join(" ").trim() || "Bez imena"}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+      </section>
+
       <form className="toolbar-card modal-form" onSubmit={submit}>
         <h2>Nova ponuda</h2>
-        <p className="order-summary">Primalac: svi registrovani korisnici iz baze.</p>
+        <p className="order-summary">Primalac: nadzorni mejl + svi marketing kontakti iz baze.</p>
 
         <input
           required

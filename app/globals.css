@@ -14063,6 +14063,34 @@ body.ux-enhanced .app-shell::before {
   gap: 0.72rem;
 }
 
+.admin-offer-recipient-panel {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.admin-offer-recipient-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-offer-recipient-head h2 {
+  margin: 0;
+}
+
+.admin-offer-recipient-count {
+  align-self: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, var(--border));
+  border-radius: 999px;
+  padding: 0.36rem 0.75rem;
+  background: color-mix(in srgb, var(--accent-soft) 42%, transparent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
 .admin-offer-template-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -14133,6 +14161,47 @@ body.ux-enhanced .app-shell::before {
   white-space: pre-wrap;
 }
 
+.admin-offer-recipient-export {
+  width: 100%;
+  min-height: 148px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.72rem 0.8rem;
+  background: color-mix(in srgb, var(--surface-soft) 90%, var(--surface));
+  color: var(--text);
+  font: 0.84rem/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.admin-offer-recipient-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.admin-offer-recipient-item {
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface-soft) 68%, transparent);
+  padding: 0.7rem 0.8rem;
+  display: grid;
+  gap: 0.24rem;
+}
+
+.admin-offer-recipient-item strong {
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+.admin-offer-recipient-item span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
 @media (max-width: 900px) {
   .admin-offer-template-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -14155,6 +14224,11 @@ body.ux-enhanced .app-shell::before {
   .admin-inquiry-actions .ghost-btn {
     text-align: center;
     justify-content: center;
+  }
+
+  .admin-offer-recipient-head {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

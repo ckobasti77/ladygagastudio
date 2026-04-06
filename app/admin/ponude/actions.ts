@@ -21,6 +21,17 @@ type SendOfferCampaignResult =
       error: string;
     };
 
+type OfferRecipientsPreviewResult =
+  | {
+      ok: true;
+      monitorEmail: string;
+      recipients: OfferRecipient[];
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
 type OfferRecipient = {
   email: string;
   firstName: string;
@@ -78,6 +89,10 @@ function buildOfferHtml(payload: OfferCampaignPayload) {
       </div>
     </div>
   `;
+}
+
+function resolveOfferMonitorEmail() {
+  return (process.env.OFFER_MONITOR_EMAIL?.trim() || ADMIN_EMAIL).trim().toLowerCase();
 }
 
 function readSmtpConfig() {
@@ -141,6 +156,45 @@ function getTransporter(config: {
   return cachedTransporter;
 }
 
+async function listOfferRecipients() {
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!convexUrl) {
+    throw new Error("NEXT_PUBLIC_CONVEX_URL nije postavljen.");
+  }
+
+  const convex = new ConvexHttpClient(convexUrl);
+  const recipients = (await convex.query(api.users.listOfferRecipients, {})) as OfferRecipient[];
+  const uniqueRecipients = new Map<string, OfferRecipient>();
+
+  for (const recipient of recipients) {
+    const email = recipient.email.trim().toLowerCase();
+    if (email.length === 0 || uniqueRecipients.has(email)) {
+      continue;
+    }
+
+    uniqueRecipients.set(email, {
+      email,
+      firstName: recipient.firstName.trim(),
+      lastName: recipient.lastName.trim(),
+    });
+  }
+
+  return [...uniqueRecipients.values()].sort((a, b) => a.email.localeCompare(b.email, "sr-Latn-RS"));
+}
+
+export async function getOfferRecipientsPreview(): Promise<OfferRecipientsPreviewResult> {
+  try {
+    const recipients = await listOfferRecipients();
+    return {
+      ok: true,
+      monitorEmail: resolveOfferMonitorEmail(),
+      recipients,
+    };
+  } catch (error: unknown) {
+    return { ok: false, error: resolveErrorMessage(error) };
+  }
+}
+
 export async function sendOfferCampaign(payload: OfferCampaignPayload): Promise<SendOfferCampaignResult> {
   const subject = payload.subject.trim();
   const message = payload.message.trim();
@@ -158,21 +212,9 @@ export async function sendOfferCampaign(payload: OfferCampaignPayload): Promise<
     return { ok: false, error: smtpConfig.error };
   }
 
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-  if (!convexUrl) {
-    return { ok: false, error: "NEXT_PUBLIC_CONVEX_URL nije postavljen." };
-  }
-
   try {
-    const convex = new ConvexHttpClient(convexUrl);
-    const recipients = (await convex.query(api.users.listOfferRecipients, {})) as OfferRecipient[];
-    const recipientEmails = Array.from(
-      new Set(
-        recipients
-          .map((recipient) => recipient.email.trim().toLowerCase())
-          .filter((email) => email.length > 0),
-      ),
-    );
+    const recipients = await listOfferRecipients();
+    const recipientEmails = recipients.map((recipient) => recipient.email);
 
     if (recipientEmails.length === 0) {
       return { ok: true, recipients: 0 };
@@ -188,7 +230,7 @@ export async function sendOfferCampaign(payload: OfferCampaignPayload): Promise<
 
     await transporter.sendMail({
       from: smtpConfig.value.from,
-      to: [process.env.OFFER_MONITOR_EMAIL ?? ADMIN_EMAIL],
+      to: [resolveOfferMonitorEmail()],
       bcc: recipientEmails,
       subject,
       text: buildOfferText({ subject, message }),
