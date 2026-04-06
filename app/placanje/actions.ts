@@ -223,10 +223,10 @@ function buildHtmlPayload(payload: CheckoutEmailPayload) {
   return `
     <div style="background:#f4f5f7;padding:24px 12px;font-family:Arial,sans-serif;color:#111827;">
       <div style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">
-        <div style="background:linear-gradient(135deg,#e56f4a,#ca4d2a);color:#ffffff;padding:18px 20px;">
+        <div style="background-color:#fff4ef;color:#9a3412;padding:18px 20px;border-bottom:1px solid #f3d1c4;">
           <p style="margin:0 0 6px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">Nova narudžbina</p>
-          <h1 style="margin:0;font-size:24px;">${escapeHtml(payload.orderNumber)}</h1>
-          <p style="margin:8px 0 0;font-size:13px;opacity:.92;">Kreirano: ${escapeHtml(createdAt)}</p>
+          <h1 style="margin:0;font-size:24px;line-height:1.3;color:#111827;font-weight:700;">${escapeHtml(payload.orderNumber)}</h1>
+          <p style="margin:8px 0 0;font-size:13px;color:#7c2d12;">Kreirano: ${escapeHtml(createdAt)}</p>
         </div>
 
         <div style="padding:20px;">
