@@ -22,8 +22,9 @@ const GLAM_BENEFITS = [
 
 const GLAM_GALLERY = [
   { src: "/tretmani/sminka/1.avif", alt: "Profesionalna glam šminka sa sjajnim tenom" },
+  { src: "/tretmani/sminka/2.avif", alt: "Profesionalna glam šminka u detalju" },
+  { src: "/tretmani/sminka/3.avif", alt: "Profesionalna glam šminka iz drugog ugla" },
   { src: "/tretmani/sminka/4.avif", alt: "Precizno definisana profesionalna šminka" },
-  { src: "/tretmani/sminka/5.avif", alt: "Glam makeup sa luksuznim finišem" },
 ];
 
 export function PremiumTreatmentShowcase() {
@@ -154,10 +155,12 @@ export function PremiumTreatmentShowcase() {
             </div>
 
             <div className="rounded-[1.75rem] border border-[#e6d3c8] bg-white/74 p-5 backdrop-blur dark:border-white/10 dark:bg-white/7">
-              <p className="text-sm uppercase tracking-[0.28em] text-[#9f6b53] dark:text-[#d9b9a2]">Za kosu koja je pretrpela previše</p>
+              <p className="text-sm uppercase tracking-[0.28em] text-[#9f6b53] dark:text-[#d9b9a2]">
+                Za kosu koja je pretrpela previše
+              </p>
               <p className="mt-3 max-w-[28rem] text-[0.98rem] leading-7 text-[#4e3b34] dark:text-[#f1e3da]">
-                Savršen izbor kada želiš da umiriš lomljenje, vratiš mekoću i pripremiš kosu za sledeću boju, stilizovanje
-                ili jednostavno zdraviji svakodnevni izgled.
+                Savršen izbor kada želiš da umiriš lomljenje, vratiš mekoću i pripremiš kosu za sledeću boju,
+                stilizovanje ili jednostavno zdraviji svakodnevni izgled.
               </p>
             </div>
 
@@ -170,7 +173,10 @@ export function PremiumTreatmentShowcase() {
           </div>
 
           <div className="relative min-h-[24rem] sm:min-h-[31rem]">
-            <div className="absolute inset-x-[10%] top-6 h-24 rounded-full bg-[#b47a59]/30 blur-3xl dark:bg-[#b47a59]/25" aria-hidden="true" />
+            <div
+              className="absolute inset-x-[10%] top-6 h-24 rounded-full bg-[#b47a59]/30 blur-3xl dark:bg-[#b47a59]/25"
+              aria-hidden="true"
+            />
 
             <div className="absolute right-0 top-0 w-[78%] overflow-hidden rounded-[2rem] border border-[#ead8cc] shadow-[0_30px_80px_-42px_rgba(92,56,35,0.3)] dark:border-white/12 dark:shadow-[0_30px_80px_-42px_rgba(0,0,0,0.82)]">
               <video
@@ -238,8 +244,8 @@ export function PremiumTreatmentShowcase() {
                 finiš koji ostaje besprekoran tokom celog događaja.
               </p>
               <p>
-                Bilo da je u pitanju svadba, rođendan, gala događaj ili važno fotografisanje, svaki detalj se prilagođava
-                tvom tenu, haljini, svetlu prostora i energiji prilike.
+                Bilo da je u pitanju svadba, rođendan, gala događaj ili važno fotografisanje, svaki detalj se
+                prilagođava tvom tenu, haljini, svetlu prostora i energiji prilike.
               </p>
 
               <div className="flex flex-wrap gap-3 pt-2">
@@ -262,43 +268,64 @@ export function PremiumTreatmentShowcase() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
-              <div className="relative overflow-hidden rounded-[2rem] border border-[#ebd7cb] bg-[#f7efe8] shadow-[0_26px_70px_-42px_rgba(60,31,18,0.35)] dark:border-[#4f372e] dark:bg-[#211513] dark:shadow-[0_26px_70px_-42px_rgba(0,0,0,0.78)]">
-                <Image
-                  src={GLAM_GALLERY[0].src}
-                  alt={GLAM_GALLERY[0].alt}
-                  width={1200}
-                  height={1500}
-                  quality={100}
-                  sizes="(max-width: 1024px) 100vw, 34vw"
-                  className="h-full min-h-[24rem] w-full object-cover"
-                />
-                <div className="absolute inset-x-4 bottom-4 rounded-[1.35rem] bg-[#1f1411]/76 px-4 py-3 text-white backdrop-blur dark:bg-[#120c0a]/80">
-                  <p className="text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-[#f0cab5]">Glam Style</p>
-                  <p className="mt-1 text-sm leading-6">
-                    Mekan glow, definisan pogled i luksuzan finiš koji izgleda moćno uživo i na fotografijama.
-                  </p>
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,1.14fr)_minmax(0,0.86fr)]">
+                <div className="relative overflow-hidden rounded-[2rem] border border-[#ebd7cb] bg-[#f7efe8] shadow-[0_26px_70px_-42px_rgba(60,31,18,0.35)] dark:border-[#4f372e] dark:bg-[#211513] dark:shadow-[0_26px_70px_-42px_rgba(0,0,0,0.78)]">
+                  <Image
+                    src={GLAM_GALLERY[0].src}
+                    alt={GLAM_GALLERY[0].alt}
+                    width={1200}
+                    height={1500}
+                    quality={100}
+                    sizes="(max-width: 1024px) 100vw, 28vw"
+                    className="h-full min-h-[24rem] w-full object-cover"
+                  />
                 </div>
-              </div>
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-                {GLAM_GALLERY.slice(1).map((image, index) => (
-                  <div
-                    key={image.src}
-                    className={`overflow-hidden rounded-[1.7rem] border border-[#ead8cc] bg-white/70 shadow-[0_24px_65px_-42px_rgba(63,34,21,0.35)] dark:border-[#4a342c] dark:bg-[#201412] dark:shadow-[0_24px_65px_-42px_rgba(0,0,0,0.78)] ${
-                      index === 0 ? "sm:translate-y-6" : ""
-                    } ${index === 2 ? "sm:-translate-y-6" : ""}`}
-                  >
+                <div className="grid gap-4">
+                  <div className="overflow-hidden rounded-[1.7rem] border border-[#ead8cc] bg-white/70 shadow-[0_24px_65px_-42px_rgba(63,34,21,0.35)] dark:border-[#4a342c] dark:bg-[#201412] dark:shadow-[0_24px_65px_-42px_rgba(0,0,0,0.78)] sm:translate-y-5">
                     <Image
-                      src={image.src}
-                      alt={image.alt}
+                      src={GLAM_GALLERY[1].src}
+                      alt={GLAM_GALLERY[1].alt}
                       width={900}
                       height={1100}
                       quality={100}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 17vw"
-                      className="h-full min-h-[12.5rem] w-full object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 16vw"
+                      className="h-full min-h-[12rem] w-full object-cover"
                     />
                   </div>
-                ))}
+
+                  <div className="overflow-hidden rounded-[1.7rem] border border-[#ead8cc] bg-white/70 shadow-[0_24px_65px_-42px_rgba(63,34,21,0.35)] dark:border-[#4a342c] dark:bg-[#201412] dark:shadow-[0_24px_65px_-42px_rgba(0,0,0,0.78)] sm:-translate-y-5">
+                    <Image
+                      src={GLAM_GALLERY[2].src}
+                      alt={GLAM_GALLERY[2].alt}
+                      width={900}
+                      height={1100}
+                      quality={100}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 16vw"
+                      className="h-full min-h-[12rem] w-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative overflow-hidden rounded-[2rem] border border-[#ebd7cb] bg-[#f7efe8] shadow-[0_26px_70px_-42px_rgba(60,31,18,0.35)] dark:border-[#4f372e] dark:bg-[#211513] dark:shadow-[0_26px_70px_-42px_rgba(0,0,0,0.78)]">
+                <Image
+                  src={GLAM_GALLERY[3].src}
+                  alt={GLAM_GALLERY[3].alt}
+                  width={1200}
+                  height={1500}
+                  quality={100}
+                  sizes="(max-width: 1024px) 100vw, 26vw"
+                  className="h-full min-h-[24rem] w-full object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 flex min-h-[25%] flex-col justify-end bg-[linear-gradient(180deg,rgba(31,20,17,0)_0%,rgba(31,20,17,0.82)_100%)] px-5 py-4 text-white dark:bg-[linear-gradient(180deg,rgba(18,12,10,0)_0%,rgba(18,12,10,0.88)_100%)]">
+                  <div className="max-w-[22rem] rounded-[1.35rem] border border-white/18 bg-white/12 px-4 py-3 shadow-[0_20px_45px_-28px_rgba(0,0,0,0.55)] backdrop-blur-md dark:border-white/12 dark:bg-white/8">
+                    <p className="text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-[#f0cab5]">Glam Style</p>
+                  <p className="mt-1 text-sm leading-6">
+                    Mekan glow, definisan pogled i luksuzan finiš koji izgleda moćno uživo i na fotografijama.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
