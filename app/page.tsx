@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -265,7 +265,7 @@ export default function HomePage() {
           <div className="xeno-hero-delivery-banner">
             <Zap className="xeno-hero-delivery-icon" aria-hidden="true" />
             <span className="xeno-hero-delivery-text">Dostava za <strong>48h</strong> na teritoriji Srbije</span>
-            <Image
+            <img
               src="/serbia-flag.png"
               alt="Zastava Srbije"
               width={28}
@@ -313,7 +313,7 @@ export default function HomePage() {
                   <Sparkles className="home-kicker-glyph" aria-hidden="true" />
                   <span>Vizija studija</span>
                 </div>
-                <h2>Svaki tretman je osmišljen da kosa izgleda luksuzno odmah, a rezultat ostane stabilan i dugotrajan.</h2>
+                <h2>Svaki tretman je osmišljen da kosa izgleda glamurozno odmah, a rezultat ostane stabilan i dugotrajan.</h2>
               </div>
 
               {founderStory.slice(2).map((paragraph) => (

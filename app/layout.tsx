@@ -4,6 +4,7 @@ import { CookieConsentManager } from "@/components/cookie-consent-manager";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
+import { RecommendedProductsRail } from "@/components/recommended-products-rail";
 import { UxEnhancer } from "@/components/ux-enhancer";
 
 const siteUrlRaw = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://studioladygaga.rs";
@@ -107,6 +108,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               }}
             />
             <Navbar />
+            <RecommendedProductsRail />
             <main className="container main-content">{children}</main>
             <Footer />
             <CookieConsentManager />
