@@ -396,7 +396,7 @@ export function PremiumTreatmentShowcase() {
                   height={1500}
                   quality={100}
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 28vw"
-                  className="h-full w-full object-cover object-[50%_24%]"
+                  className="h-full w-full object-cover object-[50%_48%]"
                 />
               </div>
 
@@ -408,7 +408,7 @@ export function PremiumTreatmentShowcase() {
                   height={1500}
                   quality={100}
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 28vw"
-                  className="h-full w-full object-cover object-center"
+                  className="h-full w-full object-cover object-[50%_18%]"
                 />
               </div>
 
@@ -420,7 +420,7 @@ export function PremiumTreatmentShowcase() {
                   height={1500}
                   quality={100}
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 28vw"
-                  className="h-full w-full object-cover object-[50%_24%]"
+                  className="h-full w-full object-cover object-[50%_13%]"
                 />
               </div>
 
@@ -432,7 +432,7 @@ export function PremiumTreatmentShowcase() {
                   height={1500}
                   quality={100}
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 28vw"
-                  className="h-full w-full object-cover object-[52%_18%]"
+                  className="h-full w-full object-cover object-[52%_26%]"
                 />
               </div>
             </div>
@@ -457,7 +457,7 @@ export function PremiumTreatmentShowcase() {
                 height={1100}
                 quality={100}
                 sizes="(max-width: 1024px) 100vw, 30vw"
-                className="h-full w-full object-cover object-[50%_16%]"
+                className="h-full w-full object-cover object-[50%_25%]"
               />
             </div>
 

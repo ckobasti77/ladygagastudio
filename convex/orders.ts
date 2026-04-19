@@ -573,6 +573,7 @@ export const listOrdersForAdmin = query({
           orderNumber: order.orderNumber ?? createDeterministicFallbackOrderNumber(order.createdAt, order._id),
           createdAt: order.createdAt,
           status: normalizeOrderStatus(order.status),
+          trackingNumber: normalizeOptionalText(order.trackingNumber),
           customer: order.customer,
           totals: {
             totalItems,
@@ -614,13 +615,24 @@ export const setOrderStatus = mutation({
   args: {
     orderId: v.id("orders"),
     status: orderStatusValidator,
+    trackingNumber: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const order = await ctx.db.get(args.orderId);
     if (!order) {
       throw new Error("Porudžbina nije pronađena.");
     }
-    await ctx.db.patch(args.orderId, { status: args.status });
+    const nextTrackingNumber = normalizeOptionalText(args.trackingNumber);
+    const currentTrackingNumber = normalizeOptionalText(order.trackingNumber);
+
+    if (args.status === "processed" && order.status !== "processed" && !nextTrackingNumber && !currentTrackingNumber) {
+      throw new Error("Broj pošiljke je obavezan kada porudžbina prelazi u obradu.");
+    }
+
+    await ctx.db.patch(args.orderId, {
+      status: args.status,
+      ...(nextTrackingNumber ? { trackingNumber: nextTrackingNumber } : {}),
+    });
   },
 });
 

@@ -7,6 +7,7 @@ import { useQuery } from "convex/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useId, useState } from "react";
 import { api } from "@/convex/_generated/api";
+import bannerImage from "@/public/banner.avif";
 import styles from "./recommended-products-rail.module.css";
 
 type RecommendedProduct = {
@@ -19,6 +20,8 @@ type HomeSnapshot = {
   sidebarProducts: RecommendedProduct[];
 };
 
+const PROMO_RAIL_ROUTES = new Set(["/", "/o-nama", "/kontakt"]);
+
 export function RecommendedProductsRail() {
   const pathname = usePathname();
   const snapshot = useQuery(api.products.homeSnapshot, {}) as HomeSnapshot | undefined;
@@ -30,6 +33,7 @@ export function RecommendedProductsRail() {
   const [canScrollNext, setCanScrollNext] = useState(products.length > 1);
 
   const isAdminRoute = pathname.startsWith("/admin");
+  const shouldRenderPromoRail = PROMO_RAIL_ROUTES.has(pathname);
 
   const updateScrollState = useCallback(() => {
     if (!rail) return;
@@ -67,13 +71,26 @@ export function RecommendedProductsRail() {
     rail.scrollBy({ left: direction * step, behavior: "smooth" });
   };
 
-  if (isAdminRoute || products.length === 0) {
+  if (isAdminRoute || !shouldRenderPromoRail || products.length === 0) {
     return null;
   }
 
   return (
     <section className={styles.section} aria-labelledby={titleId}>
       <div className={`container ${styles.container}`}>
+        <div className={styles.bannerShell}>
+          <div className={styles.bannerFrame}>
+            <Image
+              src={bannerImage}
+              alt="Promotivni banner Studio Lady Gaga za preporučene proizvode."
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1180px) 96vw, 1120px"
+              className={styles.bannerImage}
+              loading="eager"
+            />
+          </div>
+        </div>
+
         <div className={styles.heading}>
           <span className={styles.headingLine} aria-hidden="true" />
           <h2 id={titleId} className={styles.title}>

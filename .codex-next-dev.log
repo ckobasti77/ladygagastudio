@@ -1,0 +1,10 @@
+
+> studio-lady-gaga@0.1.0 dev
+> next dev --port 3010
+
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3010
+- Network:       http://192.168.111.40:3010
+- Environments: .env.local
+✓ Ready in 2.3s
+[?25h

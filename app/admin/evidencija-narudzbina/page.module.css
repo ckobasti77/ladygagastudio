@@ -550,6 +550,12 @@
   flex: 1 1 calc(50% - 0.25rem);
 }
 
+.copyButton {
+  flex-basis: 100%;
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
 .detailButtonActive {
   border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
   background: color-mix(in srgb, var(--accent) 8%, transparent);
@@ -633,6 +639,66 @@
 }
 
 .itemList li strong {
+  font-size: 0.88rem;
+}
+
+/* ── Tracking Modal ── */
+
+.trackingModalForm {
+  min-width: min(100%, 460px);
+}
+
+.trackingMeta {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.trackingMeta h3 {
+  margin: 0;
+}
+
+.trackingHint {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.trackingTargetCard {
+  display: grid;
+  gap: 0.28rem;
+  padding: 0.82rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 12%, transparent), transparent 48%),
+    color-mix(in srgb, var(--surface-soft) 72%, transparent);
+}
+
+.trackingTargetCard strong {
+  font-size: 0.94rem;
+  color: var(--text);
+}
+
+.trackingTargetCard span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  word-break: break-word;
+}
+
+.trackingField {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.trackingField span {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--text) 78%, var(--muted));
+}
+
+.trackingError {
+  margin: 0;
+  color: #cc493e;
   font-size: 0.88rem;
 }
 

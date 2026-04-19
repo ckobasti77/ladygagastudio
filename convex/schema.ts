@@ -66,6 +66,7 @@ export default defineSchema({
         totalAmount: v.number(),
       }),
     ),
+    trackingNumber: v.optional(v.string()),
     status: v.optional(v.union(v.literal("pending"), v.literal("processed"), v.literal("completed"))),
     createdAt: v.number(),
   }).index("by_created_at", ["createdAt"]),

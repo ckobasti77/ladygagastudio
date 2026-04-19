@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Fragment, type ReactNode, useEffect, useMemo, useState } from "react";
+import { Fragment, type FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/contexts/auth-context";
 import { markAdminOrdersSeen } from "@/lib/admin-orders-badge";
+import { sendOrderTrackingEmail } from "./actions";
 import styles from "./page.module.css";
 
 type OrderStatus = "pending" | "processed" | "completed";
@@ -19,6 +20,7 @@ type AdminOrder = {
   orderNumber: string;
   createdAt: number;
   status: OrderStatus;
+  trackingNumber?: string;
   customer: {
     firstName: string;
     lastName: string;
@@ -75,6 +77,34 @@ function normalizeText(value: string | undefined) {
   return (value ?? "").trim().toLowerCase();
 }
 
+function getCustomerFullName(order: AdminOrder) {
+  return `${order.customer.firstName} ${order.customer.lastName}`.trim();
+}
+
+async function copyTextToClipboard(value: string) {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  textarea.style.pointerEvents = "none";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  const copied = document.execCommand("copy");
+  document.body.removeChild(textarea);
+
+  if (!copied) {
+    throw new Error("Clipboard API nije dostupna.");
+  }
+}
+
 export default function AdminOrdersLedgerPage() {
   const router = useRouter();
   const { session } = useAuth();
@@ -83,6 +113,7 @@ export default function AdminOrdersLedgerPage() {
   const setOrderStatus = useMutation(api.orders.setOrderStatus) as unknown as (args: {
     orderId: string;
     status: OrderStatus;
+    trackingNumber?: string;
   }) => Promise<unknown>;
   const deleteOrder = useMutation(api.orders.deleteOrder) as unknown as (args: {
     orderId: string;
@@ -103,6 +134,10 @@ export default function AdminOrdersLedgerPage() {
   const [busyOrderId, setBusyOrderId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminOrder | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [trackingTarget, setTrackingTarget] = useState<AdminOrder | null>(null);
+  const [trackingNumberInput, setTrackingNumberInput] = useState("");
+  const [trackingError, setTrackingError] = useState<string | null>(null);
+  const [isTrackingSubmitting, setIsTrackingSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   useEffect(() => {
@@ -210,6 +245,7 @@ export default function AdminOrdersLedgerPage() {
         order.customer.number,
         order.customer.postalCode,
         order.customer.city,
+        order.trackingNumber ?? "",
         order.customer.note ?? "",
         itemTitles,
       ]
@@ -288,8 +324,27 @@ export default function AdminOrdersLedgerPage() {
     setPage(1);
   };
 
+  const resetTrackingModal = () => {
+    setTrackingTarget(null);
+    setTrackingNumberInput("");
+    setTrackingError(null);
+  };
+
+  const closeTrackingModal = () => {
+    if (isTrackingSubmitting) return;
+    resetTrackingModal();
+  };
+
   const updateStatus = async (order: AdminOrder, nextStatus: OrderStatus) => {
     if (order.status === nextStatus) return;
+
+    if (order.status === "pending" && nextStatus === "processed") {
+      setTrackingTarget(order);
+      setTrackingNumberInput(order.trackingNumber ?? "");
+      setTrackingError(null);
+      return;
+    }
+
     setBusyOrderId(order._id);
     try {
       await setOrderStatus({ orderId: order._id, status: nextStatus });
@@ -301,6 +356,82 @@ export default function AdminOrdersLedgerPage() {
       const message = error instanceof Error && error.message ? error.message : "Promena statusa nije uspela.";
       setFeedback({ type: "error", message });
     } finally {
+      setBusyOrderId((current) => (current === order._id ? null : current));
+    }
+  };
+
+  const copyTrackingNumber = async (order: AdminOrder) => {
+    const trackingNumber = order.trackingNumber?.trim();
+    if (!trackingNumber) return;
+
+    try {
+      await copyTextToClipboard(trackingNumber);
+      setFeedback({
+        type: "success",
+        message: `Broj pošiljke za narudžbinu ${order.orderNumber} je kopiran.`,
+      });
+    } catch {
+      setFeedback({
+        type: "error",
+        message: `Kopiranje broja pošiljke za narudžbinu ${order.orderNumber} nije uspelo.`,
+      });
+    }
+  };
+
+  const onSubmitTrackingNumber = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!trackingTarget) {
+      return;
+    }
+
+    const order = trackingTarget;
+    const trackingNumber = trackingNumberInput.trim();
+
+    if (trackingNumber.length < 3) {
+      setTrackingError("Unesite validan broj pošiljke.");
+      return;
+    }
+
+    setTrackingError(null);
+    setIsTrackingSubmitting(true);
+    setBusyOrderId(order._id);
+
+    try {
+      await setOrderStatus({
+        orderId: order._id,
+        status: "processed",
+        trackingNumber,
+      });
+
+      let feedbackType: "success" | "error" = "success";
+      let feedbackMessage = `Narudžbina ${order.orderNumber} je prebačena u obradu. Broj pošiljke je sačuvan i email je poslat kupcu.`;
+      const recipientEmail = order.customer.email?.trim();
+
+      if (!recipientEmail) {
+        feedbackType = "error";
+        feedbackMessage = `Narudžbina ${order.orderNumber} je prebačena u obradu i broj pošiljke je sačuvan, ali email nije poslat jer kupac nema email adresu.`;
+      } else {
+        const emailResult = await sendOrderTrackingEmail({
+          orderNumber: order.orderNumber,
+          trackingNumber,
+          recipientEmail,
+          recipientName: getCustomerFullName(order) || "kupče",
+        });
+
+        if (!emailResult.ok) {
+          feedbackType = "error";
+          feedbackMessage = `Narudžbina ${order.orderNumber} je prebačena u obradu i broj pošiljke je sačuvan, ali email nije poslat. ${emailResult.error}`;
+        }
+      }
+
+      resetTrackingModal();
+      setFeedback({ type: feedbackType, message: feedbackMessage });
+    } catch (error: unknown) {
+      const message = error instanceof Error && error.message ? error.message : "Čuvanje broja pošiljke nije uspelo.";
+      setTrackingError(message);
+    } finally {
+      setIsTrackingSubmitting(false);
       setBusyOrderId((current) => (current === order._id ? null : current));
     }
   };
@@ -585,7 +716,7 @@ export default function AdminOrdersLedgerPage() {
               <tbody>
                 {pagedOrders.map((order) => {
                   const isExpanded = expandedRows.has(order._id);
-                  const fullName = `${order.customer.firstName} ${order.customer.lastName}`.trim();
+                  const fullName = getCustomerFullName(order);
                   const isBusy = busyOrderId === order._id;
 
                   return (
@@ -668,6 +799,17 @@ export default function AdminOrdersLedgerPage() {
                         </td>
                         <td className={styles.actionsCell}>
                           <div className={styles.rowActions}>
+                            {order.trackingNumber?.trim() ? (
+                              <button
+                                type="button"
+                                className={`ghost-btn ${styles.copyButton}`}
+                                onClick={() => void copyTrackingNumber(order)}
+                                disabled={isBusy}
+                                aria-label={`Kopiraj broj pošiljke za narudžbinu ${order.orderNumber}`}
+                              >
+                                Kopiraj pošiljku
+                              </button>
+                            ) : null}
                             <button
                               type="button"
                               className={`ghost-btn ${styles.detailButton} ${isExpanded ? styles.detailButtonActive : ""}`}
@@ -764,6 +906,48 @@ export default function AdminOrdersLedgerPage() {
           </div>
         </section>
       )}
+
+      {trackingTarget ? (
+        <Modal onClose={closeTrackingModal}>
+          <form className={`modal-form ${styles.trackingModalForm}`} onSubmit={onSubmitTrackingNumber}>
+            <div className={styles.trackingMeta}>
+              <p className="eyebrow">Obavezan unos</p>
+              <h3>Unesite broj pošiljke za narudžbinu {trackingTarget.orderNumber}</h3>
+              <p className={styles.trackingHint}>
+                Kada narudžbina prelazi iz statusa novo u status u obradi, broj pošiljke mora biti sačuvan i poslat kupcu na email.
+              </p>
+            </div>
+
+            <div className={styles.trackingTargetCard}>
+              <strong>{getCustomerFullName(trackingTarget)}</strong>
+              {trackingTarget.customer.email ? <span>{trackingTarget.customer.email}</span> : <span>Email nije dostupan.</span>}
+            </div>
+
+            <label className={styles.trackingField}>
+              <span>Broj pošiljke</span>
+              <input
+                autoFocus
+                value={trackingNumberInput}
+                onChange={(event) => setTrackingNumberInput(event.target.value)}
+                placeholder="Unesite broj pošiljke"
+                disabled={isTrackingSubmitting}
+                required
+              />
+            </label>
+
+            {trackingError ? <p className={styles.trackingError}>{trackingError}</p> : null}
+
+            <div className="modal-actions">
+              <button type="button" className="ghost-btn" onClick={closeTrackingModal} disabled={isTrackingSubmitting}>
+                Odustani
+              </button>
+              <button type="submit" className="primary-btn" disabled={isTrackingSubmitting}>
+                {isTrackingSubmitting ? "Čuvanje..." : "Sačuvaj i pošalji email"}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      ) : null}
 
       {deleteTarget ? (
         <Modal onClose={closeDeleteModal}>
