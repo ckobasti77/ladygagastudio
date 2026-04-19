@@ -124,8 +124,7 @@ export function RecommendedProductsRail() {
                   <Image
                     src={product.image || "/logo.png"}
                     alt={product.title}
-                    width={560}
-                    height={560}
+                    fill
                     sizes="(max-width: 640px) 44vw, (max-width: 980px) 30vw, (max-width: 1280px) 18vw, 220px"
                     className={styles.cardImage}
                     loading="lazy"
