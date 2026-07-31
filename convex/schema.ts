@@ -1,0 +1,120 @@
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  users: defineTable({
+    firstName: v.string(),
+    lastName: v.string(),
+    email: v.string(),
+    passwordHash: v.string(),
+    isAdmin: v.boolean(),
+    resetTokenHash: v.optional(v.string()),
+    resetTokenExpiresAt: v.optional(v.number()),
+    createdAt: v.number(),
+  }).index("by_email", ["email"]),
+
+  categories: defineTable({
+    name: v.string(),
+    featuredOnHome: v.optional(v.boolean()),
+  }).index("by_name", ["name"]),
+
+  products: defineTable({
+    title: v.string(),
+    subtitle: v.string(),
+    /** Skraćeni naziv za svrhu uplate na IPS QR kodu (max 14 karaktera). */
+    shortName: v.optional(v.string()),
+    description: v.string(),
+    price: v.number(),
+    stock: v.number(),
+    discount: v.number(),
+    recommended: v.optional(v.boolean()),
+    categoryId: v.optional(v.id("categories")),
+    categoryIds: v.optional(v.array(v.id("categories"))),
+    images: v.array(v.string()),
+    storageImageIds: v.optional(v.array(v.id("_storage"))),
+    primaryImageStorageId: v.optional(v.id("_storage")),
+    primaryImageUrl: v.optional(v.string()),
+  }).index("by_category", ["categoryId"]),
+
+  orders: defineTable({
+    productId: v.optional(v.id("products")),
+    orderNumber: v.optional(v.string()),
+    items: v.optional(
+      v.array(
+        v.object({
+          productId: v.id("products"),
+          title: v.string(),
+          quantity: v.number(),
+          unitPrice: v.number(),
+          discount: v.number(),
+          /** Cena posle popusta samog proizvoda, pre bonusa od 15%. */
+          finalUnitPrice: v.number(),
+          lineTotal: v.number(),
+          bonusApplied: v.optional(v.boolean()),
+          /** Cena posle bonusa — ono što kupac stvarno plaća po komadu. */
+          payableUnitPrice: v.optional(v.number()),
+        }),
+      ),
+    ),
+    customer: v.object({
+      firstName: v.string(),
+      lastName: v.string(),
+      email: v.optional(v.string()),
+      street: v.string(),
+      number: v.string(),
+      postalCode: v.string(),
+      city: v.string(),
+      phone: v.string(),
+      note: v.optional(v.string()),
+    }),
+    totals: v.optional(
+      v.object({
+        totalItems: v.number(),
+        /** Iznos za plaćanje (posle bonusa). */
+        totalAmount: v.number(),
+        /** Zbir pre bonusa. */
+        goodsTotal: v.optional(v.number()),
+        bonusSavings: v.optional(v.number()),
+      }),
+    ),
+    freeShipping: v.optional(v.boolean()),
+    paymentMethod: v.optional(v.union(v.literal("cod"), v.literal("ips"))),
+    paymentStatus: v.optional(
+      v.union(v.literal("not_required"), v.literal("awaiting"), v.literal("confirmed")),
+    ),
+    paymentConfirmedAt: v.optional(v.number()),
+    /** Svrha uplate upisana u IPS QR kod (max 35 karaktera). */
+    paymentPurpose: v.optional(v.string()),
+    /** Poziv na broj iz IPS QR koda — po njemu admin upoznaje uplatu na izvodu. */
+    paymentReference: v.optional(v.string()),
+    trackingNumber: v.optional(v.string()),
+    status: v.optional(v.union(v.literal("pending"), v.literal("processed"), v.literal("completed"))),
+    createdAt: v.number(),
+  }).index("by_created_at", ["createdAt"]),
+
+  inquiries: defineTable({
+    name: v.string(),
+    email: v.string(),
+    message: v.string(),
+    status: v.optional(v.union(v.literal("new"), v.literal("in_progress"), v.literal("resolved"))),
+    handledAt: v.optional(v.number()),
+    createdAt: v.number(),
+  }).index("by_created_at", ["createdAt"]),
+
+  galleryImages: defineTable({
+    storageId: v.id("_storage"),
+    originalName: v.string(),
+    contentType: v.optional(v.string()),
+    size: v.optional(v.number()),
+    featured: v.optional(v.boolean()),
+    createdAt: v.number(),
+  }).index("by_created_at", ["createdAt"]),
+
+  marketingSubscribers: defineTable({
+    email: v.string(),
+    firstName: v.string(),
+    lastName: v.string(),
+    source: v.union(v.literal("registration"), v.literal("checkout")),
+    createdAt: v.number(),
+  }).index("by_email", ["email"]),
+});

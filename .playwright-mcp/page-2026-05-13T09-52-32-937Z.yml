@@ -1,0 +1,127 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation "Glavna navigacija" [ref=e4]:
+        - link "Studio Lady Gaga Studio Lady Gaga Kosa + lepota" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img "Studio Lady Gaga" [ref=e7]
+          - generic [ref=e8]:
+            - generic [ref=e9]: Studio Lady Gaga
+            - generic [ref=e10]: Kosa + lepota
+        - generic [ref=e11]:
+          - list [ref=e12]:
+            - listitem [ref=e13]:
+              - link "Početna" [ref=e14] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e15]:
+              - link "O nama" [ref=e16] [cursor=pointer]:
+                - /url: /o-nama
+            - listitem [ref=e17]:
+              - link "Proizvodi" [ref=e18] [cursor=pointer]:
+                - /url: /proizvodi
+            - listitem [ref=e19]:
+              - link "Kontakt" [ref=e20] [cursor=pointer]:
+                - /url: /kontakt
+          - generic [ref=e21]:
+            - link "Prijava" [ref=e22] [cursor=pointer]:
+              - /url: /prijava
+            - link "Korpa" [ref=e23] [cursor=pointer]:
+              - /url: /korpa
+              - img [ref=e24]
+            - button "Prebaci na tamnu temu" [ref=e28] [cursor=pointer]:
+              - img [ref=e29]
+    - main [ref=e31]:
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - paragraph [ref=e34]:
+            - img [ref=e35]
+            - generic [ref=e38]: Kolekcija proizvoda
+          - heading "Naša ponuda" [level=1] [ref=e39]
+          - paragraph [ref=e40]: Pažljivo odabrani proizvodi za profesionalnu negu i održavanje kose kod kuće.
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - img [ref=e43]
+            - textbox "Pretraga proizvoda" [ref=e46]:
+              - /placeholder: Pretraga po nazivu, opisu ili podnaslovu...
+          - generic [ref=e47]:
+            - img [ref=e48]
+            - combobox "Sortiranje proizvoda" [ref=e49] [cursor=pointer]:
+              - option "Preporučeno" [selected]
+              - 'option "Cena: niža ka višoj"'
+              - 'option "Cena: viša ka nižoj"'
+              - option "Najveće stanje"
+          - link "Korpa (0)" [ref=e50] [cursor=pointer]:
+            - /url: /korpa
+            - img [ref=e51]
+            - generic [ref=e54]: Korpa (0)
+        - button "Sve 0" [ref=e56] [cursor=pointer]:
+          - generic [ref=e57]: Sve
+          - generic [ref=e58]: "0"
+        - paragraph [ref=e61]: Učitavanje kolekcije...
+    - contentinfo [ref=e62]:
+      - generic: LADY GAGA
+      - generic [ref=e63]:
+        - region "Vrhunski završni efekat za kosu koja izgleda negovano i upečatljivo." [ref=e64]:
+          - paragraph [ref=e65]: Studio Lady Gaga
+          - heading "Vrhunski završni efekat za kosu koja izgleda negovano i upečatljivo." [level=2] [ref=e66]
+          - paragraph [ref=e67]: Specijalizovani tretmani za oštećenu i blajhanu kosu, zahtevne koloracije, keratin i glam frizure uz plan nege koji čuva rezultat i posle izlaska iz salona.
+          - generic "Najtraženije usluge" [ref=e68]:
+            - generic [ref=e69]: Blonde rescue protokoli
+            - generic [ref=e70]: Luksuzne koloracije
+            - generic [ref=e71]: Keratin smooth finish
+            - generic [ref=e72]: Personalizovan plan nege
+          - link "Zakaži termin" [ref=e74] [cursor=pointer]:
+            - /url: /kontakt
+        - generic [ref=e75]:
+          - region "Brza navigacija" [ref=e76]:
+            - heading "Brza navigacija" [level=3] [ref=e77]
+            - navigation "Footer navigacija" [ref=e78]:
+              - link "Početna" [ref=e79] [cursor=pointer]:
+                - /url: /
+              - link "O nama" [ref=e80] [cursor=pointer]:
+                - /url: /o-nama
+              - link "Proizvodi" [ref=e81] [cursor=pointer]:
+                - /url: /proizvodi
+              - link "Kontakt" [ref=e82] [cursor=pointer]:
+                - /url: /kontakt
+              - link "Pravni centar" [ref=e83] [cursor=pointer]:
+                - /url: /pravno
+          - region "Kontakt i poseta" [ref=e84]:
+            - heading "Kontakt i poseta" [level=3] [ref=e85]
+            - list [ref=e86]:
+              - listitem [ref=e87]:
+                - link "+381643877555" [ref=e88] [cursor=pointer]:
+                  - /url: tel:+381643877555
+              - listitem [ref=e89]:
+                - link "hello@ladygagastudio.rs" [ref=e90] [cursor=pointer]:
+                  - /url: mailto:hello@ladygagastudio.rs
+              - listitem [ref=e91]:
+                - link "Trg đačkog bataljona bb, Šabac" [ref=e92] [cursor=pointer]:
+                  - /url: https://maps.google.com/?q=Trg%20%C4%91a%C4%8Dkog%20bataljona%2C%20%C5%A0abac
+            - paragraph [ref=e93]: "Pon–Sub: 09:00–20:00"
+            - paragraph [ref=e94]: "Nedelja: po dogovoru"
+          - region "Naš pristup" [ref=e95]:
+            - heading "Naš pristup" [level=3] [ref=e96]
+            - generic [ref=e97]:
+              - paragraph [ref=e98]: Brz odgovor na upite i rezervacije
+              - paragraph [ref=e100]: Konsultacije pre svakog tretmana
+              - paragraph [ref=e102]: Jasna preporuka za kućnu negu
+        - generic [ref=e104]:
+          - generic [ref=e105]:
+            - generic [ref=e106]: Pravni centar
+            - generic [ref=e107]: Privatnost, uslovi i upravljanje izborom kolačića
+          - navigation "Pravne strane" [ref=e108]:
+            - link "Pravila korišćenja" [ref=e109] [cursor=pointer]:
+              - /url: /pravila-koriscenja
+            - link "Politika privatnosti" [ref=e110] [cursor=pointer]:
+              - /url: /politika-privatnosti
+            - link "Politika kolačića" [ref=e111] [cursor=pointer]:
+              - /url: /politika-kolacica
+            - button "Podešavanja kolačića" [ref=e112] [cursor=pointer]
+          - paragraph [ref=e113]: Korišćenjem sajta prihvatate pravila korišćenja i politiku privatnosti. Podešavanja kolačića možete menjati u bilo kom trenutku.
+          - generic [ref=e114]:
+            - paragraph [ref=e115]: © 2026 Studio Lady Gaga. Sva prava zadržana.
+            - link "Otvori pravni centar" [ref=e116] [cursor=pointer]:
+              - /url: /pravno
+  - button "Open Next.js Dev Tools" [ref=e122] [cursor=pointer]:
+    - img [ref=e123]

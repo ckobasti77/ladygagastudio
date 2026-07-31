@@ -1,0 +1,1088 @@
+/* ═══════════════════════════════════════════════════════
+   ORDERS LEDGER — Clean & Classy Admin Table
+   ═══════════════════════════════════════════════════════ */
+
+.ordersPage {
+  position: relative;
+  isolation: isolate;
+  gap: 1.1rem;
+}
+
+.ordersPage::before {
+  content: "";
+  position: absolute;
+  inset: -40px -30px auto -30px;
+  height: 420px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 46%),
+    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--accent-strong) 24%, transparent), transparent 44%);
+  filter: blur(2px);
+}
+
+/* ── Hero ── */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  background:
+    radial-gradient(circle at 8% -20%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 56%),
+    radial-gradient(circle at 96% 120%, color-mix(in srgb, var(--accent-strong) 16%, transparent), transparent 52%),
+    linear-gradient(130deg, color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--surface-soft) 84%, transparent));
+  box-shadow:
+    0 28px 44px -34px rgba(2, 8, 22, 0.55),
+    inset 0 1px 0 color-mix(in srgb, #fff 18%, transparent);
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.hero::before {
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    color-mix(in srgb, var(--accent) 8%, transparent),
+    transparent 60%
+  );
+}
+
+.hero::after {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  right: -130px;
+  top: -120px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 70%);
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.heroActionBtn {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+}
+
+/* ── KPI Grid ── */
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.kpiCard {
+  position: relative;
+  overflow: hidden;
+  padding: 0.95rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  background:
+    radial-gradient(circle at 94% -12%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 52%),
+    linear-gradient(145deg, color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--surface-soft) 84%, transparent));
+  box-shadow: 0 12px 24px -16px rgba(2, 8, 21, 0.4);
+}
+
+.kpiCard span {
+  display: block;
+  font-size: 0.77rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.45rem;
+}
+
+.kpiCard strong {
+  display: block;
+  font-size: clamp(1rem, 1.5vw, 1.24rem);
+  line-height: 1.2;
+  color: var(--text);
+}
+
+/* ── Filter Panel ── */
+
+.filterPanel {
+  display: grid;
+  gap: 0.9rem;
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border));
+}
+
+.filterPanel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 8% 8%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 38%),
+    radial-gradient(circle at 90% 84%, color-mix(in srgb, var(--accent-strong) 6%, transparent), transparent 34%);
+}
+
+.filterPanel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.filterHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filterHead h2 {
+  margin: 0;
+}
+
+.filterHead p {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+}
+
+.filterMeta {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.filterMeta span {
+  padding: 0.32rem 0.62rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  font-size: 0.78rem;
+}
+
+/* ── Quick Status Chips ── */
+
+.quickStatusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.quickStatusChip {
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.84rem;
+  padding: 0.42rem 0.86rem;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.quickStatusChip:hover {
+  transform: translateY(-1px);
+}
+
+.activeChip {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--border));
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--accent) 14%, var(--surface)),
+    color-mix(in srgb, var(--accent-strong) 12%, var(--surface))
+  );
+}
+
+.pendingChip {
+  border-color: color-mix(in srgb, #6dbfff 34%, var(--border));
+}
+
+.processedChip {
+  border-color: color-mix(in srgb, #f7ba55 34%, var(--border));
+}
+
+.completedChip {
+  border-color: color-mix(in srgb, #46cf91 34%, var(--border));
+}
+
+/* ── Plaćanje (IPS / pouzeće) ── */
+
+.awaitingPaymentChip {
+  border-color: color-mix(in srgb, #e0483a 55%, var(--border));
+  color: #c2372a;
+  font-weight: 700;
+}
+
+.awaitingPaymentRow td {
+  background: color-mix(in srgb, #e0483a 6%, transparent);
+}
+
+.awaitingPaymentRow td:first-child {
+  box-shadow: inset 3px 0 0 0 #e0483a;
+}
+
+.paymentBadge {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.28rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.paymentBadgeAwaiting {
+  background: #c2372a;
+  color: #fff;
+  animation: awaitingPaymentPulse 2s ease-in-out infinite;
+}
+
+.paymentBadgeConfirmed {
+  background: color-mix(in srgb, #2f9e6a 18%, transparent);
+  border: 1px solid color-mix(in srgb, #2f9e6a 55%, transparent);
+  color: #1f7d52;
+}
+
+.paymentBadgeCod {
+  background: color-mix(in srgb, var(--border) 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  color: var(--muted);
+}
+
+.paymentBadgeShipping {
+  background: color-mix(in srgb, #2f9e6a 12%, transparent);
+  border: 1px solid color-mix(in srgb, #2f9e6a 42%, transparent);
+  color: #1f7d52;
+}
+
+@keyframes awaitingPaymentPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, #c2372a 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, #c2372a 0%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paymentBadgeAwaiting {
+    animation: none;
+  }
+}
+
+.confirmPaymentButton {
+  flex-basis: 100%;
+  font-size: 0.8rem;
+  padding: 0.42rem 0.8rem;
+}
+
+.awaitingPaymentHint {
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: #c2372a;
+}
+
+.detailCardAlert {
+  border-color: color-mix(in srgb, #e0483a 52%, var(--border));
+  background: color-mix(in srgb, #e0483a 7%, var(--surface));
+}
+
+.bonusTag {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  color: var(--accent-strong);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  vertical-align: middle;
+}
+
+.detailTotals {
+  margin-top: 0.7rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  display: grid;
+  gap: 0.28rem;
+}
+
+.detailTotals p {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+.detailTotalsFinal {
+  padding-top: 0.35rem;
+  border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  font-size: 0.95rem !important;
+  font-weight: 700;
+}
+
+/* ── Filter Grid ── */
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.66rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.32rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.field span {
+  color: color-mix(in srgb, var(--text) 74%, var(--muted));
+  font-weight: 600;
+}
+
+.field input,
+.field select,
+.rowsPerPage select {
+  width: 100%;
+  padding: 0.6rem 0.72rem;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.field input:focus,
+.field select:focus,
+.rowsPerPage select:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.filterFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.noteCheck {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.noteCheck input {
+  accent-color: var(--accent-strong);
+  width: 16px;
+  height: 16px;
+}
+
+.rowsPerPage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.rowsPerPage select {
+  width: auto;
+  min-width: 88px;
+}
+
+/* ── Table Panel ── */
+
+.tablePanel {
+  display: grid;
+  gap: 0.8rem;
+  border-color: color-mix(in srgb, var(--accent) 20%, var(--border));
+}
+
+.tableInfo p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.tableWrap {
+  overflow: auto;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+}
+
+/* ── Desktop Table ── */
+
+.ordersTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ordersTable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  text-align: left;
+  padding: 0.72rem 0.9rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-soft) 95%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  white-space: nowrap;
+}
+
+.orderRow td {
+  vertical-align: top;
+  padding: 0.72rem 0.9rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  font-size: 0.9rem;
+}
+
+.orderRow:last-child td {
+  border-bottom: none;
+}
+
+.orderRow:hover {
+  background: color-mix(in srgb, var(--accent) 3%, var(--surface));
+}
+
+/* ── Cell Layouts ── */
+
+.orderCellMain,
+.customerCell,
+.addressCell,
+.itemsCell,
+.amountCell,
+.statusCell {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.orderCellMain strong {
+  color: var(--text);
+  font-size: 0.88rem;
+}
+
+.orderCellMain span,
+.customerCell span,
+.addressCell span,
+.itemsCell span,
+.amountCell span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.customerCell strong {
+  font-size: 0.88rem;
+}
+
+.customerCell a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+
+.customerCell a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.amountCell strong {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+/* ── Item Thumbnails ── */
+
+.itemThumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.itemThumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  flex-shrink: 0;
+}
+
+.itemThumbPlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  background: color-mix(in srgb, var(--surface-soft) 80%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.itemThumbMore {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px dashed color-mix(in srgb, var(--border) 60%, transparent);
+  background: color-mix(in srgb, var(--surface-soft) 60%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* ── Detail Item Thumbnails ── */
+
+.detailItemThumb {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  flex-shrink: 0;
+}
+
+.detailItemThumbPlaceholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  background: color-mix(in srgb, var(--surface-soft) 80%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.detailItemTotal {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ── Status Pill ── */
+
+.statusPill {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.24rem 0.62rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.statusPending {
+  color: #3b8fd9;
+  background: color-mix(in srgb, #66bfff 12%, transparent);
+  border-color: color-mix(in srgb, #66bfff 30%, transparent);
+}
+
+.statusProcessed {
+  color: #b8841e;
+  background: color-mix(in srgb, #f4be63 12%, transparent);
+  border-color: color-mix(in srgb, #f4be63 30%, transparent);
+}
+
+.statusCompleted {
+  color: #2d9a6d;
+  background: color-mix(in srgb, #56ce9a 12%, transparent);
+  border-color: color-mix(in srgb, #56ce9a 30%, transparent);
+}
+
+.statusCell select {
+  min-width: 120px;
+  padding: 0.4rem 0.48rem;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.84rem;
+}
+
+.statusCell select:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* ── Detail Button ── */
+
+.detailButton {
+  border-color: color-mix(in srgb, var(--border) 70%, transparent);
+  min-width: 88px;
+  font-size: 0.84rem;
+}
+
+.actionsCell {
+  width: 220px;
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rowActions button {
+  flex: 1 1 calc(50% - 0.25rem);
+}
+
+.copyButton {
+  flex-basis: 100%;
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.detailButtonActive {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.deleteButton {
+  border-color: color-mix(in srgb, #ff6f66 48%, var(--border));
+}
+
+/* ── Detail Expansion ── */
+
+.detailRow td {
+  padding: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 0.76rem;
+  padding: 0.9rem;
+  background: color-mix(in srgb, var(--surface-soft) 60%, transparent);
+}
+
+.detailCard {
+  padding: 0.82rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+}
+
+.detailCard h4 {
+  margin: 0 0 0.55rem;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.detailCard p {
+  margin: 0.32rem 0;
+  color: color-mix(in srgb, var(--text) 84%, var(--muted));
+  font-size: 0.9rem;
+}
+
+.noteBadge {
+  margin-top: 0.5rem !important;
+  padding: 0.44rem 0.58rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 28%, transparent);
+  font-size: 0.86rem;
+}
+
+.itemList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.44rem;
+}
+
+.itemList li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  border-radius: 10px;
+  padding: 0.52rem 0.58rem;
+  background: color-mix(in srgb, var(--surface) 50%, transparent);
+}
+
+.itemList li div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.itemList li span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.itemList li strong {
+  font-size: 0.88rem;
+}
+
+/* ── Tracking Modal ── */
+
+.trackingModalForm {
+  min-width: min(100%, 460px);
+}
+
+.trackingMeta {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.trackingMeta h3 {
+  margin: 0;
+}
+
+.trackingHint {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.trackingTargetCard {
+  display: grid;
+  gap: 0.28rem;
+  padding: 0.82rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 12%, transparent), transparent 48%),
+    color-mix(in srgb, var(--surface-soft) 72%, transparent);
+}
+
+.trackingTargetCard strong {
+  font-size: 0.94rem;
+  color: var(--text);
+}
+
+.trackingTargetCard span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  word-break: break-word;
+}
+
+.trackingField {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.trackingField span {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--text) 78%, var(--muted));
+}
+
+.trackingError {
+  margin: 0;
+  color: #cc493e;
+  font-size: 0.88rem;
+}
+
+/* ── Pagination ── */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.58rem;
+  flex-wrap: wrap;
+}
+
+.pagination span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* ── Empty State ── */
+
+.emptyState {
+  text-align: center;
+  padding: 2.2rem 1rem;
+}
+
+.emptyState h3 {
+  margin: 0;
+}
+
+.emptyState p {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+}
+
+/* ── Mobile Card Label (hidden on desktop) ── */
+
+.mobileLabel {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — Tablet
+   ═══════════════════════════════════════════════════════ */
+
+@media (max-width: 1200px) {
+  .kpiGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .filterGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — Small Tablet / Large Phone
+   Table → Card Transformation
+   ═══════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filterGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Transform table into card layout */
+  .tableWrap {
+    border: none;
+    background: none;
+    overflow: visible;
+  }
+
+  .ordersTable,
+  .ordersTable thead,
+  .ordersTable tbody,
+  .ordersTable tr,
+  .ordersTable td {
+    display: block;
+  }
+
+  .ordersTable thead {
+    display: none;
+  }
+
+  .ordersTable tbody {
+    display: grid;
+    gap: 0.72rem;
+  }
+
+  /* Each row becomes a card */
+  .orderRow {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-radius: 16px;
+    border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    overflow: hidden;
+  }
+
+  .orderRow:hover {
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+  }
+
+  .orderRow td {
+    padding: 0.62rem 0.8rem;
+    border-bottom: none;
+    border-right: none;
+  }
+
+  /* Card cell borders for visual separation */
+  .orderRow td:nth-child(-n+6) {
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  }
+
+  .orderRow td:nth-child(odd):not(:nth-child(7)) {
+    border-right: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  }
+
+  /* Order number + customer side by side (top row) */
+  .orderRow td:nth-child(1) {
+    grid-column: 1;
+  }
+
+  .orderRow td:nth-child(2) {
+    grid-column: 2;
+  }
+
+  /* Address + items */
+  .orderRow td:nth-child(3) {
+    grid-column: 1;
+  }
+
+  .orderRow td:nth-child(4) {
+    grid-column: 2;
+  }
+
+  /* Amount + status */
+  .orderRow td:nth-child(5) {
+    grid-column: 1;
+  }
+
+  .orderRow td:nth-child(6) {
+    grid-column: 2;
+  }
+
+  /* Action button full width at bottom */
+  .orderRow td:nth-child(7) {
+    grid-column: 1 / -1;
+    padding: 0.55rem 0.8rem;
+    display: flex;
+    justify-content: center;
+    background: color-mix(in srgb, var(--surface-soft) 50%, transparent);
+  }
+
+  .orderRow td:nth-child(7) .rowActions {
+    width: 100%;
+  }
+
+  .orderRow td:nth-child(7) .rowActions button {
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Show mobile labels */
+  .mobileLabel {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.28rem;
+  }
+
+  /* Detail row spans full width */
+  .detailRow {
+    display: block !important;
+  }
+
+  .detailRow td {
+    border-radius: 0 0 16px 16px;
+    overflow: hidden;
+    margin-top: -0.72rem;
+    border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    border-top: none;
+  }
+
+  .statusCell select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .detailButton {
+    min-width: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — Phone
+   ═══════════════════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .kpiGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .filterMeta {
+    width: 100%;
+  }
+
+  .filterFooter {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pagination {
+    justify-content: center;
+  }
+
+  /* Stack card cells vertically on small phones */
+  .orderRow {
+    grid-template-columns: 1fr !important;
+  }
+
+  .orderRow td:nth-child(odd):not(:nth-child(7)) {
+    border-right: none;
+  }
+
+  .orderRow td {
+    grid-column: 1 !important;
+  }
+
+  .orderRow td:nth-child(7) {
+    grid-column: 1 !important;
+  }
+
+  .rowActions button {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .quickStatusRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

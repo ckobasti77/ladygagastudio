@@ -1,0 +1,17 @@
+[  582745ms] [LOG] WebSocket closed with code 1006 @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[  582757ms] [LOG] Attempting reconnect in 1095ms @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[ 1297268ms] [ERROR] WebSocket connection to 'wss://glad-ostrich-853.convex.cloud/api/1.32.0/sync' failed: Error in connection establishment: net::ERR_INTERNET_DISCONNECTED @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:1
+[ 1297269ms] [LOG] WebSocket closed with code 1006 @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[ 1297270ms] [LOG] Attempting reconnect in 1343ms @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[ 1298620ms] [ERROR] WebSocket connection to 'wss://glad-ostrich-853.convex.cloud/api/1.32.0/sync' failed: Error in connection establishment: net::ERR_INTERNET_DISCONNECTED @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:1
+[ 1298621ms] [LOG] WebSocket closed with code 1006 @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[ 1298621ms] [LOG] Attempting reconnect in 2748ms @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[10961588ms] [ERROR] WebSocket connection to 'wss://glad-ostrich-853.convex.cloud/api/1.32.0/sync' failed: Error in connection establishment: net::ERR_INTERNET_DISCONNECTED @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:1
+[10961588ms] [LOG] WebSocket closed with code 1006 @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[10961588ms] [LOG] Attempting reconnect in 7616ms @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[10964779ms] [LOG] Network recovery detected, reconnecting immediately @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[10964783ms] [ERROR] WebSocket connection to 'wss://glad-ostrich-853.convex.cloud/api/1.32.0/sync' failed: Error in connection establishment: net::ERR_NAME_NOT_RESOLVED @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:1
+[10964783ms] [LOG] WebSocket closed with code 1006 @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[10964783ms] [LOG] Attempting reconnect in 13051ms @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[10978290ms] [LOG] WebSocket reconnected at t=10978.3s after disconnect due to closed with code 1006 @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
+[10978291ms] [LOG] Network recovery reconnect saved ~4s of waiting @ https://ladygagastudio.rs/_next/static/chunks/0uy1m_xl4kbt0.js:0
