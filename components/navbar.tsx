@@ -149,16 +149,18 @@ export function Navbar() {
       {pendingOrdersCount > 0 ? <span className="nav-count-badge cart-nav-badge">{pendingOrdersCount}</span> : null}
     </Link>
   ) : (
-    <div className="cart-nav-shell">
-      <Link
-        href="/korpa"
-        className={`cart-nav-link ${pathname === "/korpa" ? "active" : ""}`}
-        onClick={() => setOpenForPath(null)}
-        aria-label={t.nav.cart}
-        title={t.nav.cart}
-      >
-        <ShoppingCart aria-hidden />
-        {itemCount > 0 ? (
+    // Prsten i popover žive UNUTAR linka: `.cart-nav-link` je već `position: relative`,
+    // a svaki omotač oko linka razbija mobilna pravila koja ciljaju baš `.cart-nav-link`.
+    <Link
+      href="/korpa"
+      className={`cart-nav-link ${pathname === "/korpa" ? "active" : ""}`}
+      onClick={() => setOpenForPath(null)}
+      aria-label={t.nav.cart}
+      title={t.nav.cart}
+    >
+      <ShoppingCart aria-hidden />
+      {itemCount > 0 ? (
+        <>
           <svg className="cart-nav-ring" viewBox="0 0 44 44" aria-hidden focusable="false">
             <circle className="cart-nav-ring-track" cx="22" cy="22" r="20" />
             <circle
@@ -169,17 +171,14 @@ export function Navbar() {
               style={{ strokeDashoffset: RING_CIRCUMFERENCE * (1 - rewardProgress) }}
             />
           </svg>
-        ) : null}
-        {itemCount > 0 ? <span className="nav-count-badge cart-nav-badge">{itemCount}</span> : null}
-      </Link>
-
-      {itemCount > 0 ? (
-        <div className="cart-nav-popover" role="note">
-          <p className="cart-nav-popover-title">Vaše pogodnosti</p>
-          <CartRewardMeter rewards={rewards} variant="compact" />
-        </div>
+          <span className="nav-count-badge cart-nav-badge">{itemCount}</span>
+          <div className="cart-nav-popover" role="note">
+            <p className="cart-nav-popover-title">Vaše pogodnosti</p>
+            <CartRewardMeter rewards={rewards} variant="compact" />
+          </div>
+        </>
       ) : null}
-    </div>
+    </Link>
   );
 
   return (

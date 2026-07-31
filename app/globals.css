@@ -17342,21 +17342,22 @@ body.ux-enhanced .app-shell::before {
 
 /* ---- Navbar prsten + popover ---- */
 
-.cart-nav-shell {
-  position: relative;
-  display: inline-flex;
-}
-
-.cart-nav-ring {
+/*
+ * `.cart-nav-link svg` postavlja fiksnu veličinu i `position: relative` na SVE
+ * ikonice u linku. Prsten mora da nadjača to pravilo (2 klase > 1 klasa + tip),
+ * inače upada u `inline-grid` tok i deformiše ikonicu korpe.
+ */
+.cart-nav-link .cart-nav-ring {
   position: absolute;
-  inset: -3px;
-  width: calc(100% + 6px);
-  height: calc(100% + 6px);
+  inset: -4px;
+  width: auto;
+  height: auto;
+  z-index: 0;
   pointer-events: none;
   transform: rotate(-90deg);
 }
 
-.cart-nav-ring circle {
+.cart-nav-link .cart-nav-ring circle {
   fill: none;
   stroke-width: 2;
   stroke-linecap: round;
@@ -17380,8 +17381,11 @@ body.ux-enhanced .app-shell::before {
   position: absolute;
   top: calc(100% + 0.65rem);
   right: 0;
+  display: block;
   width: 17.5rem;
   padding: 0.85rem 0.95rem;
+  text-align: left;
+  cursor: default;
   border-radius: 18px;
   border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
   background: color-mix(in srgb, var(--surface) 97%, transparent);
@@ -17395,6 +17399,7 @@ body.ux-enhanced .app-shell::before {
 }
 
 .cart-nav-popover-title {
+  display: block;
   margin: 0 0 0.55rem;
   font-size: 0.63rem;
   font-weight: 800;
@@ -17404,12 +17409,19 @@ body.ux-enhanced .app-shell::before {
 }
 
 @media (hover: hover) {
-  .cart-nav-shell:hover .cart-nav-popover,
-  .cart-nav-shell:focus-within .cart-nav-popover {
+  .cart-nav-link:hover .cart-nav-popover,
+  .cart-nav-link:focus-visible .cart-nav-popover {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
   }
+}
+
+/* U mobilnom meniju link postaje široka pravougaona stavka — prsten bi se
+   razvukao u elipsu, a popover nema gde da stane. */
+.nav-right .cart-nav-ring,
+.nav-right .cart-nav-popover {
+  display: none;
 }
 
 /* ---- Rezime korpe ---- */
@@ -17452,8 +17464,25 @@ body.ux-enhanced .app-shell::before {
   border-color: color-mix(in srgb, var(--accent) 46%, var(--border));
 }
 
+/* Grid stavka podrazumevano ne sme da se skupi ispod svog sadržaja — bez ovoga
+   dugačak naziv proizvoda razvuče karticu preko kolone. */
+.cart-item-card,
+.cart-item-main,
+.checkout-summary-item {
+  min-width: 0;
+}
+
+.cart-item-main h3,
+.cart-item-main p,
+.checkout-summary-item h3 {
+  overflow-wrap: anywhere;
+}
+
+/* Slika (i bonus bedž) ne smeju nikad da izađu iz svog zaobljenog okvira. */
 .cart-item-media {
   position: relative;
+  overflow: hidden;
+  border-radius: 10px;
 }
 
 .cart-item-bonus-badge {

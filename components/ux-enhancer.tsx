@@ -23,8 +23,9 @@ const PART_SELECTOR = [
   ".gallery-stat-card",
   ".gallery-media-section",
   ".orbit-metric",
-  ".cart-item-card",
-  ".checkout-summary-item",
+  // .cart-item-card i .checkout-summary-item su namerno izostavljeni: pojedinačni
+  // reveal ih pomera vodoravno, pa se susedne kartice u mreži preklapaju dok
+  // animacija traje. Ulaze zajedno sa svojim panelom.
   ".metric-card",
   ".toolbar-card",
   ".legal-overview-card",
