@@ -18082,46 +18082,51 @@ body.ux-enhanced .app-shell::before {
   }
 }
 
-.reveal-shot.is-forced .reveal-tag-after {
+.reveal-shot.is-forced .reveal-tag-after,
+.reveal-shot.is-demo .reveal-tag-after {
   opacity: 1;
   transform: translateY(0);
 }
 
+/* Uputstvo mora da se vidi iz prve — ostaje na slici dok korisnik sam nešto ne uradi. */
 .reveal-hint {
   position: absolute;
   top: 0.7rem;
   left: 50%;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.34rem 0.7rem;
+  gap: 0.42rem;
+  padding: 0.46rem 0.86rem;
   border-radius: 999px;
-  background: color-mix(in srgb, #0b0f16 58%, transparent);
-  backdrop-filter: blur(8px);
+  background: linear-gradient(140deg, #cb7652, #b56442);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #fff 26%, transparent),
+    0 14px 26px -14px rgba(8, 5, 3, 0.9);
   color: #fff;
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   white-space: nowrap;
   transform: translateX(-50%);
   pointer-events: none;
-  animation: revealHintFloat 2.8s ease-in-out infinite;
+  animation: revealHintFloat 2.4s ease-in-out infinite;
 }
 
 .reveal-hint svg {
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
 }
 
 @keyframes revealHintFloat {
   0%,
   100% {
-    transform: translateX(-50%) translateY(0);
-    opacity: 0.92;
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
   }
   50% {
-    transform: translateX(-50%) translateY(3px);
-    opacity: 0.68;
+    transform: translateX(-50%) translateY(3px) scale(1.035);
+    opacity: 0.88;
   }
 }
 

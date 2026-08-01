@@ -46,12 +46,15 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
     y: (value: number) => void;
   } | null>(null);
   const radiusTweenRef = useRef<gsap.core.Tween | null>(null);
+  const demoRef = useRef<gsap.core.Timeline | null>(null);
+  const demoDoneRef = useRef(false);
   const isOpenRef = useRef(false);
 
   const isTouch = useIsTouchPointer();
   const reduced = usePrefersReducedMotion();
   const [hasInteracted, setHasInteracted] = useState(false);
   const [forcedOpen, setForcedOpen] = useState(false);
+  const [isDemoing, setIsDemoing] = useState(false);
 
   // quickTo drži reflektor da meko "kasni" za kursorom — to je ono što daje skup osećaj.
   useEffect(() => {
@@ -145,7 +148,78 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
     });
   }, [forcedOpen, reduced]);
 
+  /** Čim korisnik sam nešto uradi, demo se gasi i više se ne ponavlja. */
+  const killDemo = useCallback(() => {
+    demoDoneRef.current = true;
+    demoRef.current?.kill();
+    demoRef.current = null;
+    setIsDemoing(false);
+  }, []);
+
+  /**
+   * Ključno za nekog ko ne zna šta da radi: kartica sama jednom odigra ono što se
+   * očekuje od korisnika — na desktopu reflektor prelete preko slike, na telefonu
+   * se cela "posle" slika pokaže pa vrati. Posle toga hint ostaje dok se ne dodirne.
+   */
+  const playDemo = useCallback(() => {
+    const after = afterRef.current;
+    const shot = shotRef.current;
+    if (!after || demoDoneRef.current || reduced) return;
+    demoDoneRef.current = true;
+
+    radiusTweenRef.current?.kill();
+    const full = (shot ? Math.hypot(shot.offsetWidth, shot.offsetHeight) : 1400) * 2;
+
+    // Kartice kreću jedna za drugom da sekcija deluje kao jedan potez, ne kao tri odvojena treptaja.
+    const tl = gsap.timeline({
+      delay: 0.4 + index * 0.55,
+      // "Posle" oznaka prati demo da korisnik poveže svetlo sa onim što gleda.
+      onStart: () => setIsDemoing(true),
+      onComplete: () => {
+        demoRef.current = null;
+        isOpenRef.current = false;
+        setIsDemoing(false);
+      },
+    });
+    demoRef.current = tl;
+
+    if (isTouch) {
+      gsap.set(after, { "--rx": "50%", "--ry": "50%", "--rr": "0px" });
+      tl.to(after, { "--rr": `${full}px`, duration: 0.9, ease: "power3.out" }).to(
+        after,
+        { "--rr": "0px", duration: 0.75, ease: "power2.inOut" },
+        "+=1.15",
+      );
+      return;
+    }
+
+    gsap.set(after, { "--rx": "30%", "--ry": "40%", "--rr": "0px" });
+    tl.to(after, { "--rr": `${MAX_RADIUS}px`, duration: 0.6, ease: "power3.out" })
+      .to(after, { "--rx": "72%", "--ry": "60%", duration: 1.45, ease: "sine.inOut" }, "<0.2")
+      .to(after, { "--rr": "0px", duration: 0.55, ease: "power2.inOut" }, "-=0.15");
+  }, [index, isTouch, reduced]);
+
+  useEffect(() => {
+    const shot = shotRef.current;
+    if (!shot || reduced) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        playDemo();
+      },
+      { threshold: 0.5 },
+    );
+
+    observer.observe(shot);
+    return () => observer.disconnect();
+  }, [playDemo, reduced]);
+
+  useEffect(() => () => killDemo(), [killDemo]);
+
   const onPointerEnter = (event: React.PointerEvent<HTMLDivElement>) => {
+    killDemo();
     if (isTouch || reduced || forcedOpen) return;
     // Bez skoka: reflektor se prvo pozicionira, pa se tek onda otvara.
     moveTo(event.clientX, event.clientY, true);
@@ -165,6 +239,7 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
 
   // Na dodir nema reflektora: jedan tap otkriva celu "posle" sliku, sledeći vraća "pre".
   const onPointerDown = () => {
+    killDemo();
     if (!isTouch) return;
     setHasInteracted(true);
     setForcedOpen((value) => !value);
@@ -176,7 +251,9 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
     <figure className="reveal-figure" style={{ "--reveal-i": index } as React.CSSProperties}>
       <div
         ref={shotRef}
-        className={`reveal-shot ${isRevealed ? "is-forced" : ""} ${reduced ? "is-reduced" : ""}`}
+        className={`reveal-shot ${isRevealed ? "is-forced" : ""} ${isDemoing ? "is-demo" : ""} ${
+          reduced ? "is-reduced" : ""
+        }`}
         onPointerEnter={onPointerEnter}
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
@@ -209,10 +286,10 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
         <span className="reveal-tag reveal-tag-before">Pre</span>
         <span className="reveal-tag reveal-tag-after">Posle</span>
 
-        {!hasInteracted && !reduced ? (
+        {!hasInteracted ? (
           <span className="reveal-hint" aria-hidden>
             {isTouch ? <Pointer /> : <MousePointer2 />}
-            <span>{isTouch ? "Dodirnite za rezultat" : "Pređite mišem preko fotografije"}</span>
+            <span>{isTouch ? "Dodirnite da vidite posle" : "Pređite mišem da vidite posle"}</span>
           </span>
         ) : null}
       </div>
@@ -226,7 +303,11 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
           type="button"
           className="reveal-toggle"
           aria-pressed={isRevealed}
-          onClick={() => setForcedOpen((value) => !value)}
+          onClick={() => {
+            killDemo();
+            setHasInteracted(true);
+            setForcedOpen((value) => !value);
+          }}
         >
           <Eye aria-hidden />
           {isRevealed ? "Prikaži pre" : "Prikaži posle"}
@@ -247,8 +328,8 @@ export function RevealShowcase() {
           </p>
           <h2>Ista osoba. Otkrijte razliku pokretom.</h2>
           <p className="reveal-showcase-lead">
-            Svaka fotografija krije rezultat tretmana. Prevucite mišem — ili dodirnite ekran — i otkrijte ga tačno tamo
-            gde gledate.
+            Na svakoj fotografiji je ista osoba pre i posle tretmana. Pređite mišem preko slike — a na telefonu je samo
+            dodirnite — da vidite rezultat.
           </p>
         </div>
       </div>

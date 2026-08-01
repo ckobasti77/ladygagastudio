@@ -46,3 +46,6 @@ next-env.d.ts
 /agents.md
 /AGENTS.md
 /CLAUDE.md
+
+.vercel
+.env*
