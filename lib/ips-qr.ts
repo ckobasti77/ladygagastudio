@@ -10,12 +10,17 @@ import { buildPaymentPurpose, buildPaymentReference, toAscii } from "@/lib/ips-p
  */
 
 export const IPS_MAX_PAYLOAD_BYTES = 331;
-const DEFAULT_PAYMENT_CODE = "221";
-const RECIPIENT_NAME_MAX_LENGTH = 70;
+const DEFAULT_PAYMENT_CODE = "289";
+/** Tag N po IPS standardu prima najviše 70 karaktera za sva tri reda zajedno. */
+const RECIPIENT_BLOCK_MAX_LENGTH = 70;
 
 export type IpsConfig = {
   account: string;
   recipientName: string;
+  recipientAddress: string;
+  recipientCity: string;
+  /** Naziv, adresa i grad spojeni prelomom reda — tačno ono što ide u tag N. */
+  recipientBlock: string;
   paymentCode: string;
 };
 
@@ -24,6 +29,8 @@ export type IpsPaymentDetails = {
   account: string;
   formattedAccount: string;
   recipientName: string;
+  recipientAddress: string;
+  recipientCity: string;
   amount: number;
   formattedAmount: string;
   purpose: string;
@@ -43,12 +50,46 @@ export function formatAccount(account: string) {
   return `${account.slice(0, 3)}-${account.slice(3, 16)}-${account.slice(16)}`;
 }
 
+/**
+ * Tag C:1 znači UTF-8, pa dijakritici u imenu primaoca smeju da ostanu — ime mora
+ * da odgovara zapisu u banci. Uklanjaju se samo znaci koji bi razbili sam format:
+ * uspravna crta (razdvaja tagove) i prelom reda (razdvaja redove unutar taga N).
+ */
+function sanitizeRecipientPart(value: string | undefined, max: number) {
+  return (value ?? "")
+    .replace(/[|\r\n]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, max);
+}
+
+/**
+ * Naziv primaoca sme da ima do tri reda (naziv, adresa, grad). Ako sve ne stane
+ * u 70 karaktera, prvo otpada adresa, pa grad — naziv se nikad ne skraćuje.
+ */
+function buildRecipientBlock(name: string, address: string, city: string) {
+  const candidates = [
+    [name, address, city],
+    [name, city],
+    [name],
+  ];
+
+  for (const parts of candidates) {
+    const block = parts.filter((part) => part.length > 0).join("\n");
+    if (block.length > 0 && block.length <= RECIPIENT_BLOCK_MAX_LENGTH) {
+      return block;
+    }
+  }
+
+  return name.slice(0, RECIPIENT_BLOCK_MAX_LENGTH);
+}
+
 export function readIpsConfig(): IpsConfig | null {
   const account = normalizeAccount(process.env.IPS_RECIPIENT_ACCOUNT);
-  const recipientName = toAscii(process.env.IPS_RECIPIENT_NAME ?? "").slice(
-    0,
-    RECIPIENT_NAME_MAX_LENGTH,
-  );
+  const recipientName = sanitizeRecipientPart(process.env.IPS_RECIPIENT_NAME, RECIPIENT_BLOCK_MAX_LENGTH);
+  const recipientAddress = sanitizeRecipientPart(process.env.IPS_RECIPIENT_ADDRESS, RECIPIENT_BLOCK_MAX_LENGTH);
+  const recipientCity = sanitizeRecipientPart(process.env.IPS_RECIPIENT_CITY, RECIPIENT_BLOCK_MAX_LENGTH);
+
   if (!account || recipientName.length === 0) {
     return null;
   }
@@ -56,7 +97,14 @@ export function readIpsConfig(): IpsConfig | null {
   const rawCode = (process.env.IPS_PAYMENT_CODE ?? DEFAULT_PAYMENT_CODE).replace(/\D/g, "");
   const paymentCode = rawCode.length === 3 ? rawCode : DEFAULT_PAYMENT_CODE;
 
-  return { account, recipientName, paymentCode };
+  return {
+    account,
+    recipientName,
+    recipientAddress,
+    recipientCity,
+    recipientBlock: buildRecipientBlock(recipientName, recipientAddress, recipientCity),
+    paymentCode,
+  };
 }
 
 export function isIpsConfigured() {
@@ -82,7 +130,7 @@ export function buildIpsPayload(options: {
     "V:01",
     "C:1",
     `R:${config.account}`,
-    `N:${config.recipientName}`,
+    `N:${config.recipientBlock}`,
     `I:RSD${formatIpsAmount(amount)}`,
     `SF:${config.paymentCode}`,
     `S:${purpose}`,
@@ -121,6 +169,8 @@ export function buildIpsPaymentDetails(options: {
     account: config.account,
     formattedAccount: formatAccount(config.account),
     recipientName: config.recipientName,
+    recipientAddress: config.recipientAddress,
+    recipientCity: config.recipientCity,
     amount,
     formattedAmount: `${amount.toLocaleString("sr-Latn-RS")} RSD`,
     purpose,

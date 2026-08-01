@@ -476,6 +476,8 @@ export type IpsQrResult =
       svg: string;
       pngDataUrl: string;
       recipientName: string;
+      recipientAddress: string;
+      recipientCity: string;
       account: string;
       amount: number;
       formattedAmount: string;
@@ -527,6 +529,8 @@ export async function buildIpsQrForOrder(input: {
       svg,
       pngDataUrl,
       recipientName: details.recipientName,
+      recipientAddress: details.recipientAddress,
+      recipientCity: details.recipientCity,
       account: details.formattedAccount,
       amount: details.amount,
       formattedAmount: details.formattedAmount,

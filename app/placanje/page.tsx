@@ -441,26 +441,33 @@ export default function CheckoutPage() {
                   {(
                     [
                       { key: "recipient", label: "Primalac", value: ips.recipientName },
+                      {
+                        key: "recipientPlace",
+                        label: "Adresa primaoca",
+                        value: [ips.recipientAddress, ips.recipientCity].filter(Boolean).join(", "),
+                      },
                       { key: "account", label: "Račun primaoca", value: ips.account },
                       { key: "amount", label: "Iznos", value: ips.formattedAmount },
                       { key: "code", label: "Šifra plaćanja", value: ips.paymentCode },
                       { key: "purpose", label: "Svrha uplate", value: ips.purpose },
                       { key: "reference", label: "Poziv na broj (model 00)", value: ips.reference },
                     ] as const
-                  ).map((row) => (
-                    <div key={row.key} className="ips-details-row">
-                      <span>{row.label}</span>
-                      <strong>{row.value}</strong>
-                      <button
-                        type="button"
-                        className="ips-copy-btn"
-                        onClick={() => copyToClipboard(row.key, row.value)}
-                        aria-label={`Kopiraj: ${row.label}`}
-                      >
-                        {copiedField === row.key ? <BadgeCheck aria-hidden /> : <Copy aria-hidden />}
-                      </button>
-                    </div>
-                  ))}
+                  )
+                    .filter((row) => row.value.length > 0)
+                    .map((row) => (
+                      <div key={row.key} className="ips-details-row">
+                        <span>{row.label}</span>
+                        <strong>{row.value}</strong>
+                        <button
+                          type="button"
+                          className="ips-copy-btn"
+                          onClick={() => copyToClipboard(row.key, row.value)}
+                          aria-label={`Kopiraj: ${row.label}`}
+                        >
+                          {copiedField === row.key ? <BadgeCheck aria-hidden /> : <Copy aria-hidden />}
+                        </button>
+                      </div>
+                    ))}
                 </div>
               </div>
 
