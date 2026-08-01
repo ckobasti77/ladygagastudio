@@ -35,17 +35,15 @@ const REVEAL_PAIRS: RevealPair[] = [
   },
 ];
 
-const MAX_RADIUS = 240;
+/** Reflektor je sada meki gradient — poluprečnik je veći jer je samo ~36% pun. */
+const MAX_RADIUS = 320;
 
 function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
   const shotRef = useRef<HTMLDivElement | null>(null);
   const afterRef = useRef<HTMLDivElement | null>(null);
-  const lensRef = useRef<HTMLSpanElement | null>(null);
   const quickRef = useRef<{
     x: (value: number) => void;
     y: (value: number) => void;
-    lensX: (value: number) => void;
-    lensY: (value: number) => void;
   } | null>(null);
   const radiusTweenRef = useRef<gsap.core.Tween | null>(null);
   const isOpenRef = useRef(false);
@@ -58,17 +56,13 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
   // quickTo drži reflektor da meko "kasni" za kursorom — to je ono što daje skup osećaj.
   useEffect(() => {
     const after = afterRef.current;
-    const lens = lensRef.current;
-    if (!after || !lens || reduced) return;
+    if (!after || reduced) return;
 
-    gsap.set([after, lens], { "--rx": "50%", "--ry": "50%" });
-    gsap.set(after, { "--rr": "0px" });
+    gsap.set(after, { "--rx": "50%", "--ry": "50%", "--rr": "0px" });
 
     quickRef.current = {
       x: gsap.quickTo(after, "--rx", { duration: 0.34, ease: "power3" }),
       y: gsap.quickTo(after, "--ry", { duration: 0.34, ease: "power3" }),
-      lensX: gsap.quickTo(lens, "--rx", { duration: 0.28, ease: "power3" }),
-      lensY: gsap.quickTo(lens, "--ry", { duration: 0.28, ease: "power3" }),
     };
 
     return () => {
@@ -94,7 +88,7 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
       if (!point) return;
 
       if (instant) {
-        gsap.set([afterRef.current, lensRef.current].filter(Boolean), {
+        gsap.set(afterRef.current, {
           "--rx": `${point.x}%`,
           "--ry": `${point.y}%`,
         });
@@ -105,35 +99,54 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
       if (!quick) return;
       quick.x(point.x);
       quick.y(point.y);
-      quick.lensX(point.x);
-      quick.lensY(point.y);
     },
     [toPercent],
   );
 
   const setOpen = useCallback((open: boolean) => {
     const after = afterRef.current;
-    const lens = lensRef.current;
-    if (!after || !lens) return;
+    if (!after) return;
 
     isOpenRef.current = open;
     radiusTweenRef.current?.kill();
     radiusTweenRef.current = gsap.to(after, {
       "--rr": open ? `${MAX_RADIUS}px` : "0px",
-      duration: open ? 0.58 : 0.42,
-      ease: open ? "back.out(1.5)" : "power2.inOut",
-    });
-
-    gsap.to(lens, {
-      autoAlpha: open ? 1 : 0,
-      scale: open ? 1 : 0.55,
-      duration: open ? 0.5 : 0.32,
-      ease: open ? "back.out(1.7)" : "power2.in",
+      duration: open ? 0.5 : 0.42,
+      ease: open ? "power3.out" : "power2.inOut",
     });
   }, []);
 
+  /**
+   * "Forced" stanje = cela slika. Koristi ga dugme (tastatura/čitači) i dodir na telefonu,
+   * gde klik naizmenično prebacuje posle → pre → posle.
+   */
+  useEffect(() => {
+    const after = afterRef.current;
+    const shot = shotRef.current;
+    if (!after) return;
+
+    isOpenRef.current = forcedOpen;
+    radiusTweenRef.current?.kill();
+
+    // Radijus veći od dijagonale znači da je puna "posle" slika bez ijedne meke ivice.
+    const full = (shot ? Math.hypot(shot.offsetWidth, shot.offsetHeight) : 1400) * 2;
+
+    if (reduced) {
+      gsap.set(after, { "--rx": "50%", "--ry": "50%", "--rr": forcedOpen ? `${full}px` : "0px" });
+      return;
+    }
+
+    if (forcedOpen) gsap.set(after, { "--rx": "50%", "--ry": "50%" });
+
+    radiusTweenRef.current = gsap.to(after, {
+      "--rr": forcedOpen ? `${full}px` : "0px",
+      duration: forcedOpen ? 0.72 : 0.5,
+      ease: forcedOpen ? "power3.out" : "power2.inOut",
+    });
+  }, [forcedOpen, reduced]);
+
   const onPointerEnter = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (isTouch || reduced) return;
+    if (isTouch || reduced || forcedOpen) return;
     // Bez skoka: reflektor se prvo pozicionira, pa se tek onda otvara.
     moveTo(event.clientX, event.clientY, true);
     setHasInteracted(true);
@@ -141,25 +154,20 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (reduced) return;
-    if (isTouch && !isOpenRef.current) return;
+    if (isTouch || reduced || forcedOpen) return;
     moveTo(event.clientX, event.clientY);
   };
 
   const onPointerLeave = () => {
-    if (isTouch || reduced) return;
+    if (isTouch || reduced || forcedOpen) return;
     setOpen(false);
   };
 
-  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!isTouch || reduced) return;
+  // Na dodir nema reflektora: jedan tap otkriva celu "posle" sliku, sledeći vraća "pre".
+  const onPointerDown = () => {
+    if (!isTouch) return;
     setHasInteracted(true);
-    if (isOpenRef.current) {
-      setOpen(false);
-      return;
-    }
-    moveTo(event.clientX, event.clientY, true);
-    setOpen(true);
+    setForcedOpen((value) => !value);
   };
 
   const isRevealed = forcedOpen;
@@ -198,15 +206,13 @@ function RevealShot({ pair, index }: { pair: RevealPair; index: number }) {
           />
         </div>
 
-        <span ref={lensRef} className="reveal-lens" aria-hidden />
-
         <span className="reveal-tag reveal-tag-before">Pre</span>
         <span className="reveal-tag reveal-tag-after">Posle</span>
 
         {!hasInteracted && !reduced ? (
           <span className="reveal-hint" aria-hidden>
             {isTouch ? <Pointer /> : <MousePointer2 />}
-            <span>{isTouch ? "Dodirnite fotografiju" : "Pređite mišem preko fotografije"}</span>
+            <span>{isTouch ? "Dodirnite za rezultat" : "Pređite mišem preko fotografije"}</span>
           </span>
         ) : null}
       </div>

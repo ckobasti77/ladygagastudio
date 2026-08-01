@@ -17988,6 +17988,12 @@ body.ux-enhanced .app-shell::before {
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.35s cubic-bezier(0.22, 0.68, 0, 1);
 }
 
+@media (hover: none) {
+  .reveal-shot {
+    cursor: pointer;
+  }
+}
+
 @media (hover: hover) {
   .reveal-shot:hover {
     transform: translateY(-3px);
@@ -18011,18 +18017,25 @@ body.ux-enhanced .app-shell::before {
   --rr: 0px;
   position: absolute;
   inset: 0;
+  /* Meki radial fade — nema oštre ivice, pa se ne vidi obris kruga. */
   -webkit-mask-image: radial-gradient(
     circle var(--rr) at var(--rx) var(--ry),
     #000 0%,
-    #000 58%,
-    rgba(0, 0, 0, 0.45) 80%,
+    #000 36%,
+    rgba(0, 0, 0, 0.86) 52%,
+    rgba(0, 0, 0, 0.58) 68%,
+    rgba(0, 0, 0, 0.26) 82%,
+    rgba(0, 0, 0, 0.08) 92%,
     transparent 100%
   );
   mask-image: radial-gradient(
     circle var(--rr) at var(--rx) var(--ry),
     #000 0%,
-    #000 58%,
-    rgba(0, 0, 0, 0.45) 80%,
+    #000 36%,
+    rgba(0, 0, 0, 0.86) 52%,
+    rgba(0, 0, 0, 0.58) 68%,
+    rgba(0, 0, 0, 0.26) 82%,
+    rgba(0, 0, 0, 0.08) 92%,
     transparent 100%
   );
 }
@@ -18031,25 +18044,6 @@ body.ux-enhanced .app-shell::before {
 .reveal-layer-after {
   transform: scale(1.045);
   filter: saturate(1.06) contrast(1.02);
-}
-
-.reveal-lens {
-  --rx: 50%;
-  --ry: 50%;
-  position: absolute;
-  top: var(--ry);
-  left: var(--rx);
-  width: 232px;
-  height: 232px;
-  margin: -116px 0 0 -116px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--accent) 65%, transparent);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, #fff 22%, transparent),
-    0 0 60px -10px color-mix(in srgb, var(--accent) 90%, transparent);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
 }
 
 .reveal-tag {
@@ -18129,17 +18123,6 @@ body.ux-enhanced .app-shell::before {
     transform: translateX(-50%) translateY(3px);
     opacity: 0.68;
   }
-}
-
-/* Dugme i "forced" stanje su puna zamena za miš — tastatura i čitači ekrana. */
-.reveal-shot.is-forced .reveal-after {
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-
-.reveal-shot.is-forced .reveal-lens {
-  opacity: 0 !important;
-  visibility: hidden !important;
 }
 
 .reveal-caption {
@@ -18265,11 +18248,6 @@ body.ux-enhanced .app-shell::before {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .reveal-lens {
-    width: 168px;
-    height: 168px;
-    margin: -84px 0 0 -84px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -18283,10 +18261,6 @@ body.ux-enhanced .app-shell::before {
 
   .reveal-hint {
     animation: none;
-  }
-
-  .reveal-lens {
-    display: none;
   }
 }
 
