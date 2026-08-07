@@ -27,9 +27,11 @@ export function CartRewardHint({ showWhenEmpty = false, className = "" }: Props)
 
   if (itemCount === 0) {
     return (
-      <div className={`reward-hint ${className}`.trim()}>
-        <Gift className="reward-hint-glyph" aria-hidden />
-        <p>
+      <div className={`reward-hint reward-hint-promo ${className}`.trim()}>
+        <span className="reward-hint-glyph-badge">
+          <Gift className="reward-hint-glyph" aria-hidden />
+        </span>
+        <p className="text-center!">
           Preko <strong>{formatRewardAmount(BONUS_THRESHOLD)}</strong> svaki sledeći proizvod je −{BONUS_PERCENT}%, a
           preko <strong>{formatRewardAmount(FREE_SHIPPING_THRESHOLD)}</strong> dostava je besplatna.
         </p>

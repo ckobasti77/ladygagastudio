@@ -17337,7 +17337,102 @@ body.ux-enhanced .app-shell::before {
 }
 
 .boutique-reward-hint {
-  margin-bottom: 1rem;
+  margin-top: -0.5rem;
+}
+
+/* ---- Promo traka (istaknuta ponuda za popust/besplatnu dostavu) ---- */
+
+.reward-hint-promo {
+  position: relative;
+  overflow: hidden;
+  justify-content: center;
+  padding: 0.95rem 1.4rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  box-shadow: 0 10px 28px -10px rgba(202, 77, 42, 0.55), 0 2px 6px rgba(0, 0, 0, 0.06);
+  animation: reward-hint-promo-pulse 3.4s ease-in-out infinite;
+}
+
+.reward-hint-promo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 25%, rgba(255, 255, 255, 0.3) 40%, transparent 55%);
+  transform: translateX(-120%);
+  animation: reward-hint-promo-shine 4.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.reward-hint-promo p {
+  flex: 0 1 auto;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.reward-hint-promo p strong {
+  color: #fff;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.55);
+  text-underline-offset: 3px;
+}
+
+.reward-hint-glyph-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.reward-hint-promo .reward-hint-glyph {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #fff;
+}
+
+@keyframes reward-hint-promo-pulse {
+  0%,
+  100% {
+    box-shadow: 0 10px 28px -10px rgba(202, 77, 42, 0.55), 0 0 0 0 rgba(229, 111, 74, 0.35);
+  }
+  50% {
+    box-shadow: 0 12px 32px -8px rgba(202, 77, 42, 0.65), 0 0 0 7px rgba(229, 111, 74, 0);
+  }
+}
+
+@keyframes reward-hint-promo-shine {
+  0% {
+    transform: translateX(-120%);
+  }
+  55%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reward-hint-promo,
+  .reward-hint-promo::after {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .reward-hint-promo {
+    border-radius: 20px;
+  }
+
+  .reward-hint-promo p {
+    font-size: 0.82rem;
+    text-align: left;
+  }
 }
 
 /* ---- Navbar prsten + popover ---- */
@@ -17577,6 +17672,15 @@ body.ux-enhanced .app-shell::before {
 :root[data-theme="dark"] .cart-nav-popover {
   border-color: rgba(80, 65, 50, 0.45);
   background: rgba(29, 23, 18, 0.9);
+}
+
+:root[data-theme="dark"] .reward-hint-promo {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+}
+
+:root[data-theme="dark"] .reward-hint-promo .reward-hint-glyph {
+  color: #fff;
 }
 
 :root[data-theme="dark"] .reward-toast-ghost {

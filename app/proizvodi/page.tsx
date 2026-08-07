@@ -734,6 +734,8 @@ export default function ProductsPage() {
         </p>
       </header>
 
+      <CartRewardHint showWhenEmpty className="boutique-reward-hint" />
+
       {/* Search & Filter Glass Bar */}
       <div className="boutique-filter-bar">
         <div className="boutique-search-wrap">
@@ -869,8 +871,6 @@ export default function ProductsPage() {
       {feedback ? (
         <p className={`status-msg ${feedback.type === "error" ? "admin-status-error" : "admin-status-success"}`}>{feedback.message}</p>
       ) : null}
-
-      <CartRewardHint showWhenEmpty className="boutique-reward-hint" />
 
       {/* Product Grid */}
       {rawProducts === undefined || rawCategories === undefined ? (
