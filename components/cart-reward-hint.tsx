@@ -15,11 +15,24 @@ import {
 type Props = {
   /** Kad je korpa prazna prikazuje se opšta ponuda umesto napretka. */
   showWhenEmpty?: boolean;
+  /** Mala značka sa skraćenim tekstom, za postavljanje preko slika/hero sekcija. */
+  compact?: boolean;
   className?: string;
 };
 
-export function CartRewardHint({ showWhenEmpty = false, className = "" }: Props) {
+export function CartRewardHint({ showWhenEmpty = false, compact = false, className = "" }: Props) {
   const { itemCount, rewards } = useCart();
+
+  if (compact) {
+    return (
+      <Link href="/proizvodi" className={`reward-hint-chip ${className}`.trim()}>
+        <Gift className="reward-hint-chip-glyph" aria-hidden />
+        <span>
+          −{BONUS_PERCENT}% i besplatna dostava
+        </span>
+      </Link>
+    );
+  }
 
   if (itemCount === 0 && !showWhenEmpty) return null;
 

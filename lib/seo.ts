@@ -211,7 +211,7 @@ export function buildHairSalonJsonLd() {
     priceRange: "$$",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Trg đačkog bataljona bb",
+      streetAddress: "Trg đačkog bataljona 12",
       addressLocality: "Šabac",
       addressCountry: "RS",
     },

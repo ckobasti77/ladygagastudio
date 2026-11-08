@@ -7854,6 +7854,19 @@ body.ux-enhanced .orbit-reveal {
   filter: saturate(0.95) contrast(1.02);
 }
 
+.xeno-hero-portrait-chip {
+  position: absolute;
+  left: 1.1rem;
+  bottom: 1.1rem;
+  z-index: 5;
+  pointer-events: auto;
+  transition: transform 0.2s ease;
+}
+
+.xeno-hero-portrait-chip:hover {
+  transform: translateY(-2px);
+}
+
 /* Header — centered headline and subtitle */
 .xeno-hero-header {
   position: relative;
@@ -8118,10 +8131,17 @@ body.ux-enhanced .orbit-reveal {
 
 /* Mobile portrait — circular peek, hidden on desktop */
 .xeno-hero-portrait-mobile {
+  position: relative;
   display: none;
   margin: 0 auto 0.6rem;
   width: clamp(120px, 36vw, 170px);
   height: clamp(120px, 36vw, 170px);
+}
+
+.xeno-hero-portrait-mobile-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid rgba(255, 255, 255, 0.6);
@@ -8130,13 +8150,26 @@ body.ux-enhanced .orbit-reveal {
     0 0 0 6px rgba(236, 218, 206, 0.35);
 }
 
-.xeno-hero-portrait-mobile img {
+.xeno-hero-portrait-mobile-frame img {
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
   object-position: center 15%;
   filter: saturate(0.96) contrast(1.02);
+}
+
+.xeno-hero-portrait-mobile-chip {
+  position: absolute;
+  left: 50%;
+  bottom: -0.55rem;
+  z-index: 2;
+  transform: translateX(-50%);
+  transition: transform 0.2s ease;
+}
+
+.xeno-hero-portrait-mobile-chip:hover {
+  transform: translateX(-50%) translateY(-2px);
 }
 
 /* ─── Service cards section ─────────────────────── */
@@ -10034,7 +10067,7 @@ body.ux-enhanced .orbit-reveal {
   filter: saturate(0.85) contrast(1.05) brightness(0.9);
 }
 
-:root[data-theme="dark"] .xeno-hero-portrait-mobile {
+:root[data-theme="dark"] .xeno-hero-portrait-mobile-frame {
   border-color: rgba(80, 65, 50, 0.5);
   box-shadow:
     0 12px 32px -10px rgba(0, 0, 0, 0.5),
@@ -17432,6 +17465,38 @@ body.ux-enhanced .app-shell::before {
   .reward-hint-promo p {
     font-size: 0.82rem;
     text-align: left;
+  }
+}
+
+/* ---- Kompaktna značka (preko hero slike) ---- */
+
+.reward-hint-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  box-shadow: 0 8px 18px -6px rgba(202, 77, 42, 0.55), 0 0 0 3px rgba(255, 255, 255, 0.65);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  animation: reward-hint-promo-pulse 3.4s ease-in-out infinite;
+}
+
+.reward-hint-chip-glyph {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex: 0 0 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reward-hint-chip {
+    animation: none;
   }
 }
 

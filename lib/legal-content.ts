@@ -3,7 +3,7 @@ export const LEGAL_LAST_UPDATED = "17. februar 2026.";
 export const LEGAL_ENTITY = {
   brandName: "Studio Lady Gaga",
   legalName: "Studio Lady Gaga",
-  address: "Trg đačkog bataljona bb, Šabac, Srbija",
+  address: "Trg đačkog bataljona 12, Šabac, Srbija",
   email: "hello@ladygagastudio.rs",
   privacyEmail: "hello@ladygagastudio.rs",
   phone: "+381643877555",

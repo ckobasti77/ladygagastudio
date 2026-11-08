@@ -33,7 +33,7 @@ const contactNodes = [
   },
   {
     title: "Lokacija",
-    value: "Trg đačkog bataljona bb, Šabac",
+    value: "Trg đačkog bataljona 12, Šabac",
     detail: "Parking i gradski prevoz nalaze se u blizini studija.",
     Icon: MapPin,
     stagger: "contact-card-stagger-3",

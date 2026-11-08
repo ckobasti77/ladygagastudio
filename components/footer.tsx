@@ -82,7 +82,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Trg đačkog bataljona bb, Šabac
+                  Trg đačkog bataljona 12, Šabac
                 </a>
               </li>
             </ul>

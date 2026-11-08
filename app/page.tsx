@@ -6,6 +6,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { PremiumTreatmentShowcase } from "@/components/premium-treatment-showcase";
 import { RevealShowcase } from "@/components/reveal-showcase";
+import CartRewardHint from "@/components/cart-reward-hint";
 import { founderStory, qualityPillars, studioGallery } from "@/lib/studio-content";
 import {
   ChevronLeft,
@@ -184,18 +185,22 @@ export default function HomePage() {
             loading="eager"
             className="xeno-hero-portrait-img"
           />
+          <CartRewardHint compact className="xeno-hero-portrait-chip" />
         </div>
 
         <div className="xeno-hero-header">
           <figure className="xeno-hero-portrait-mobile">
-            <Image
-              src="/slike/gaga/gaga.avif"
-              alt="Dragana, osnivač i profesionalni frizer u salonu Studio Lady Gaga Šabac"
-              width={400}
-              height={500}
-              sizes="44vw"
-              loading="eager"
-            />
+            <span className="xeno-hero-portrait-mobile-frame">
+              <Image
+                src="/slike/gaga/gaga.avif"
+                alt="Dragana, osnivač i profesionalni frizer u salonu Studio Lady Gaga Šabac"
+                width={400}
+                height={500}
+                sizes="44vw"
+                loading="eager"
+              />
+            </span>
+            <CartRewardHint compact className="xeno-hero-portrait-mobile-chip" />
           </figure>
 
           <h1 id="home-hero-heading">
